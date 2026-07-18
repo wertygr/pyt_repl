@@ -1,6 +1,3 @@
-# import time
-# // python3.14 /mnt/win/Users/fox97/PyCharmMiscProject/mine/simple_shell.py
-# start_time = time.perf_counter()
 # // ________________________________________________________________________________________________
 
 import builtins
@@ -314,8 +311,6 @@ def command_ast(shell_command_API):
 
 simple_shell_API_command = command_ast("simple_shell_command_API")
 
-sys._getframe()
-
 def completer():
     try:
 
@@ -481,7 +476,7 @@ def pyt(command_prefix, *args) -> None:
     ev_except = ""
     ex_except = ""
     f_name = register_repl_source(command_prefix)
-    def compiler(code: str, mode: str):
+    def byte_code_compile(code: str, mode: str):
         nonlocal ev_except, ex_except
         try:
             return compile(code, f_name, mode)
@@ -492,8 +487,8 @@ def pyt(command_prefix, *args) -> None:
                 ev_except = e
             return False
 
-    byte_code_ev = compiler(command_prefix, "eval")
-    byte_code_ex = compiler(command_prefix, "exec")
+    byte_code_ev = byte_code_compile(command_prefix, "eval")
+    byte_code_ex = byte_code_compile(command_prefix, "exec")
     if byte_code_ev:
         try:
             print(eval(byte_code_ev, repl_mode))
@@ -512,17 +507,14 @@ def pyt(command_prefix, *args) -> None:
 def pyt_eval(command_prefix, *args) ->  None:
     try:
         result_eval = eval(command_prefix, repl_mode)
-        if color_2 == True and (not result_eval in (None, "None")):
-            PFT(result_eval,pt_style ,pyt_lex)
-        elif color_2 == False and (result_eval not in (None, "None")):
-            print(result_eval)
+        PFT(result_eval,pt_style ,pyt_lex)
     except Exception as e:
         post(e, 9.0)
 
 
 def pyt_exec(command_prefix, *args) -> None:
+    f_name = register_repl_source(command_prefix)
     try:
-        f_name = register_repl_source(command_prefix)
         exec(compile(command_prefix, f_name, 'exec'), repl_mode)
     except Exception as e:
         post(e, 10.0)
@@ -594,7 +586,6 @@ history_command = FileHistory(".ss_history")
 # // _________________________________________________________________________________________________________
 
 def dispatcher(command_arg: list) -> None:
-    # print(command_arg)
     if command_arg == []:
         post("empty command list", 22.0)
         return None
@@ -637,7 +628,6 @@ def dispatcher(command_arg: list) -> None:
 frame = sys._getframe()
 
 def pars_command(command) -> None:
-    # print(command)
     if settings.get("shlex", False):
         try:
             command_arg = shlex.split(command, posix=is_posix(settings))
@@ -703,8 +693,6 @@ ss_api = {
 
 def main() -> int:
     try:
-        # end_time = time.perf_counter()
-        # print(end_time - start_time)
         session = PromptSession(
             completer=DynamicCompleter(completer),
             multiline=settings.get("multiline", False),

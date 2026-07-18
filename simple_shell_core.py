@@ -1,6 +1,5 @@
 import inspect
 import types
-import pprint
 import os
 import sys
 import subprocess
@@ -53,10 +52,6 @@ def register_repl_source(source: str) -> str:
     return filename
 
 def PFT(text: str, ss_style=make_ss_style(color_container), lexer = pyt_lex) -> None:
-
-    if isinstance(text, (dict, list, set)):
-        text = pprint.pformat(text, indent=4, width=40, sort_dicts=False)
-
     tokens = list(lexer.get_tokens(str(text)))
     print_formatted_text(
         PygmentsTokens(
@@ -89,14 +84,7 @@ def source_code(args_1, command_arg_int, command_arg, repl_mode, ss_style) -> No
         return
     obj = repl_mode.get(command_arg[1])
 
-    if callable(obj) or inspect.isclass(obj):
-        try:
-            _copy = inspect.getsource(obj)
-            text = _copy
-        except (OSError, TypeError):
-            _copy = getattr(obj, "__doc__", "no docstring")
-            text = f"{YELLOW}[no docstring]{BS}"
-    elif isinstance(obj, types.ModuleType):
+    if callable(obj) or inspect.isclass(obj) or isinstance(obj, types.ModuleType):
         try:
             _copy = inspect.getsource(obj)
             text = _copy
@@ -136,20 +124,6 @@ def command_separators(command_arg) -> list:
     return subarrays
 
 
-def get_index(lst, index, mode = "normal"):
-    if mode == "normal":
-        try:
-            return lst[index]
-        except IndexError:
-            return None
-    else:
-        try:
-            test = lst[index]
-            return True
-        except IndexError:
-            return False
-
-
 def line_num(
         width=0,
         line_number=0,
@@ -169,6 +143,14 @@ def is_int_to_str(string):
     if string[0] in ["+","-"]:
         return string[1:].isdigit()
     return string.lstrip('+-').isdigit()
+
+def alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
+    position =  alias_settings.get("position", None)
+    if position == None:
+        return True
+    if isinstance(position, list) and alias_position in position:
+        return True
+    return False
 
 def alias_paste(value: list[str], result: list, token: str="__NONE_TOKEN__", command_arg: list = [], alias_position: int = 0) -> list:
     if not(isinstance(value, list)):
@@ -198,16 +180,17 @@ def global_alias(alias_dict: dict, command_arg: list) -> list: # V4 working
     result = []
     index = 0
     for item in command_arg:
-        if item in alias_dict:
-            item_dict = alias_dict.get(item, {})
-            # __ __ __ __ __ __ __ __
-            value = item_dict.get("value", "NONE_ALIAS")
-            scope = item_dict.get("scope", "local")
-            # __ __ __ __ __ __ __ __
-            if scope == "global":
-                result = alias_paste(value, result, item, command_arg, index)
-            else:
-                result.append(item)
+        if not(item in alias_dict):
+            result.append(item)
+            continue
+
+        item_dict = alias_dict.get(item, {})
+        # __ __ __ __ __ __ __ __
+        value = item_dict.get("value", "NONE_ALIAS")
+        scope = item_dict.get("scope", "local")
+        # __ __ __ __ __ __ __ __
+        if (scope == "global") and (alias_position_validate(index, alias_dict)):
+            result = alias_paste(value, result, item, command_arg, index)
         else:
             result.append(item)
         index = index + 1
@@ -218,24 +201,24 @@ def local_alias(alias_dict: dict, command_arg: list) -> list:
     result = []
     index = 0
     for item in command_arg:
-        if item in alias_dict:
-            item_dict = alias_dict.get(item, {})
-            # __ __ __ __ __ __ __ __
-            value = item_dict.get("value", "NONE_ALIAS")
-            scope = item_dict.get("scope", "local")
-            position = item_dict.get("position", 0)
-            # __ __ __ __ __ __ __ __
-            if isinstance(position, int):
-                if (len(command_arg) > position) and (item == command_arg[position]):
-                    result = alias_paste(value, result, item, command_arg, index)
-                else:
-                    result.append(item)
-            elif (position == None) and (scope == "local"):
+        if not(item in alias_dict):
+            result.append(item)
+            continue
+        item_dict = alias_dict.get(item, {})
+        # __ __ __ __ __ __ __ __
+        value = item_dict.get("value", "NONE_ALIAS")
+        scope = item_dict.get("scope", "local")
+        position = item_dict.get("position", 0)
+        # __ __ __ __ __ __ __ __
+        if isinstance(position, int):
+            if (len(command_arg) > position) and (item == command_arg[position]):
                 result = alias_paste(value, result, item, command_arg, index)
             else:
-                post()
                 result.append(item)
+        elif (position == None) and (scope == "local"):
+            result = alias_paste(value, result, item, command_arg, index)
         else:
+            post()
             result.append(item)
         index = index + 1
     return result
@@ -269,11 +252,10 @@ def fallback_script_run(file, command_arg) -> None:
     if mode == 1:
         fallback_command = []
         fallback_command.append(" ".join(command_arg))
-        # print(fallback_command)
     else:
         fallback_command = command_arg
 
-    if script_file != None:
+    if script_file:
         try:
             subprocess.run([sys.executable, script_file, *fallback_command])
         except Exception as e:
@@ -283,16 +265,6 @@ def fallback_script_run(file, command_arg) -> None:
 
 def is_posix(settings: dict) -> bool:
     posix_flag = settings.get("posix", False)
-    if not(posix_flag in ["auto", True, False, None]):
-        posix_flag = False
-        post(f"invalid settings(incorrect type - {type(settings.get("posix", False))}): \"posix\": {settings['posix']}", 21.0)
-    if posix_flag in [None, "auto"]: # auto mode
-        if os.name == "nt":
-            return False
-        elif os.name == "posix":
-            return True
-        elif os.name == "darwin":
-            return True
+    if posix_flag:
         return True
-    else:
-        return posix_flag
+    return False
