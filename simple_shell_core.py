@@ -176,7 +176,7 @@ def alias_paste(value: list[str], result: list, token: str="__NONE_TOKEN__", com
     return result
 
 
-def global_alias(alias_dict: dict, command_arg: list) -> list: # V4 working
+def global_alias(alias_dict: dict, command_arg: list) -> list: # V4.5 working
     result = []
     index = 0
     for item in command_arg:
