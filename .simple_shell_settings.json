@@ -67,12 +67,12 @@
                 "_._",
                 "exit"
             ],
-            "position": 0,
+            "position": [0],
             "scope": "local"
         },
         "sys": {
             "value": "_._",
-            "position": 0,
+            "position": [0],
             "scope": "local"
         },
         "sys_rel": {
@@ -80,7 +80,7 @@
                 "_._",
                 "settings_reload"
             ],
-            "position": 0,
+            "position": [0],
             "scope": "local"
         },
         "ll": {
@@ -89,7 +89,7 @@
                 "ls",
                 "-la"
             ],
-            "position": 0,
+            "position": [0],
             "scope": "local"
         },
         "pacman": {
@@ -98,12 +98,12 @@
                 "sudo",
                 "pacman"
             ],
-            "position": 0,
+            "position": [0],
             "scope": "local"
         },
         "clear":{
           "value":["_._", "clear"],
-          "position": 0,
+          "position": [0],
           "scope": "local"
         },
         ";;": {
@@ -112,7 +112,7 @@
         },
         "alias_list": {
             "value": ["_._", "alias_list"],
-            "position": 0,
+            "position": [0],
             "scope": "local"
         },
         "monkey": {
@@ -121,7 +121,8 @@
                 "_&_",
                 "_pyt++_", "paste"
             ],
-            "scope": "global"
+            "scope": "global",
+            "position": null
         },
         "tester": {
             "value": [
@@ -129,7 +130,8 @@
                 "_&_",
                 "_pyt-eval_", "print('test-2')"
             ],
-            "scope": "global"
+            "scope": "global",
+            "position": [0]
         }
     }
 }

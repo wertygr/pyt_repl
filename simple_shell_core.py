@@ -176,7 +176,7 @@ def alias_paste(value: list[str], result: list, token: str="__NONE_TOKEN__", com
     return result
 
 
-def global_alias(alias_dict: dict, command_arg: list) -> list: # V4.5 working
+def global_alias(alias_dict: dict, command_arg: list) -> list: # V5 working
     result = []
     index = 0
     for item in command_arg:
@@ -208,17 +208,10 @@ def local_alias(alias_dict: dict, command_arg: list) -> list:
         # __ __ __ __ __ __ __ __
         value = item_dict.get("value", "NONE_ALIAS")
         scope = item_dict.get("scope", "local")
-        position = item_dict.get("position", 0)
         # __ __ __ __ __ __ __ __
-        if isinstance(position, int):
-            if (len(command_arg) > position) and (item == command_arg[position]):
-                result = alias_paste(value, result, item, command_arg, index)
-            else:
-                result.append(item)
-        elif (position == None) and (scope == "local"):
+        if (scope == "local") and (alias_position_validate(index, alias_dict)):
             result = alias_paste(value, result, item, command_arg, index)
         else:
-            post()
             result.append(item)
         index = index + 1
     return result
