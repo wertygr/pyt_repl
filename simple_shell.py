@@ -6,17 +6,15 @@ import keyword
 import shlex
 from pathlib import Path
 from string import Template
-
-# // _________________________________________________________________________________________________
-
 import ast
 import datetime
 import json
 import os
 import sys
 import subprocess
+import linecache
 
-# // ___________________________________
+# // _________________________________________________________________________________________________
 
 from simple_shell_plug_loader import plugin_ss
 from simple_shell_plug_loader import plugins_list
@@ -32,7 +30,6 @@ from simple_shell_core import fallback_script_run
 from simple_shell_core import alias_parser
 from simple_shell_core import alias_list
 from simple_shell_core import buffer
-from simple_shell_core import register_repl_source
 
 # // ____________________________________
 
@@ -68,6 +65,14 @@ BS = "\033[0m"
 YELLOW = "\033[33m"
 
 # // ____________________________________________________________________________________________________
+
+_repl_cache_id = 0
+def register_repl_source(source: str) -> str:
+    global _repl_cache_id
+    _repl_cache_id += 1
+    filename = f"<simple_shell_repl_{_repl_cache_id}>"
+    linecache.cache[filename] = (len(source), None, source.splitlines(keepends=True), filename)
+    return filename
 
 pyt_lex = PytLexer()
 def settings_load(file: str = f"{script_dir}/.simple_shell_settings.json") -> None:
@@ -174,22 +179,13 @@ settings_load()
 # // ___________________________________________________________________________________________________
 
 def command_dynamics_API():
-    try:
-
-        if 'repl_mode' in globals():
-
-            user_variables = [
-                name for name in repl_mode.keys()
-                if isinstance(name, str) and not name.startswith('_')
-            ]
-
-            return dict.fromkeys(user_variables, None)
-
-        return {}
-    except Exception as e:
-        post(e, -2.0)
-        return {}
-
+    return dict.fromkeys(
+        [
+            name for name in repl_mode.keys()
+            if isinstance(name, str) #and not name.startswith('__')
+        ],
+        None
+    )
 
 simple_base_command = {
     "_#_": None,
@@ -207,7 +203,9 @@ simple_base_command = {
         "run": {
             "{script_dir}": None
         },
-        "help": None
+        "help": None,
+        "list_vf": None,
+        "read_vf": dict.fromkeys(linecache.cache, None),
     },
     "_pyt++_": {
         "old": None
@@ -327,24 +325,8 @@ def completer():
     dynamic_dict = dict(updated_base)
     if isinstance(simple_shell_API_command, dict):
         dynamic_dict.update(simple_shell_API_command)
-    def fix_for_nested_completer(d):
-        if not isinstance(d, dict):
-            return None
 
-        cleaned = {}
-        for k, v in d.items():
-            if v == {}:
-                cleaned[k] = None
-            elif isinstance(v, dict) and len(v) > 0:
-                cleaned[k] = fix_for_nested_completer(v)
-
-            else:
-                cleaned[k] = v
-        return cleaned
-
-    safe_dynamic_dict = fix_for_nested_completer(dynamic_dict)
-
-    return NestedCompleter.from_nested_dict(safe_dynamic_dict)
+    return NestedCompleter.from_nested_dict(dynamic_dict)
 
 def completer_3():
     dynamics = command_dynamics_API()
@@ -372,9 +354,49 @@ def sh (command_prefix, *args) -> None:
         post(e, 5.0)
 
 
-def shell_command(command_prefix, command_arg_int, command_arg, *args) -> None:
+def shell_command(command_prefix, command_arg_int, command_arg, repl_mode, ss_style) -> None:
     if command_arg_int < 2:
+        e = "[shell_command]: not enough arguments"
+        post(e, 7.8)
         return None
+
+    def read_vf():
+        if command_arg_int < 3:
+            e = "[shell_command::read_vf]: not enough arguments"
+            post(e, 7.7)
+            return
+        if not(command_arg[2] in linecache.cache):
+            e = "[shell_command::read_vf]: not virtual file: " + command_arg[2]
+            post(e, 7.6)
+            return
+        text = "".join(linecache.getlines(command_arg[2]))
+
+        flag_map = {
+            "-copy": [lambda: buffer("paste", text), True],
+            "-silent": [lambda: PFT(text, ss_style), False],
+        }
+        for flag, (action, run_if_present) in flag_map.items():
+            is_present = flag in command_arg[1:]
+
+            if is_present == run_if_present:
+                action()
+
+    def del_vf():
+        if command_arg_int < 3:
+            e = "[shell_command::del_vf]: not enough arguments"
+            post(e, 7.9)
+            return
+        for i in command_arg[2:]:
+            if not(i in linecache.cache):
+                e = "[shell_command::del_vf]: not virtual file: " + i
+                post(e, 7.10)
+                continue
+            del linecache.cache[i]
+
+
+    def list_vf():
+        for i in linecache.cache:
+            print(i)
 
     def edit_open_dir() -> None:
 
@@ -435,11 +457,17 @@ def shell_command(command_prefix, command_arg_int, command_arg, *args) -> None:
         "run": SSS,
         "help": help_ss,
         "history_del": lambda: os.remove(f"{script_dir}/.ss_history"),
-        "open": edit_open_dir
+        "open": edit_open_dir,
+        "read_vf": read_vf,
+        "list_vf": list_vf,
+        "del_vf": del_vf,
     }
 
-    if command_map.get(command_arg[1]):
-        command_map[command_arg[1]]()
+    if not(command_map.get(command_arg[1])):
+        e = f"[shell_command]: unknown command: {command_arg[1]}"
+        post(e, 7.11)
+        return None
+    command_map[command_arg[1]]()
 
 
 def pyt(command_prefix, *args) -> None:
@@ -524,8 +552,7 @@ def pyt_pp(arg, command_arg_int: int, command_arg: list, *args) -> None:
             except Exception as e:
                 post(e, 11.3)
         if "save" in command_arg:
-            now = datetime.datetime.now()
-            time_now = str(now.strftime("%H_%M_%S"))
+            time_now = str(datetime.datetime.now().strftime("%H_%M_%S"))
             try:
                 with open(f"{script_dir}/pyt_save/{time_now}.py", "w") as file:
                     file.write(code)
@@ -533,14 +560,11 @@ def pyt_pp(arg, command_arg_int: int, command_arg: list, *args) -> None:
             except Exception as e:
                 post(e, 11.4)
         if not ("not_exec" in command_arg):
+            f_name = register_repl_source(code)
             try:
-                f_name = register_repl_source(code)
-                try:
-                    exec(compile(code, f_name, 'exec'), repl_mode)
-                except Exception as e:
-                    post(e, 11.2)
+                exec(compile(code, f_name, 'exec'), repl_mode)
             except Exception as e:
-                post(e, 11.1)
+                post(e, 11.2)
         if "copy" in command_arg:
             buffer("paste", pyt_plus_old_text)
     except (KeyboardInterrupt , EOFError):
@@ -678,7 +702,6 @@ def main() -> int:
         return 0
     except Exception as e:
         post(e, 19.0)
-        breakpoint()
         return -1
 
 if __name__ == "__main__":

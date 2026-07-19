@@ -3,7 +3,6 @@ import types
 import os
 import sys
 import subprocess
-import linecache
 
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
@@ -41,13 +40,7 @@ def make_ss_style(color_container):
     )
 color_container = {'prefix': '#C77DBB', 'string': '#6AAB73', 'number': '#2AACB8', 'keyword': 'bold #CF8E6D', 'comment': 'italic #7A7E85', 'name': '#BCBEC4', 'operator': '#cccccc', 'punctuation': '#ffffff', 'text': '#cccccc', 'def_name': '#56A8F5', 'error': 'underline #D64D5B', 'action': '#8888C6'}
 
-_repl_cache_id = 0
-def register_repl_source(source: str) -> str:
-    global _repl_cache_id
-    _repl_cache_id += 1
-    filename = f"<simple_shell_repl_{_repl_cache_id}>"
-    linecache.cache[filename] = (len(source), None, source.splitlines(keepends=True), filename)
-    return filename
+
 
 def PFT(text: str, ss_style=make_ss_style(color_container), lexer = pyt_lex) -> None:
     tokens = list(lexer.get_tokens(str(text)))
