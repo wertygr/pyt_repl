@@ -29,8 +29,7 @@ from simple_shell_core import command_separators
 from simple_shell_core import make_ss_style
 from simple_shell_core import is_posix
 from simple_shell_core import fallback_script_run
-from simple_shell_core import local_alias
-from simple_shell_core import global_alias
+from simple_shell_core import alias_parser
 from simple_shell_core import alias_list
 from simple_shell_core import buffer
 from simple_shell_core import register_repl_source
@@ -520,9 +519,9 @@ def pyt_exec(command_prefix, *args) -> None:
         post(e, 10.0)
 def pyt_pp(arg, command_arg_int: int, command_arg: list, *args) -> None:
     global pyt_plus_old_text
-    if "old" in command_arg: # // bag fix
+    if "old" in command_arg:
         if pyt_plus_old_text == "":
-            with open(f"{script_dir}/pyt_save/.pyt_save", "r", encoding="utf-8") as f: # PEP8 encoding="utf-8"
+            with open(f"{script_dir}/pyt_save/.pyt_save", "r", encoding="utf-8") as f:
                 pyt_plus_old_text = f.read()
     else:
         pyt_plus_old_text = ""
@@ -637,26 +636,21 @@ def pars_command(command) -> None:
     else:
         command_arg = command.split()
     command_arg_int = len(command_arg)
-
     if command_arg_int < 1:
         e = "[pars_command]: not enough arguments"
         post(e, 14.0)
         return None
-    # print(1, command_arg)
     if settings.get("alias_globals", False):
-        command_arg = global_alias(settings.get("alias_dict", {}), command_arg)
-        # print(2, command_arg)
+        command_arg = alias_parser(settings.get("alias_dict", {}), command_arg, "global")
     if separator:
         commands = command_separators(command_arg)
-        # print(3, commands)
         for i in commands:
             if settings.get("alias_locals", False):
-                i = local_alias(settings.get("alias_dict", {}), i)
-                # print(4, i)
+                i = alias_parser(settings.get("alias_dict", {}), i, "local")
             dispatcher(i)
     else:
         if settings.get("alias_locals", False):
-            i = local_alias(settings.get("alias_dict", {}), command_arg)
+            i = alias_parser(settings.get("alias_dict", {}), command_arg, "local")
         else:
             i = command_arg
         dispatcher(i)
@@ -686,7 +680,8 @@ ss_api = {
     "command_separators": command_separators,
     "pars_command": pars_command,
     "dispatcher": dispatcher,
-    "buffer": buffer
+    "buffer": buffer,
+    "alias_parser": alias_parser
 }
 
 # // ______________________________________________________________________________________________________
@@ -715,58 +710,5 @@ def main() -> int:
         breakpoint()
         return -1
 
-main() # // C/CPP!!!
-
-# // NO FLAG(in the pars_command)!!!
-
-# // start on terminal or emulated console
-
-# // NEW ENGINE!!!
-
-# // oh, japans god, refactoring
-
-# // PLUGIN!!!
-
-# // ss_api
-
-# // shell_container
-
-# // simple_shell_script(SSS)
-
-# // post - cool function
-
-# // C/CPP like <3
-
-# // alias_parser_V3 - legacy
-
-# // never coding in the mobile "IDE"
-
-# // i hate paper
-
-# // alias_paser_v4
-
-# // SSS update
-
-# // posix bool flag in settings
-
-# // micro optimization settings_load() function
-
-# // KISS, DRY(in work), YAGNI
-
-# // strange dreams, realistic
-
-# // pyt_pp(_pyt++_ in command) bag fix but not exactly, tests are needed
-
-# // pyt_pp(_pyt++_ in command) flag "save" - bag
-
-# // bag fix in pyt_pp
-
-# // bag fix in core
-
-# // buffer
-
-# // source code update
-
-# // alias_parser V5
-
-# // -- ; /* */
+if __name__ == "__main__":
+    main()

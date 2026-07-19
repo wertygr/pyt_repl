@@ -176,12 +176,13 @@ def alias_paste(value: list[str], result: list, token: str="__NONE_TOKEN__", com
     return result
 
 
-def global_alias(alias_dict: dict, command_arg: list) -> list: # V5 working
+def alias_parser(alias_dict: dict, command_arg: list, mode: str) -> list: # V5.1 working
     result = []
     index = 0
     for item in command_arg:
         if not(item in alias_dict):
             result.append(item)
+            index = index + 1
             continue
 
         item_dict = alias_dict.get(item, {})
@@ -189,33 +190,12 @@ def global_alias(alias_dict: dict, command_arg: list) -> list: # V5 working
         value = item_dict.get("value", "NONE_ALIAS")
         scope = item_dict.get("scope", "local")
         # __ __ __ __ __ __ __ __
-        if (scope == "global") and (alias_position_validate(index, alias_dict)):
+        if (scope == mode) and (alias_position_validate(index, alias_dict)):
             result = alias_paste(value, result, item, command_arg, index)
         else:
             result.append(item)
         index = index + 1
     return result
-
-
-def local_alias(alias_dict: dict, command_arg: list) -> list:
-    result = []
-    index = 0
-    for item in command_arg:
-        if not(item in alias_dict):
-            result.append(item)
-            continue
-        item_dict = alias_dict.get(item, {})
-        # __ __ __ __ __ __ __ __
-        value = item_dict.get("value", "NONE_ALIAS")
-        scope = item_dict.get("scope", "local")
-        # __ __ __ __ __ __ __ __
-        if (scope == "local") and (alias_position_validate(index, alias_dict)):
-            result = alias_paste(value, result, item, command_arg, index)
-        else:
-            result.append(item)
-        index = index + 1
-    return result
-
 
 def alias_list(alias_dict: dict) -> None:
     table_data = []
@@ -225,11 +205,7 @@ def alias_list(alias_dict: dict) -> None:
 
         scope = alias_info.get("scope", "local")
         value = alias_info.get("value", "NONE_ALIAS")
-
-        if scope == "local":
-            position = alias_info.get("position", 0)
-        else:
-            position = "---"
+        position = alias_info.get("position", None)
 
         table_data.append([i, scope, position, value])
 
