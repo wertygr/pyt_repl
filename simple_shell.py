@@ -204,10 +204,9 @@ simple_base_command = {
         "history_del": None,
         "settings_reload": None,
         "plugins_list": None,
-        "run_script": {
+        "run": {
             "{script_dir}": None
         },
-        "debug": None,
         "help": None
     },
     "_pyt++_": {
@@ -311,83 +310,57 @@ def command_ast(shell_command_API):
 simple_shell_API_command = command_ast("simple_shell_command_API")
 
 def completer():
-    try:
+    dynamics = command_dynamics_API() or {}
+    if not isinstance(dynamics, dict):
+        dynamics = {}
 
-        dynamics = command_dynamics_API() or {}
-        if not isinstance(dynamics, dict):
-            dynamics = {}
+    updated_base = dict(simple_base_command)
+    updated_base["_pyt-exec_"] = dynamics
+    updated_base["_pyt-eval_"] = dynamics
+    updated_base["_pyt_"]      = dynamics
 
-        updated_base = dict(simple_base_command)
-        updated_base["_pyt-exec_"] = dynamics
-        updated_base["_pyt-eval_"] = dynamics
-        updated_base["_pyt_"]      = dynamics
+    fallback_keys = repl_mode if isinstance(repl_mode, (list, tuple, set)) else []
+    modes_and_dynamics = dict.fromkeys(fallback_keys, None)
+    modes_and_dynamics.update(dynamics)
+    updated_base["_?_"] = modes_and_dynamics
 
-        fallback_keys = repl_mode if isinstance(repl_mode, (list, tuple, set)) else []
-        modes_and_dynamics = dict.fromkeys(fallback_keys, None)
+    dynamic_dict = dict(updated_base)
+    if isinstance(simple_shell_API_command, dict):
+        dynamic_dict.update(simple_shell_API_command)
+    def fix_for_nested_completer(d):
+        if not isinstance(d, dict):
+            return None
 
+        cleaned = {}
+        for k, v in d.items():
+            if v == {}:
+                cleaned[k] = None
+            elif isinstance(v, dict) and len(v) > 0:
+                cleaned[k] = fix_for_nested_completer(v)
 
-        modes_and_dynamics.update(dynamics)
-        updated_base["_?_"] = modes_and_dynamics
+            else:
+                cleaned[k] = v
+        return cleaned
 
+    safe_dynamic_dict = fix_for_nested_completer(dynamic_dict)
 
-        dynamic_dict = dict(updated_base)
-        if isinstance(simple_shell_API_command, dict):
-            dynamic_dict.update(simple_shell_API_command)
-        def fix_for_nested_completer(d):
-            if not isinstance(d, dict):
-                return None
-
-            cleaned = {}
-            for k, v in d.items():
-                if v == {}:
-                    cleaned[k] = None
-                elif isinstance(v, dict) and len(v) > 0:
-                    cleaned[k] = fix_for_nested_completer(v)
-
-                else:
-                    cleaned[k] = v
-            return cleaned
-
-        safe_dynamic_dict = fix_for_nested_completer(dynamic_dict)
-
-        return NestedCompleter.from_nested_dict(safe_dynamic_dict)
-
-    except Exception as e:
-        post(e, 3.0)
-        return NestedCompleter.from_nested_dict({})
-
+    return NestedCompleter.from_nested_dict(safe_dynamic_dict)
 
 def completer_3():
-    try:
+    dynamics = command_dynamics_API()
+    dynamic_words = list(dynamics.keys()) if dynamics else []
 
-        dynamics = command_dynamics_API()
-        dynamic_words = list(dynamics.keys()) if dynamics else []
+    grammatical_words = []
+    if isinstance(grammatical, dict):
+        grammatical_words = list(grammatical.keys())
 
+    python_keywords = keyword.kwlist
+    builtins_words = ['print', 'len', 'input', 'range', 'str', 'int', 'dict', 'list', 'set', 'exec', 'eval']
+    all_words = set(dynamic_words + grammatical_words + python_keywords + builtins_words)
+    clean_words = [word for word in all_words if word and not word.startswith('__')]
 
-        grammatical_words = []
-        if isinstance(grammatical, dict):
-            grammatical_words = list(grammatical.keys())
-        elif isinstance(grammatical, (list, tuple, set)):
-            grammatical_words = list(grammatical)
+    return WordCompleter(clean_words, WORD=True, ignore_case=False)
 
-
-        python_keywords = keyword.kwlist
-
-
-        builtins_words = ['print', 'len', 'input', 'range', 'str', 'int', 'dict', 'list', 'set', 'exec', 'eval']
-
-
-        all_words = set(dynamic_words + grammatical_words + python_keywords + builtins_words)
-
-
-        clean_words = [word for word in all_words if word and not word.startswith('__')]
-
-
-        return WordCompleter(clean_words, WORD=True, ignore_case=False)
-
-    except Exception as e:
-        post(e, 4.0)
-        return WordCompleter(keyword.kwlist, WORD=True)
 # // ________________________________________________________________________________________________
 
 
@@ -411,8 +384,6 @@ def shell_command(command_prefix, command_arg_int, command_arg, *args) -> None:
 
         if Path(path).is_dir():
             os.chdir(path)
-
-
 
     def alias_list_interlayer():
         alias_list(settings)

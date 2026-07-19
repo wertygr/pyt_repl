@@ -12,8 +12,6 @@ from tabulate import tabulate
 
 from simple_shell_lexer import PytLexer
 
-# from tabulate import tabulate
-
 ERR = "\033[31m"
 BS = "\033[0m"
 YELLOW = "\033[33m"
@@ -176,13 +174,11 @@ def alias_paste(value: list[str], result: list, token: str="__NONE_TOKEN__", com
     return result
 
 
-def alias_parser(alias_dict: dict, command_arg: list, mode: str) -> list: # V5.1 working
+def alias_parser(alias_dict: dict, command_arg: list, mode: str) -> list: # V5.1
     result = []
-    index = 0
-    for item in command_arg:
+    for index, item in enumerate(command_arg):
         if not(item in alias_dict):
             result.append(item)
-            index = index + 1
             continue
 
         item_dict = alias_dict.get(item, {})
@@ -194,7 +190,6 @@ def alias_parser(alias_dict: dict, command_arg: list, mode: str) -> list: # V5.1
             result = alias_paste(value, result, item, command_arg, index)
         else:
             result.append(item)
-        index = index + 1
     return result
 
 def alias_list(alias_dict: dict) -> None:
@@ -215,7 +210,11 @@ def alias_list(alias_dict: dict) -> None:
 
 
 def fallback_script_run(file, command_arg) -> None:
-    script_file = file.get("script_file", None).format(script_dir=script_dir)
+    script_file = file.get("script_file", None)
+    if not(script_file):
+        e = f"[fallback_script_run]: command not found: {command_arg}"
+        post(e, 20.2)
+        return
     mode = file.get("mode", 0)
 
     if mode == 1:
@@ -224,13 +223,10 @@ def fallback_script_run(file, command_arg) -> None:
     else:
         fallback_command = command_arg
 
-    if script_file:
-        try:
-            subprocess.run([sys.executable, script_file, *fallback_command])
-        except Exception as e:
-            post(e, 20.1)
-    else:
-        post(f"command not found: {command_arg}", 20.0)
+    try:
+        subprocess.run([sys.executable, script_file, *fallback_command])
+    except Exception as e:
+        post(e, 20.1)
 
 def is_posix(settings: dict) -> bool:
     posix_flag = settings.get("posix", False)

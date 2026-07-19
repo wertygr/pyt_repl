@@ -1,0 +1,11 @@
+.venv/
+/.ss_history
+archive.py
+lua_daemon.py
+/main.py
+/simple_shell plugins.txt
+test.sss
+*.pyc
+__pycache__/
+.idea/
+.vscode/

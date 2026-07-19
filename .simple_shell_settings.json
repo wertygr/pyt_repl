@@ -20,10 +20,7 @@
         "pyt_plus_help": false,
         "pyt_plus_help_text": ""
     },
-    "file": {
-        "script_file": "{script_dir}/main_2.py",
-        "mode": 0
-    },
+    "file": {},
     "simple_shell": ">>> ",
     "prefix": {
         "_ps_": "powershell",
