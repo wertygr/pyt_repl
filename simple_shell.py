@@ -20,6 +20,7 @@ from simple_shell_plug_loader import plugin_ss
 from simple_shell_plug_loader import plugins_list
 from simple_shell_lexer import PytLexer
 from simple_shell_core import PFT
+from simple_shell_core import is_int_to_str
 from simple_shell_prompt_toolkit import bindings
 from simple_shell_core import post
 from simple_shell_core import source_code
@@ -206,6 +207,7 @@ simple_base_command = {
         "help": None,
         "list_vf": None,
         "read_vf": dict.fromkeys(linecache.cache, None),
+        "rname_vf": None
     },
     "_pyt++_": {
         "old": None
@@ -360,6 +362,71 @@ def shell_command(command_prefix, command_arg_int, command_arg, repl_mode, ss_st
         post(e, 7.8)
         return None
 
+    def rname_vf():
+        if command_arg_int < 4:
+            e = "[shell_command::rname_vf]: not enough arguments"
+            post(e, 7.12)
+            return
+        if not(command_arg[2] in linecache.cache):
+            e = "[shell_command::rname_vf]: not virtual file: "+command_arg[2]
+            post(e, 7.13)
+            return
+        if command_arg[3] in linecache.cache:
+            e = f"[shell_command::rname_vf] file name: \"{command_arg[3]}\" taken"
+            post(e, 7.14)
+            return
+        linecache.cache[command_arg[3]] = (
+            len(
+                "".join(
+                    linecache.getlines(
+                        command_arg[2]
+                    )
+                )
+            ), None, "".join(
+            linecache.getlines(
+                command_arg[2]
+            )
+        ).splitlines(keepends=True), command_arg[3])
+        del linecache.cache[command_arg[2]]
+
+    def n_vf():
+        if command_arg_int < 3:
+            e = "[shell_command::n_vf]: not enough arguments"
+            post(e, 7.15)
+            return
+        linecache.cache[command_arg[2]] = (
+            0, # memory size
+            None, # xz
+            "".splitlines(keepends=True),# text
+            command_arg[2]# name
+        )
+
+    def e_vf():
+        if command_arg_int < 3:
+            e = "[shell_command::e_vf]: not enough arguments"
+            post(e, 7.17)
+            return
+        if not(command_arg[2] in linecache.cache):
+            e = "[shell_command::e_vf]: not virtual file: " + command_arg[2]
+            post(e, 7.18)
+            return
+        try:
+            text = prompt(
+                line_num(),
+                default= "".join(linecache.getlines(command_arg[2])),
+                completer=completer_3(),
+                lexer=PygmentsLexer(PytLexer),
+                style=pt_style,
+                multiline=True,
+                prompt_continuation=line_num,
+                key_bindings=bindings
+            )
+            linecache.cache[command_arg[2]] = (
+                len(text), None, text.splitlines(keepends=True), command_arg[2]
+            )
+        except (KeyboardInterrupt, EOFError):
+            pass
+
     def read_vf():
         if command_arg_int < 3:
             e = "[shell_command::read_vf]: not enough arguments"
@@ -461,8 +528,10 @@ def shell_command(command_prefix, command_arg_int, command_arg, repl_mode, ss_st
         "read_vf": read_vf,
         "list_vf": list_vf,
         "del_vf": del_vf,
+        "rname_vf": rname_vf,
+        "n_vf": n_vf,
+        "e_vf": e_vf,
     }
-
     if not(command_map.get(command_arg[1])):
         e = f"[shell_command]: unknown command: {command_arg[1]}"
         post(e, 7.11)
@@ -518,6 +587,23 @@ def pyt_exec(command_prefix, *args) -> None:
         post(e, 10.0)
 def pyt_pp(arg, command_arg_int: int, command_arg: list, *args) -> None:
     global pyt_plus_old_text
+
+    def save():
+        time_now = str(datetime.datetime.now().strftime("%H_%M_%S"))
+        try:
+            with open(f"{script_dir}/pyt_save/{time_now}.py", "w") as file:
+                file.write(code)
+                print(YELLOW, f"{time_now}.py", BS)
+        except Exception as e:
+            post(e, 11.4)
+
+    def execute():
+        f_name = register_repl_source(code)
+        try:
+            exec(compile(code, f_name, 'exec'), repl_mode)
+        except Exception as e:
+            post(e, 11.2)
+
     if "old" in command_arg:
         if pyt_plus_old_text == "":
             with open(f"{script_dir}/pyt_save/.pyt_save", "r", encoding="utf-8") as f:
@@ -545,32 +631,26 @@ def pyt_pp(arg, command_arg_int: int, command_arg: list, *args) -> None:
             try:
                 if not (Path(f"{script_dir}/pyt_save/.pyt_save").is_file()):
                     with open(f"{script_dir}/pyt_save/.pyt_save", "x", encoding="utf-8") as f:
-                        f.write(str(pyt_plus_old_text))
+                        f.write(pyt_plus_old_text)
                 else:
                     with open(f"{script_dir}/pyt_save/.pyt_save", "w") as f:
-                        f.write(str(pyt_plus_old_text))
+                        f.write(pyt_plus_old_text)
             except Exception as e:
                 post(e, 11.3)
-        if "save" in command_arg:
-            time_now = str(datetime.datetime.now().strftime("%H_%M_%S"))
-            try:
-                with open(f"{script_dir}/pyt_save/{time_now}.py", "w") as file:
-                    file.write(code)
-                print(YELLOW, f"{time_now}.py", BS)
-            except Exception as e:
-                post(e, 11.4)
-        if not ("not_exec" in command_arg):
-            f_name = register_repl_source(code)
-            try:
-                exec(compile(code, f_name, 'exec'), repl_mode)
-            except Exception as e:
-                post(e, 11.2)
-        if "copy" in command_arg:
-            buffer("paste", pyt_plus_old_text)
     except (KeyboardInterrupt , EOFError):
         pass
     except Exception as e:
         post(e, 11.0)
+
+    flag_map = {
+        "save": [save, True],
+        "copy": [lambda: buffer("paste", pyt_plus_old_text), True],
+        "not_exec": [execute, False],
+    }
+    for flag, (action, run_if_present) in flag_map.items():
+        is_present = flag in command_arg[1:]
+        if is_present == run_if_present:
+            action()
 
 # // _________________________________________________________________________________________________________
 
@@ -697,7 +777,6 @@ def main() -> int:
             else:
                 command = input(simple_shell)
             pars_command(command)
-
     except KeyboardInterrupt:
         return 0
     except Exception as e:
