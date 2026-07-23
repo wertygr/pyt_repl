@@ -65,10 +65,13 @@ def post (e = "", code = None, comment = "") -> None:
     PFT(f"{e}\npost_code: {code}\n{comment}")
 
 
-def source_code(args_1, command_arg_int, command_arg, repl_mode, ss_style) -> None:
+def source_code(data) -> None:
     _copy = ""
     text = ""
-
+    repl_mode = data.repl_mode
+    command_arg = data.command_arg
+    command_arg_int = data.command_arg_int
+    ss_style = data.pt_style
     if command_arg_int < 2:
         e = "[source_code]: not enough arguments"
         post(e, 14.0)
@@ -150,20 +153,21 @@ def alias_paste(value: list[str], result: list, token: str="__NONE_TOKEN__", com
         result.append(str(value))
 
     # // macros beta
+    value_copy = value.copy()
     index = 0
-    for i in value:
-        if value[index][:2] == ">#" and is_int_to_str(value[index][2:]):
-            goto_index = int(value[index][2:])
+    for i in value_copy:
+        if value_copy[index][:2] == ">#" and is_int_to_str(value_copy[index][2:]):
+            goto_index = int(value_copy[index][2:])
             if len(command_arg) > (alias_position + goto_index):
-                value[index] = command_arg[alias_position + goto_index]
-        elif value[index][:2] == "!#" and is_int_to_str(value[index][:2]):
-            goto_index = int(value[index][2:])
+                value_copy[index] = command_arg[alias_position + goto_index]
+        elif value_copy[index][:2] == "!#" and is_int_to_str(value_copy[index][:2]):
+            goto_index = int(value_copy[index][2:])
             if len(command_arg) > goto_index:
-                value[index] = command_arg[goto_index]
-        elif value[index] == "_#?_:":
-            value[index] = input("_#?_: ")
+                value_copy[index] = command_arg[goto_index]
+        elif value_copy[index] == "_#?_:":
+            value_copy[index] = input("_#?_: ")
         index = index + 1
-    result.extend(value)
+    result.extend(value_copy)
     return result
 
 
@@ -179,7 +183,7 @@ def alias_parser(alias_dict: dict, command_arg: list, mode: str) -> list: # V5.1
         value = item_dict.get("value", "NONE_ALIAS")
         scope = item_dict.get("scope", "local")
         # __ __ __ __ __ __ __ __
-        if (scope == mode) and (alias_position_validate(index, alias_dict)):
+        if (scope == mode) and (alias_position_validate(index, alias_dict[item])):
             result = alias_paste(value, result, item, command_arg, index)
         else:
             result.append(item)

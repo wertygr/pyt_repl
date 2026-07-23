@@ -22,20 +22,9 @@
     },
     "file": {},
     "simple_shell": ">>> ",
-    "prefix": {
-        "_ps_": "powershell",
-        "_cmd_": "cmd",
-        "_js_": "node",
-        "_node_": "node",
-        "_mn_": {
-            "program": "{python}",
-            "path": "{script_dir}/main_2.py",
-            "command": true
-        }
-    },
     "plugin": {
         "_timer_": {
-            "cache": false,
+            "cache": true,
             "file": "timer",
             "ss_api": true,
             "load_mode": "locals"
@@ -43,6 +32,12 @@
         "_test_": {
             "cache": false,
             "file": "test",
+            "ss_api": true,
+            "load_mode": "locals"
+        },
+        "_ai_": {
+            "cache": true,
+            "file": "ai_agent",
             "ss_api": true,
             "load_mode": "locals"
         }

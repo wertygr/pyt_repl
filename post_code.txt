@@ -1,0 +1,12 @@
+14.x - simple_shell.py/pars_command: [
+    14.0 - "empty input";
+];
+17.x - simple_shell_plug_loader.py/plugin_ss: [
+    17.0 - "all";
+];
+19.x - simple_shell.py/main: [
+    19.0 - "critical error in main functon";
+];
+26.x - simple_shell.py/settings_load: [
+    26.0 - "error in load settings file";
+];
