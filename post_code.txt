@@ -1,8 +1,13 @@
+10.x - simple_shell_commands.py/pyt_exec: [
+    10.0 - "error for execute code";
+];
 14.x - simple_shell.py/pars_command: [
     14.0 - "empty input";
+    14.1 - "shlex error";
 ];
 17.x - simple_shell_plug_loader.py/plugin_ss: [
-    17.0 - "all";
+    17.0 - "critical error for plugin load";
+    17.1 - "invalid plugin result";
 ];
 19.x - simple_shell.py/main: [
     19.0 - "critical error in main functon";

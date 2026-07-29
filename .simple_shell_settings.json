@@ -1,19 +1,22 @@
 {
+    "syntax_highlightings": true,
     "color": {
-        "color": true,
-
-        "prefix": "#C77DBB",
-        "string": "#6AAB73",
-        "number": "#2AACB8",
-        "keyword": "bold #CF8E6D",
-        "comment": "italic #7A7E85",
-        "name": "#BCBEC4",
-        "operator": "#cccccc",
-        "punctuation": "#ffffff",
-        "text": "#cccccc",
-        "def_name": "#56A8F5",
-        "error": "underline #D64D5B",
-        "action": "#8888C6"
+        "Whitespace": "#cccccc",
+        "Comment": "italic #7A7E85",
+        "Comment.Preproc": "bold #CF8E6D",
+        "Keyword": "bold #CF8E6D",
+        "Keyword.Declaration": "bold #CF8E6D",
+        "Name.Function": "#56A8F5",
+        "String": "#6AAB73",
+        "Operator": "#cccccc",
+        "Literal.Number": "#2AACB8",
+        "Name.Builtin": "#8888C6",
+        "Operator.Word": "#CF8E6D",
+        "Literal.String.Interpol": "#CF8E6D",
+        "Name.Exception": "#8888C6",
+        "Literal.String.Escape": "#CF8E6D",
+        "Name.Function.Magic": "#B200B2",
+        "Name.Builtin.Pseudo": "#94558D"
     },
     "line_name_format": "{line_number:>{width}} |",
     "help": {
@@ -26,20 +29,17 @@
         "_timer_": {
             "cache": true,
             "file": "timer",
-            "ss_api": true,
-            "load_mode": "locals"
+            "ss_api": true
         },
         "_test_": {
             "cache": false,
             "file": "test",
-            "ss_api": true,
-            "load_mode": "locals"
+            "ss_api": true
         },
         "_ai_": {
             "cache": true,
             "file": "ai_agent",
-            "ss_api": true,
-            "load_mode": "locals"
+            "ss_api": true
         }
     },
     "plugin_loader_mode": "globals",

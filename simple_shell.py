@@ -1,35 +1,37 @@
-# // ________________________________________________________________________________________________
+#________________________________________________________________________________________________
 
-import builtins
 import keyword
 import shlex
 from pathlib import Path
-from string import Template
-import ast
 import datetime
 import json
 import os
 import sys
 import linecache
 
-# // _________________________________________________________________________________________________
+#_________________________________________________________________________________________________
 
-from simple_shell_plug_loader import plugin_ss, unload_plugin
+from simple_shell_plug_loader import plugin_ss
+from simple_shell_plug_loader import unload_plugin
 from simple_shell_plug_loader import plugins_list
-from simple_shell_lexer import PytLexer
 from simple_shell_core import PFT
 from simple_shell_prompt_toolkit import bindings
 from simple_shell_core import post
-from simple_shell_core import source_code
+from simple_shell_commands import source_code
 from simple_shell_core import command_separators
-from simple_shell_core import make_ss_style
-from simple_shell_core import is_posix
-from simple_shell_core import fallback_script_run
 from simple_shell_core import alias_parser
 from simple_shell_core import alias_list
 from simple_shell_core import buffer
+from simple_shell_core import Data
+from simple_shell_core import line_num
+from simple_shell_core import dynamics_completer
+from simple_shell_core import register_repl_source
+from simple_shell_commands import pyt_eval
+from simple_shell_commands import sh
+from simple_shell_commands import pyt
+from simple_shell_commands import pyt_exec
 
-# // ____________________________________
+#_________________________________________________________________________________________________
 
 from prompt_toolkit.completion import NestedCompleter
 from prompt_toolkit import prompt
@@ -38,78 +40,32 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.completion import DynamicCompleter
 from prompt_toolkit.completion import WordCompleter
+from pygments.token import string_to_tokentype
+from prompt_toolkit.styles.pygments import style_from_pygments_dict
 
-# // ___________________________________________________________________________________________________
+#_________________________________________________________________________________________________
 
-class Data:
-    simple_base_command ={}
-    grammatical = {
-        **dict.fromkeys({name for name in dir(builtins) if name[0].islower()}),
-        **dict.fromkeys(keyword.kwlist),
-        **dict.fromkeys({e for e in dir(builtins) if "Error" in e or "Exception" in e})
-    }
-    repl_mode = {}
-    local_repl_mode = {}
-    _repl_cache_id = 0
-    pyt_lex = PytLexer()
-    color_container = {}
-    line_name_format = ""
-    script_file = ""
-    separator = False
-    color_2 = False
-    simple_shell = ""
-    settings = {}
-    shell_container = {}
-    pt_style = {}
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    ss_api = {}
-
-    command = ""
-    pyt_plus_old_text = ""
-
-    command_prefix = ""
-    command_arg_int = 0
-    command_arg = []
-
-
-
-ERR = "\033[31m"
 BS = "\033[0m"
 YELLOW = "\033[33m"
 
-# // ____________________________________________________________________________________________________
-
-def register_repl_source(source: str, data) -> str:
-    data._repl_cache_id += 1
-    filename = f"<simple_shell_repl_{data._repl_cache_id}>"
-    linecache.cache[filename] = (len(source), None, source.splitlines(keepends=True), filename)
-    return filename
+#_________________________________________________________________________________________________
 
 def settings_load(data, file: str = ".simple_shell_settings.json") -> None:
     try:
         with open(file, encoding="utf-8") as f:
             settings = json.load(f)
     except Exception as e:
-        post(e, 26.0)
+        context = {
+            "e": e,
+            "code": 26.0,
+            "comment": ""
+        }
+        post(context, data)
         settings = {}
-
-    color = settings.get("color", {})
-    prefix_color =        color.get("prefix", "#C77DBB")
-    string_color =        color.get("string", "#6A7E85")
-    number_color =        color.get("number", "#2AACB8")
-    keyword_color =       color.get("keyword", "#2AACB8")
-    comment_color =       color.get("comment", "italic #7A7E85")
-    name_color =          color.get("name", "#BCBEC4")
-    operator_color =      color.get("operator", "#cccccc")
-    punctuation_color =   color.get("punctuation", "#ffffff")
-    text_color =          color.get("text", "#CCCCCC")
-    def_name_color =      color.get("def_name", "#56A8F5")
-    error_color =         color.get("error", "underline #D64D5B")
-    action_color =        color.get("action", "#8888C6")
 
     line_name_format =    settings.get("line_name_format", "{line_number} |")
     script_file =         settings.get("file", {}).get("script_file", None)
+
     if isinstance(script_file, str):
         script_file = script_file
     else:
@@ -117,27 +73,10 @@ def settings_load(data, file: str = ".simple_shell_settings.json") -> None:
 
     data.separator =      settings.get("separator", False)
 
-    data.color_2 =        settings.get("color", {}).get("color", True)
-    simple_shell =        settings.get("simple_shell", ">>> ")
-    repl_mode_text =      settings.get("repl_mode", "locals")
+    data.color_2 =        settings.get("syntax_highlightings", False)
+    data.prompt       =    settings.get("simple_shell", ">>> ")
 
-
-    color_container = {
-        "prefix":      prefix_color,
-        "string":      string_color,
-        "number":      number_color,
-        "keyword":     keyword_color,
-        "comment":     comment_color,
-        "name":        name_color,
-        "operator":    operator_color,
-        "punctuation": punctuation_color,
-        "text":        text_color,
-        "def_name":    def_name_color,
-        "error":       error_color,
-        "action":      action_color
-    }
-
-    if repl_mode_text == "globals":
+    if settings.get("repl_mode", "locals") == "globals":
         data.repl_mode = globals()
         data.repl_mode["data"] = data
     else:
@@ -151,70 +90,24 @@ def settings_load(data, file: str = ".simple_shell_settings.json") -> None:
     data.script_file      = script_file
     data.line_name_format = line_name_format
     data.settings         = settings
-    data.color_container  = color_container
-    data.simple_shell     = simple_shell
-    data.pt_style         = make_ss_style(color_container)
 
-# // ___________________________________________________________________________________________________
+    pygments_token_dict = {
+        string_to_tokentype(key): value
+        for key, value in settings.get("color", {}).items()
+    }
+    data.pt_style = style_from_pygments_dict(pygments_token_dict)
+    data.script_dir       = os.path.dirname(os.path.abspath(__file__))
 
-def command_dynamics_API(data: Data):
-    return dict.fromkeys(
-        [
-            name for name in data.repl_mode.keys()
-            if isinstance(name, str)
-        ],
-        None
-    )
-
-# // ___________________________________________________________________________________________________
+#_________________________________________________________________________________________________
 
 def plugin_load(data: Data) -> bool:
-    if not(data.command_arg[0] in data.settings["plugin"]):
+    if not(data.command_arg[0] in data.settings.get("plugin", {})):
         return False
-    plugin_ss(
-        data.command_prefix,
-        data.command_arg_int,
-        data.command_arg,
-
-        plugin     =  data.command_arg[0],
-        name_space = data.repl_mode,
-        ss_api     = data.ss_api
-    )
+    plugin_ss(data)
     return True
 
-def line_num(
-        width: int,
-        line_number: int,
-        is_soft_wrap: int,
-        data: Data
-    ) -> str:
-    return data.line_name_format.format(
-         width=width,
-         line_number=line_number + 1,
-         is_soft_wrap=is_soft_wrap
-    )
-
-
-def command_ast(shell_command_API: str, data: Data) -> dict:
-    if data.script_file == None:
-        return {"": None}
-    try:
-        with open(data.script_file, "r", encoding="utf-8") as file:
-            text = file.read()
-        tree_shell = ast.parse(text)
-    except Exception as e:
-        post(e, 2.0)
-        return {"": None}
-    for node in ast.walk(tree_shell):
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name) and target.id == shell_command_API:
-                    print(shell_command_API)
-                    return ast.literal_eval(node.value)
-    return {"": None}
-
 def completer(data: Data):
-    dynamics = command_dynamics_API(data) or {}
+    dynamics = dynamics_completer(data) or {}
     if not isinstance(dynamics, dict):
         dynamics = {}
 
@@ -233,7 +126,7 @@ def completer(data: Data):
     return NestedCompleter.from_nested_dict(dynamic_dict)
 
 def completer_3(data: Data):
-    dynamics = command_dynamics_API(data)
+    dynamics = dynamics_completer(data)
     dynamic_words = list(dynamics.keys()) if dynamics else []
 
     grammatical_words = []
@@ -248,58 +141,83 @@ def completer_3(data: Data):
 
 # // ________________________________________________________________________________________________
 
-
-def sh (data: Data) -> None:
-    contr = Template(data.command_prefix)
-    os.system(contr.safe_substitute(data.shell_container))
-
 def shell_command(data: Data) -> None:
     if data.command_arg_int < 2:
         e = "[shell_command]: not enough arguments"
-        post(e, 7.8)
+        context = {
+            "e": e,
+            "code": 7.8,
+            "comment": ""
+        }
+        post(context, data)
         return None
 
     def unload_plug():
         if data.command_arg_int < 3:
             e = "[shell_command::unload_plug]: not enough arguments"
-            post(e, 7.9)
+            context = {
+                "e": e,
+                "code": 7.9,
+                "comment": ""
+            }
+            post(context, data)
             return
         for i in data.command_arg[2:]:
-            unload_plugin(i)
+            unload_plugin(i, data)
 
     def rname_vf():
         if data.command_arg_int < 4:
             e = "[shell_command::rname_vf]: not enough arguments"
-            post(e, 7.12)
+            context = {
+                "e": e,
+                "code": 7.12,
+                "comment": ""
+            }
+            post(context, data)
             return
-        if not(data.command_arg[2] in linecache.cache):
-            e = "[shell_command::rname_vf]: not virtual file: "+data.command_arg[2]
-            post(e, 7.13)
+        if not(data.command_arg[2] in data.line_cache.cache):
+            e = "[shell_command::rname_vf]: not virtual file: " + data.command_arg[2]
+            context = {
+                "e": e,
+                "code": 7.13,
+                "comment": ""
+            }
+            post(context, data)
             return
-        if data.command_arg[3] in linecache.cache:
+        if data.command_arg[3] in data.line_cache.cache:
             e = f"[shell_command::rname_vf] file name: \"{data.command_arg[3]}\" taken"
-            post(e, 7.14)
+            context = {
+                "e": e,
+                "code": 7.14,
+                "comment": ""
+            }
+            post(context, data)
             return
-        linecache.cache[data.command_arg[3]] = (
+        data.line_cache.cache[data.command_arg[3]] = (
             len(
                 "".join(
-                    linecache.getlines(
+                    data.line_cache.getlines(
                         data.command_arg[2]
                     )
                 )
             ), None, "".join(
-            linecache.getlines(
+            data.line_cache.getlines(
                 data.command_arg[2]
             )
         ).splitlines(keepends=True), data.command_arg[3])
-        del linecache.cache[data.command_arg[2]]
+        del data.line_cache.cache[data.command_arg[2]]
 
     def n_vf():
         if data.command_arg_int < 3:
             e = "[shell_command::n_vf]: not enough arguments"
-            post(e, 7.15)
+            context = {
+                "e": e,
+                "code": 7.15,
+                "comment": ""
+            }
+            post(context, data)
             return
-        linecache.cache[data.command_arg[2]] = (
+        data.line_cache.cache[data.command_arg[2]] = (
             0, # memory size
             None, # xz
             "".splitlines(keepends=True),# text
@@ -309,24 +227,34 @@ def shell_command(data: Data) -> None:
     def e_vf():
         if data.command_arg_int < 3:
             e = "[shell_command::e_vf]: not enough arguments"
-            post(e, 7.17)
+            context = {
+                "e": e,
+                "code": 7.17,
+                "comment": ""
+            }
+            post(context, data)
             return
-        if not(data.command_arg[2] in linecache.cache):
+        if not(data.command_arg[2] in data.line_cache.cache):
             e = "[shell_command::e_vf]: not virtual file: " + data.command_arg[2]
-            post(e, 7.18)
+            context = {
+                "e": e,
+                "code": 7.18,
+                "comment": ""
+            }
+            post(context, data)
             return
         try:
             text = prompt(
                 line_num(0, 0, 0, data),
-                default= "".join(linecache.getlines(data.command_arg[2])),
+                default= "".join(data.line_cache.getlines(data.command_arg[2])),
                 completer=completer_3(data),
-                lexer=PygmentsLexer(PytLexer),
+                lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 multiline=True,
                 prompt_continuation=lambda w ,h, s: line_num(w, h, s, data),
                 key_bindings=bindings
             )
-            linecache.cache[data.command_arg[2]] = (
+            data.line_cache.cache[data.command_arg[2]] = (
                 len(text), None, text.splitlines(keepends=True), data.command_arg[2]
             )
         except (KeyboardInterrupt, EOFError):
@@ -335,17 +263,27 @@ def shell_command(data: Data) -> None:
     def read_vf():
         if data.command_arg_int < 3:
             e = "[shell_command::read_vf]: not enough arguments"
-            post(e, 7.7)
+            context = {
+                "e": e,
+                "code": 7.7,
+                "comment": ""
+            }
+            post(context, data)
             return
-        if not(data.command_arg[2] in linecache.cache):
+        if not(data.command_arg[2] in data.line_cache.cache):
             e = "[shell_command::read_vf]: not virtual file: " + data.command_arg[2]
-            post(e, 7.6)
+            context = {
+                "e": e,
+                "code": 7.6,
+                "comment": ""
+            }
+            post(context, data)
             return
-        text = "".join(linecache.getlines(data.command_arg[2]))
+        text = "".join(data.line_cache.getlines(data.command_arg[2]))
 
         flag_map = {
             "-copy": [lambda: buffer("paste", text), True],
-            "-silent": [lambda: PFT(text, data.pt_style), False],
+            "-silent": [lambda: PFT(text, data), False],
         }
         for flag, (action, run_if_present) in flag_map.items():
             is_present = flag in data.command_arg[1:]
@@ -356,22 +294,31 @@ def shell_command(data: Data) -> None:
     def del_vf():
         if data.command_arg_int < 3:
             e = "[shell_command::del_vf]: not enough arguments"
-            post(e, 7.9)
+            context = {
+                "e": e,
+                "code": 7.9,
+                "comment": ""
+            }
+            post(context, data)
             return
         for i in data.command_arg[2:]:
-            if not(i in linecache.cache):
+            if not(i in data.line_cache.cache):
                 e = "[shell_command::del_vf]: not virtual file: " + i
-                post(e, 7.10)
+                context = {
+                    "e": e,
+                    "code": 7.10,
+                    "comment": ""
+                }
+                post(context, data)
                 continue
-            del linecache.cache[i]
+            del data.line_cache.cache[i]
 
 
     def list_vf():
-        for i in linecache.cache:
+        for i in data.line_cache.cache:
             print(i)
 
     def edit_open_dir() -> None:
-
         if data.command_arg_int < 2:
             return None
         path = Path(data.command_arg[2]).resolve()
@@ -383,7 +330,7 @@ def shell_command(data: Data) -> None:
         alias_list(data.settings)
     def help_ss():
         with open(Path(__file__).resolve(), "r", encoding="utf-8") as f:
-            PFT(f.read(), data.pt_style)
+            PFT(f.read(), data)
             return
 
     def SSS():
@@ -395,23 +342,30 @@ def shell_command(data: Data) -> None:
             with open(path) as file:
                 lines = file.readlines()
                 for item_2 in lines:
+                    if item_2 == "":
+                        continue
                     pars_command(item_2)
         except Exception as e:
-            post(e, 7.2)
+            context = {
+                "e": e,
+                "code": 7.2,
+                "comment": ""
+            }
+            post(context, data)
 
 
     command_map = {
-        "clear": lambda: os.system('cls' if os.name == 'nt' else 'clear'),
+        "clear": lambda: os.system("cls" if os.name == "nt" else "clear"),
         "exit": lambda: sys.exit(0),
-        "settings_reload": settings_load,
-        "plugins_list": plugins_list,
+        "settings_reload": lambda: settings_load(data),
+        "plugins_list": lambda: plugins_list(data),
         "alias_list": alias_list_interlayer,
         "run": SSS,
         "help": help_ss,
         "history_del": lambda: os.remove(".ss_history"),
         "open": edit_open_dir,
         "read_vf": read_vf,
-        "list_vf": list_vf,
+        "ls_vf": list_vf,
         "del_vf": del_vf,
         "rname_vf": rname_vf,
         "n_vf": n_vf,
@@ -420,57 +374,17 @@ def shell_command(data: Data) -> None:
     }
     if not(command_map.get(data.command_arg[1])):
         e = f"[shell_command]: unknown command: {data.command_arg[1]}"
-        post(e, 7.11)
+        context = {
+            "e": e,
+            "code": 7.11,
+            "comment": ""
+        }
+        post(context, data)
         return None
     command_map[data.command_arg[1]]()
 
 
-def pyt(data: Data) -> None:
-    ev_except = ""
-    ex_except = ""
-    f_name = register_repl_source(data.command_prefix, data)
-    def byte_code_compile(code: str, mode: str):
-        nonlocal ev_except, ex_except
-        try:
-            return compile(code, f_name, mode)
-        except Exception as e:
-            if mode == "exec":
-                ex_except = e
-            else:
-                ev_except = e
-            return False
 
-    byte_code_ev = byte_code_compile(data.command_prefix, "eval")
-    byte_code_ex = byte_code_compile(data.command_prefix, "exec")
-    if byte_code_ev:
-        try:
-            print(eval(byte_code_ev, data.repl_mode))
-        except Exception as e:
-            post(e, 8.2)
-    elif byte_code_ex:
-        try:
-            exec(byte_code_ex, data.repl_mode)
-        except Exception as e:
-            post(e, 8.1)
-    else:
-        post(f"{"-"*15}\neval: {ev_except}\n{"-"*15}\nexec: {ex_except}\n{"-"*15}", 8.0)
-
-
-
-def pyt_eval(data: Data) ->  None:
-    try:
-        result_eval = eval(data.command_prefix, data.repl_mode)
-        PFT(result_eval, data.pt_style ,data.pyt_lex)
-    except Exception as e:
-        post(e, 9.0)
-
-
-def pyt_exec(data: Data) -> None:
-    f_name = register_repl_source(data.command_prefix, data)
-    try:
-        exec(compile(data.command_prefix, f_name, 'exec'), data.repl_mode)
-    except Exception as e:
-        post(e, 10.0)
 def pyt_pp(data: Data) -> None:
     code = ""
     def save():
@@ -480,14 +394,24 @@ def pyt_pp(data: Data) -> None:
                 file.write(code)
                 print(YELLOW, f"{time_now}.py", BS)
         except Exception as e:
-            post(e, 11.4)
+            context = {
+                "e": e,
+                "code": 11.4,
+                "comment": ""
+            }
+            post(context, data)
 
     def execute():
         f_name = register_repl_source(code, data)
         try:
-            exec(compile(code, f_name, 'exec'), data.repl_mode)
+            exec(compile(code, f_name, "exec"), data.repl_mode)
         except Exception as e:
-            post(e, 11.2)
+            context = {
+                "e": e,
+                "code": 11.2,
+                "comment": ""
+            }
+            post(context, data)
 
     if "old" in data.command_arg:
         if data.pyt_plus_old_text == "":
@@ -504,7 +428,7 @@ def pyt_pp(data: Data) -> None:
             line_num(0, 0, 0, data),
             default=data.pyt_plus_old_text,
             completer=DynamicCompleter(lambda: completer_3(data)),
-            lexer=PygmentsLexer(PytLexer),
+            lexer=PygmentsLexer(data.lexer),
             style=data.pt_style,
             multiline=True,
             prompt_continuation=lambda w ,h, s: line_num(w, h, s, data),
@@ -521,11 +445,21 @@ def pyt_pp(data: Data) -> None:
                     with open("pyt_save/.pyt_save", "w") as f:
                         f.write(pyt_plus_old_text)
             except Exception as e:
-                post(e, 11.3)
+                context = {
+                    "e": e,
+                    "code": 11.3,
+                    "comment": ""
+                }
+                post(context, data)
     except (KeyboardInterrupt , EOFError):
         pass
     except Exception as e:
-        post(e, 11.0)
+        context = {
+            "e": e,
+            "code": 11.0,
+            "comment": ""
+        }
+        post(context, data)
 
     flag_map = {
         "save": [save, True],
@@ -537,16 +471,17 @@ def pyt_pp(data: Data) -> None:
         if is_present == run_if_present:
             action()
 
-# // _________________________________________________________________________________________________________
-
-pyt_plus_old_text = ""
-history_command = FileHistory(".ss_history")
-
-# // _________________________________________________________________________________________________________
+#_________________________________________________________________________________________________
 
 def dispatcher(data: Data) -> None:
-    if data.command_arg == []:
-        post("empty command list", 22.0)
+    if not data.command_arg:
+        e = "[dispatcher]: empty command"
+        context = {
+            "e": e,
+            "code": 22.0,
+            "comment": ""
+        }
+        post(context, data)
         return None
     data.command_prefix = " ".join(data.command_arg[1:])
     data.command_arg_int = len(data.command_arg)
@@ -559,7 +494,8 @@ def dispatcher(data: Data) -> None:
         "_._":        shell_command,
         "_sh_":       sh,
         "_?_":        source_code,
-        "_#_":        lambda *args :    None
+        "_#_":        lambda *args : None,
+        "crit":           lambda *args : 1/0,
     }
     func = command_map.get(data.command_arg[0])
     if func:
@@ -567,43 +503,60 @@ def dispatcher(data: Data) -> None:
     elif plugin_load(data):
         pass
     else:
-        fallback_script_run(data.settings.get("file", {}), data.command_arg)
+        e = f"[dispatcher]: unknown command: {data.command_arg[0]}"
+        context = {
+            "e": e,
+            "code": 22.1,
+            "comment": ""
+        }
+        post(context, data)
 
 # // _______________________________________________________________________________________________________
 
 def pars_command(data: Data) -> None:
     if data.settings.get("shlex", False):
         try:
-            data.command_arg = shlex.split(data.command, posix=is_posix(data.settings))
+            data.command_arg = shlex.split(data.command, posix=bool(data.settings.get("posix", False)))
         except ValueError as e:
-            post(e, 14.1)
+            context = {
+                "e": e,
+                "code": 14.1,
+                "comment": ""
+            }
+            post(context, data)
             return None
     else:
         data.command_arg = data.command.split()
     data.command_arg_int = len(data.command_arg)
     if data.command_arg_int < 1:
         e = "[pars_command]: not enough arguments"
-        post(e, 14.0)
+        context = {
+            "e": e,
+            "code": 14.0,
+            "comment": ""
+        }
+        post(context, data)
         return None
     if data.settings.get("alias_globals", False):
-        data.command_arg = alias_parser(data.settings.get("alias_dict", {}), data.command_arg, "global")
+        data.command_arg = alias_parser(data, data.settings.get("alias_dict", {}), data.command_arg, "global")
     if data.separator:
         commands = command_separators(data.command_arg)
         for i in commands:
             if data.settings.get("alias_locals", False):
-                data.command_arg = alias_parser(data.settings.get("alias_dict", {}), i, "local")
+                data.command_arg = alias_parser(data, data.settings.get("alias_dict", {}), i, "local")
             dispatcher(data)
     else:
         if data.settings.get("alias_locals", False):
-            i = alias_parser(data.settings.get("alias_dict", {}), data.command_arg, "local")
+            i = alias_parser(data, data.settings.get("alias_dict", {}), data.command_arg, "local")
         else:
             i = data.command_arg
         dispatcher(data)
 
 # // ______________________________________________________________________________________________________
 
-def main() -> int:
+def initialisation() -> Data:
     data = Data()
+    data.line_cache = linecache
     settings_load(data)
     data.simple_base_command = {
         "_#_": None,
@@ -633,18 +586,14 @@ def main() -> int:
 
         **dict.fromkeys(data.settings.get("plugin", {}), None),
         **dict.fromkeys(data.settings.get("alias_dict", {}), None),
-        **dict.fromkeys(data.settings.get("prefix", {}).get("prefix_run", {}), None),
-        **command_ast("simple_shell_command_API", data)
     }
     data.ss_api = {
-
-        "ERR": ERR,
         "BS": BS,
         "YELLOW": YELLOW,
         "color_container": data.color_container,
 
         "settings": data.settings,
-        "simple_shell": data.simple_shell,
+        "prompt": data.prompt,
 
         "script_dir": data.script_dir,
         "script_file": data.script_file,
@@ -654,36 +603,43 @@ def main() -> int:
 
         "post": post,
         "PFT": PFT,
-        "is_posix": is_posix,
         "command_separators": command_separators,
         "pars_command": pars_command,
         "dispatcher": dispatcher,
         "buffer": buffer,
         "alias_parser": alias_parser,
-        "data": data
+        "data": data,
+        "register_repl_source": register_repl_source
     }
+    return data
 
+def main():
+    data = initialisation()
 
+    history_command = FileHistory(".ss_history")
     session = PromptSession(
         completer=DynamicCompleter(lambda: completer(data)),
         multiline=data.settings.get("multiline", False),
-        lexer=PygmentsLexer(PytLexer),
+        lexer=PygmentsLexer(data.lexer),
         style=data.pt_style,
         prompt_continuation=lambda w, h, s : line_num(w, h, s, data),
-        history=history_command
+        history=history_command,
+        include_default_pygments_style = False
     )
     while True:
         try:
-            if data.color_2:
-                data.command = session.prompt(str(data.simple_shell))
-            else:
-                data.command = input(data.simple_shell)
+            data.command = session.prompt(str(data.prompt))
             pars_command(data)
         except (EOFError, KeyboardInterrupt):
             pass
         except Exception as e:
-            post(e, 19.0)
-            return -1
+            context = {
+                "e": e,
+                "code": 19.0,
+                "comment": ""
+            }
+            post(context, data)
+            return
 
 if __name__ == "__main__":
     main()
