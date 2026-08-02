@@ -166,8 +166,9 @@ def initialisation() -> Data:
         history=FileHistory(".ss_history"),
         include_default_pygments_style=False
     )
-
     return data
+
+#_________________________________________________________________________________________________
 
 def repl_cycle(data: Data) -> None:
     while True:
@@ -186,3 +187,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+#_________________________________________________________________________________________________

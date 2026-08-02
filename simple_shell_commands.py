@@ -22,6 +22,7 @@ from simple_shell_core import settings_load
 from simple_shell_prompt_toolkit import completer_3
 from simple_shell_core import YELLOW
 from simple_shell_core import BS
+
 #_________________________________________________________________________________________________
 
 from prompt_toolkit import prompt

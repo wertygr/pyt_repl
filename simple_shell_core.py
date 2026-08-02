@@ -12,12 +12,11 @@ from tabulate import tabulate
 from pygments.lexers.python import PythonLexer
 from pygments.lexers import PythonLexer
 
-
-ERR = "\033[31m"
-BS = "\033[0m"
-YELLOW = "\033[33m"
-
 script_dir = os.path.dirname(os.path.abspath(__file__))
+
+BS = "\033[0m"
+YELLOW = "\033[1;33m"
+RED = "\033[1;31m"
 
 class Data:
 
