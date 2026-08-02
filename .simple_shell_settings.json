@@ -1,5 +1,4 @@
 {
-    "syntax_highlightings": true,
     "color": {
         "Whitespace": "#cccccc",
         "Comment": "italic #7A7E85",
@@ -16,36 +15,17 @@
         "Name.Exception": "#8888C6",
         "Literal.String.Escape": "#CF8E6D",
         "Name.Function.Magic": "#B200B2",
-        "Name.Builtin.Pseudo": "#94558D"
+        "Name.Builtin.Pseudo": "#94558D",
+        "Name.Namespace": "#cccccc",
+        "Name": "#cccccc",
+        "Name.Decorator": "#B3AE60",
+        "Name.Variable.Magic": "#cccccc",
+        "Name.Class": "#cccccc"
     },
     "line_name_format": "{line_number:>{width}} |",
-    "help": {
-        "pyt_plus_help": false,
-        "pyt_plus_help_text": ""
-    },
-    "file": {},
-    "simple_shell": ">>> ",
-    "plugin": {
-        "_timer_": {
-            "cache": true,
-            "file": "timer",
-            "ss_api": true
-        },
-        "_test_": {
-            "cache": false,
-            "file": "test",
-            "ss_api": true
-        },
-        "_ai_": {
-            "cache": true,
-            "file": "ai_agent",
-            "ss_api": true
-        }
-    },
-    "plugin_loader_mode": "globals",
-    "ss_api": true,
+    "prompt": ">>> ",
+    "plugin": {},
     "separator": true,
-    "cache": true,
     "repl_mode": "globals",
     "shell_container": true,
     "shlex": false,
@@ -71,24 +51,6 @@
             "value": [
                 "_._",
                 "settings_reload"
-            ],
-            "position": [0],
-            "scope": "local"
-        },
-        "ll": {
-            "value": [
-                "_sh_",
-                "ls",
-                "-la"
-            ],
-            "position": [0],
-            "scope": "local"
-        },
-        "pacman": {
-            "value": [
-                "_sh_",
-                "sudo",
-                "pacman"
             ],
             "position": [0],
             "scope": "local"
@@ -123,6 +85,11 @@
                 "_pyt-eval_", "print('test-2')"
             ],
             "scope": "global",
+            "position": [0]
+        },
+        "!": {
+            "value": ["_sh_"],
+            "scope": "local",
             "position": [0]
         }
     }

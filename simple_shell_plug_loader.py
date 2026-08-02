@@ -12,9 +12,6 @@ from simple_shell_core import post
 err = "\033[31m"
 bs = "\033[0m"
 
-def load_plugin(data):
-    pass
-
 def plugin_ss(data) -> None:
     ss_api = data.ss_api
     plugin = data.command_arg[0]
@@ -42,36 +39,26 @@ def plugin_ss(data) -> None:
             sys.modules[plugin] = module
             spec.loader.exec_module(module)
 
-            module.command_prefix  = command_prefix
-            module.command_arg_int = command_arg_int
-            module.command_arg     = command_arg
-
         if plugin_settings.get("ss_api", False) == True:
             module.ss_api = ss_api
 
         else:
             module.main_globals = {}
         name_space[plugin] = module
-        result_plug_load = module.main()
+        result_plug_load = module.main(ss_api=ss_api, command_context={
+            "command_arg": command_arg,
+            "command_arg_int": command_arg_int,
+            "command_prefix": command_prefix
+        })
         if not(isinstance(result_plug_load, dict)):
             e = f"[plugin_ss]: invalid plugin result. plugin result = {result_plug_load}"
-            context = {
-                "e": e,
-                "code": 17.1,
-                "comment": ""
-            }
-            post(context, data)
+            post(e, data)
             return
         data.plugin_space[data.command_arg[0]] = result_plug_load
         return
 
     except Exception as e:
-        context = {
-            "e": e,
-            "code": 17.0,
-            "comment": ""
-        }
-        post(context, data)
+        post(e, data)
 
 def unload_plugin(plugin_name, data):
     in_sys = plugin_name in sys.modules
@@ -80,12 +67,7 @@ def unload_plugin(plugin_name, data):
 
     if ((not(in_sys)) and (not(in_repl)) and (not(in_plugin_space))):
         e = f"[unload_plugin] plugin {plugin_name} not found anywhere"
-        context = {
-            "e": e,
-            "code": 18.3,
-            "comment": ""
-        }
-        post(context, data)
+        post(e, data)
         return
 
     if in_repl:
@@ -106,12 +88,7 @@ def plugins_list(data):
                 if isinstance(i, ast.FunctionDef) and i.name == "main":
                     return True
         except Exception as e:
-            context = {
-                "e": e,
-                "code": 18.2,
-                "comment": ""
-            }
-            post(context, data)
+            post(e, data)
         return False
     try:
         with open(f"{script_dir}/.simple_shell_settings.json") as f:
@@ -133,16 +110,6 @@ def plugins_list(data):
 
         PFT(tabulate(table_data, headers=headers, tablefmt="grid"), data)
     except FileNotFoundError as e:
-        context = {
-            "e": e,
-            "code": 18.1,
-            "comment": ""
-        }
-        post(context, data)
+        post(e, data)
     except Exception as e:
-        context = {
-            "e": e,
-            "code": 18.0,
-            "comment": ""
-        }
-        post(context, data)
+        post(e, data)

@@ -1,9 +1,13 @@
+import json
 import os
 import builtins
 import keyword
+from typing import Any
 
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit.styles import style_from_pygments_dict
+from pygments.token import string_to_tokentype
 from tabulate import tabulate
 from pygments.lexers.python import PythonLexer
 from pygments.lexers import PythonLexer
@@ -22,7 +26,7 @@ class Data:
         **dict.fromkeys(keyword.kwlist),
         **dict.fromkeys({e for e in dir(builtins) if "Error" in e or "Exception" in e})
     }
-    last_error =          {}
+    last_error =          ""
     simple_base_command = {}
     repl_mode =           {}
     local_repl_mode =     {}
@@ -38,6 +42,7 @@ class Data:
     shell_container =     {}
     pt_style =            {}
     script_dir =          ""
+    repl_file =           ""
 
     ss_api =              {}
 
@@ -54,8 +59,9 @@ class Data:
 
     lexer =               PythonLexer
     lexer_instance =      lexer()
+    session =             None
 
-def PFT(text: str, data: Data) -> None:
+def PFT(text: str,data: Data) -> None:
     lexer = data.lexer_instance
     tokens = list(lexer.get_tokens(str(text)))
     print_formatted_text(
@@ -74,9 +80,9 @@ def buffer (mode: str = "copy", text: str = ""):
     elif mode == "add":
         _buffer += text
 
-def post(context: dict, data: Data) -> None:
-    data.last_error = context
-    PFT(f"{context["e"]}\npost_code: {context["code"]}\n{context["comment"]}", data)
+def post(e: Any, data: Data) -> None:
+    data.last_error = e
+    PFT(f"{e}", data)
 
 def command_separators(command_arg) -> list:
     subarrays = []
@@ -112,12 +118,7 @@ def alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
 def alias_paste(value: list[str], result: list, token: str, command_arg: list[str], alias_position: int, data: Data) -> list:
     if not(isinstance(value, list)):
         e = f"Invalid value type {type(value)} for alias {token}"
-        context = {
-            "e": e,
-            "code": 21.0,
-            "comment": ""
-        }
-        post(context, data)
+        post(e, data)
         result.append(str(value))
 
     # // macros beta
@@ -197,3 +198,48 @@ def register_repl_source(source: str, data) -> str:
     filename = f"<simple_shell_repl_{data._repl_cache_id}>"
     data.line_cache.cache[filename] = (len(source), None, source.splitlines(keepends=True), filename)
     return filename
+
+
+def settings_load(data: Data, file: str = ".simple_shell_settings.json") -> None:
+    try:
+        with open(file, encoding="utf-8") as f:
+            settings = json.load(f)
+    except Exception as e:
+        post(e, data)
+        settings = {}
+
+    line_name_format =    settings.get("line_name_format", "{line_number} |")
+    script_file =         settings.get("file", {}).get("script_file", None)
+
+    if isinstance(script_file, str):
+        script_file = script_file
+    else:
+        script_file = None
+
+    data.separator =      settings.get("separator", False)
+
+    data.color_2 =        settings.get("syntax_highlightings", False)
+    data.prompt       =    settings.get("simple_shell", ">>> ")
+
+    if settings.get("repl_mode", "locals") == "globals":
+        data.repl_mode = globals()
+        data.repl_mode["data"] = data
+    else:
+        data.repl_mode = data.local_repl_mode
+
+    if settings.get("shell_container", False):
+        data.shell_container = data.repl_mode
+    else:
+        data.shell_container = {}
+
+    data.script_file      = script_file
+    data.line_name_format = line_name_format
+    data.settings         = settings
+
+    pygments_token_dict = {
+        string_to_tokentype(key): value
+        for key, value in settings.get("color", {}).items()
+    }
+    print(pygments_token_dict)
+    data.pt_style =        style_from_pygments_dict(pygments_token_dict)
+    data.script_dir =      os.path.dirname(os.path.abspath(__file__))
