@@ -9,3 +9,5 @@ test.sss
 __pycache__/
 .idea/
 .vscode/
+.gitignore
+pyt_save/
