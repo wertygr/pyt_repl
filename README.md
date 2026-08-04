@@ -3,8 +3,8 @@ python repl
 **install:**
 ```bash
 mkdir pyrepl
-git clone <url>
 cd pyrepl
+git clone <url>
 pip install req.txt
 python pyre.py
 ```
