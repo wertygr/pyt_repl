@@ -42,7 +42,7 @@ class Data:
     script_dir =          ""
     repl_file =           ""
 
-    ss_api =              {}
+    api =              {}
 
     plugin_space =        {}
 

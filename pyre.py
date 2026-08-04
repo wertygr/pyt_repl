@@ -25,7 +25,7 @@ from pyre_commands import pyt
 from pyre_commands import pyt_exec
 from pyre_commands import pyt_pp
 from pyre_commands import shell_command
-from pyre_plug_load import plugin_ss
+from pyre_plug_load import _plugin
 from pyre_prompt_toolkit import completer
 #_________________________________________________________________________________________________
 
@@ -39,7 +39,7 @@ from prompt_toolkit.completion import DynamicCompleter
 def plugin_load(data: Data) -> bool:
     if not(data.command_arg[0] in data.settings.get("plugin", {})):
         return False
-    plugin_ss(data)
+    _plugin(data)
     return True
 
 #_________________________________________________________________________________________________
@@ -134,7 +134,7 @@ def initialisation() -> Data:
         **dict.fromkeys(data.settings.get("plugin", {}), None),
         **dict.fromkeys(data.settings.get("alias_dict", {}), None),
     }
-    data.ss_api = {
+    data.api = {
         "color_container": data.color_container,
 
         "settings": data.settings,
@@ -163,7 +163,7 @@ def initialisation() -> Data:
         lexer=PygmentsLexer(data.lexer),
         style=data.pt_style,
         prompt_continuation=lambda w, h, s: line_num(w, h, s, data),
-        history=FileHistory(".ss_history"),
+        history=FileHistory(".py_history"),
         include_default_pygments_style=False
     )
     return data

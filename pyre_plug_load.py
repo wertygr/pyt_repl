@@ -12,8 +12,8 @@ from pyre_core import post
 err = "\033[31m"
 bs = "\033[0m"
 
-def plugin_ss(data) -> None:
-    ss_api = data.ss_api
+def _plugin(data) -> None:
+    api = data.api
     plugin = data.command_arg[0]
     command_arg_int = data.command_arg_int
     command_arg = data.command_arg
@@ -21,7 +21,7 @@ def plugin_ss(data) -> None:
     name_space = data.repl_mode
     script_dir = data.script_dir
 
-    plugin_settings = ss_api["settings"].get("plugin", {}).get(plugin, {})
+    plugin_settings = api["settings"].get("plugin", {}).get(plugin, {})
 
     try:
         if plugin_settings.get("cache", False) == True and plugin in sys.modules:
@@ -33,19 +33,14 @@ def plugin_ss(data) -> None:
             if not(file_name):
                 return
             spec = importlib.util.spec_from_file_location(
-                plugin,f"{script_dir}/plugins_ss/{file_name}.py")
+                plugin,f"{script_dir}/plugins/{file_name}.py")
 
             module = importlib.util.module_from_spec(spec)
             sys.modules[plugin] = module
             spec.loader.exec_module(module)
 
-        if plugin_settings.get("ss_api", False) == True:
-            module.ss_api = ss_api
-
-        else:
-            module.main_globals = {}
         name_space[plugin] = module
-        result_plug_load = module.main(ss_api=ss_api, command_context={
+        result_plug_load = module.main(api=api, command_context={
             "command_arg": command_arg,
             "command_arg_int": command_arg_int,
             "command_prefix": command_prefix
@@ -91,8 +86,7 @@ def plugins_list(data):
             post(e, data)
         return False
     try:
-        with open(f"{script_dir}/.simple_shell_settings.json") as f:
-            settings = json.load(f)
+        settings = data.settings
         table_data = []
 
         for i in settings.get("plugin", {}):
@@ -100,7 +94,7 @@ def plugins_list(data):
             filename = plugin_info.get("file", "None")
 
             plugin_file = f"{filename}.py"
-            full_path = f"{script_dir}/plugins_ss/{plugin_file}"
+            full_path = f"{script_dir}/plugins/{plugin_file}"
 
             if os.path.isfile(full_path):
                 func = check_dispatch(full_path)

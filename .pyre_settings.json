@@ -24,7 +24,13 @@
     },
     "line_name_format": "{line_number:>{width}} |",
     "prompt": ">>> ",
-    "plugin": {},
+    "plugin": {
+        "_test_plugin_": {
+            "file": "plug_test",
+            "cache": true,
+            "api": true
+        }
+    },
     "separator": true,
     "repl_mode": "globals",
     "shell_container": true,
