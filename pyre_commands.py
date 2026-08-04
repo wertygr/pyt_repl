@@ -8,20 +8,20 @@ import sys
 
 #_________________________________________________________________________________________________
 
-from simple_shell_plug_loader import unload_plugin
-from simple_shell_plug_loader import plugins_list
-from simple_shell_core import PFT
-from simple_shell_prompt_toolkit import bindings, make_jedi_completer
-from simple_shell_core import post
-from simple_shell_core import alias_list
-from simple_shell_core import buffer
-from simple_shell_core import Data
-from simple_shell_core import line_num
-from simple_shell_core import register_repl_source
-from simple_shell_core import settings_load
-from simple_shell_prompt_toolkit import completer_3
-from simple_shell_core import YELLOW
-from simple_shell_core import BS
+from pyre_plug_load import unload_plugin
+from pyre_plug_load import plugins_list
+from pyre_core import PFT
+from pyre_prompt_toolkit import bindings, make_jedi_completer
+from pyre_core import post
+from pyre_core import alias_list
+from pyre_core import buffer
+from pyre_core import Data
+from pyre_core import line_num
+from pyre_core import register_repl_source
+from pyre_core import settings_load
+from pyre_prompt_toolkit import completer_3
+from pyre_core import YELLOW
+from pyre_core import BS
 
 #_________________________________________________________________________________________________
 

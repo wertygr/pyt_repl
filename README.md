@@ -1,13 +1,15 @@
-simple repl
+python repl
 
-req:\
-python3.12+(test on 3.14.6)\
-python-jedi\
-python-prompt-toolkit\
-python-pygments\
-python-tabulate
+**install:**
+```bash
+mkdir pyrepl
+git clone #this url
+cd pyrepl
+pip install req.txt
+python pyre.py
+```
 
-fast start:
+**fast start:**
 ```pycon
 >>> _pyt-exec_ var = "test var"
 >>> _pyt-eval_ var
@@ -38,9 +40,9 @@ g = 55
 bin  boot  dev	etc  home  lib	lib64  lost+found  mnt	opt  proc  root  run  sbin  srv  swapfile  sys	tmp  usr  var
 >>> _pyt_ print(
 --------------- 
-eval: '(' was never closed (<simple_shell_repl_5>, line 1) 
+eval: '(' was never closed (<py_repl_5>, line 1) 
 ---------------
-exec: '(' was never closed (<simple_shell_repl_5>, line 1) 
+exec: '(' was never closed (<py_repl_5>, line 1) 
 ---------------
 
 >>> _pyt_ import time
@@ -49,9 +51,9 @@ exec: '(' was never closed (<simple_shell_repl_5>, line 1)
 
 >>> _pyt_ print(
 __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
-eval: '(' was never closed (<simple_shell_repl_7>, line 1) 
+eval: '(' was never closed (<py_repl_7>, line 1) 
 __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
-exec: '(' was never closed (<simple_shell_repl_7>, line 1) 
+exec: '(' was never closed (<py_repl_7>, line 1) 
 __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ 
 
 >>> _._ exit
@@ -68,4 +70,11 @@ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __
 | \_#_                           |       \<comment>       |                 comment |
 | \<command_1> \_&_ \<command_2> |                        |                pipeline |
 | \_sh_                          |       \<command>       | command on system shell |
-| \_pyt_                         |        \<code>         |           smart execute |
+| \_pyt_                         |        \<code>         |      auto(eval or exec) |
+
+**req:**\
+python3.12+(test on 3.14.6)\
+python-jedi\
+python-prompt-toolkit\
+python-pygments\
+python-tabulate
