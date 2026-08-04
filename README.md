@@ -4,7 +4,7 @@ python repl
 ```bash
 mkdir pyrepl
 cd pyrepl
-git clone <url>
+git clone <repo-url>
 pip install req.txt
 python pyre.py
 ```
