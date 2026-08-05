@@ -80,7 +80,7 @@ python-pygments\
 python-tabulate
 ***
 **settings:**\
-The settings are located in the file: "./.pyre_settings.json"
+The settings are located in the file: "./.pyre_settings.json"(parsing for std lib python "json")
 <details> <summary>example settings</summary>
 
 ```json
@@ -136,20 +136,20 @@ The settings are located in the file: "./.pyre_settings.json"
 </details>
 
 
-| name                           |                                                                                                                                description |
-|:-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------:|
-| prompt                         |                                                                                                                                     prompt |
-| color                          |                                                                                                 syntax highlighting(format prompt-toolkit) |
-| line_name_format               |                                                                                                     format number line in multiline editor |
-| shlex                          |                                                                                                              use shlex for command parsing |
-| posix                          |                                                                                                  use posix for parsing command(with shlex) |
-| multiline                      |                                                                                                                              use multiline |
-| separator                      |                                                                                                                         use pipeline(\_&_) |
-| repl_mode                      | if data.settings.get("repl_mode")== "globals":<br/>repl_mode = globals()<br/> else: repl_mode = data.local_repl_mode <br/>#repl name space |
-| alias_globals<br/>alias_locals |                                                                                                                                  use alias |
-| alias_dict                     |                                                                                                                               regist alias |
-| plugin                         |                                                                                                                              regist plugin |
-| shell_container                |                                integration system shell & pyre<br/> example:<br/>>>> \_pyt-exec_ fffff = 4<br/>>>> \_sh_ echo $fffff<br/>4 |
+| name                           | type |                                                                                                                                  description |
+|:-------------------------------|:----:|---------------------------------------------------------------------------------------------------------------------------------------------:|
+| prompt                         | str  |                                                                                                                                       prompt |
+| color                          | dict |                                                                                                   syntax highlighting(format prompt-toolkit) |
+| line_name_format               | str  |                                                                                                       format number line in multiline editor |
+| shlex                          | bool |                                                                                                                use shlex for command parsing |
+| posix                          | bool |                                                                                                    use posix for parsing command(with shlex) |
+| multiline                      | bool |                                                                                                                                use multiline |
+| separator                      | bool |                                                                                                                           use pipeline(\_&_) |
+| repl_mode                      | str  |   if data.settings.get("repl_mode")== "globals":<br/>repl_mode = globals()<br/> else: repl_mode = data.local_repl_mode <br/>#repl name space |
+| alias_globals<br/>alias_locals | bool |                                                                                                                                    use alias |
+| alias_dict                     | dict |                                                                                                                                 regist alias |
+| plugin                         | dict |                                                                                                                                regist plugin |
+| shell_container                | bool |                                  integration system shell & pyre<br/> example:<br/>>>> \_pyt-exec_ fffff = 4<br/>>>> \_sh_ echo $fffff<br/>4 |
 ***
 
 **plugins:**
@@ -170,12 +170,12 @@ register plugin(in settings):
 ```
 </details>
 
-| name           |                                             description |
-|:---------------|--------------------------------------------------------:|
-| \_test_plugin_ |                                             plugin name |
-| file           | file name(in folder: "plugins"(without file extension)) |
-| api            |                                            use pyre api |
-| cache          |                                  use cache(sys.modules) |
+| name           | type |                                             description |
+|:---------------|------|--------------------------------------------------------:|
+| \_test_plugin_ | str  |                                             plugin name |
+| file           | str  | file name(in folder: "plugins"(without file extension)) |
+| api            | bool |                                            use pyre api |
+| cache          | bool |                                  use cache(sys.modules) |
 
 <details> <summary>example plugin code</summary>
 
@@ -184,7 +184,7 @@ register plugin(in settings):
 def main(api: dict, command_context: dict) -> dict:
     for i in command_context:
         print(f"{i}: {command_context[i]}")
-    return {}
+    return {} # the "main" function must return a dict
 ```
 </details>
 
@@ -207,3 +207,98 @@ unload plugin:
 ```commandline
 _._ unload_plug <plugin_name>
 ```
+***
+**plugin API:**
+
+<details> <summary>buffer: example code and use</summary>
+
+```python
+def main(api: dict, command_context: dict) -> dict:
+    buffer = api["buffer"]
+    """
+    arg_1 - mode(type str) "copy"/"paste"/"add"
+    arg_2 - text(type str)
+    
+    mode "copy" - read buffer
+    mode "add" - add to buffer
+    mode "paste" - paste to buffer
+    """
+    print(buffer("copy"))
+    return {}
+```
+example use:
+```pycon
+>>> _#_ settings["repl_mode"] == "globals" = True
+>>> _?_ buffer -copy -silent
+>>> _example-plugin_
+def buffer (mode: str = "copy", text: str = ""):
+    global _buffer
+    if mode == "copy":
+        return _buffer
+    if mode == "paste":
+        _buffer = text
+    elif mode == "add":
+        _buffer += text
+
+>>>
+```
+
+</details>
+
+<details> <summary>settings: example code and use</summary>
+
+```python
+def main(api: dict, command_context: dict) -> dict:
+    if len(command_context["command_arg"]) < 2:
+        new_prompt = ">>>> "
+    else:
+        new_prompt = command_context["command_arg"][1]
+    api["settings"]["prompt"] = new_prompt
+    return {}
+```
+
+```pycon
+>>> _#_ settings["shlex"] == True = True
+>>> _example_plugin_ :>>>
+:>>>_example_plugin_ ":>>> "
+:>>> _example_plugin_ ">>> "
+>>> _example_plugin_
+>>>>
+```
+</details>
+
+<details> <summary>register_repl_source & data.repl_mode: example code and use</summary>
+data this is an instance of a class "Data"
+register_repl_source this is function in api used for source code registration and introspection
+
+```python
+def main(api: dict, command_context: dict) -> dict:
+    register_repl_source = api["register_repl_source"]
+    data = api["data"]
+    code = """
+def test():
+    pass
+    """
+    f_name = register_repl_source(code, data)
+    exec(compile(code, f_name, "exec"), data.repl_mode)
+    return {}
+```
+
+```pycon
+>>> _?_ test
+[source_code]: no object: test
+
+
+
+>>> _example_plugin_
+>>> _?_ test
+def test():
+    pass
+
+>>>
+```
+
+</details>
+
+_(doc in work)_
+***

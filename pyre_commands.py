@@ -131,6 +131,9 @@ def pyt_pp(data: Data) -> None:
     def execute():
         f_name = register_repl_source(code, data)
         try:
+            if "eval" in data.command_arg:
+                PFT(eval(compile(code, f_name, "eval"), data.repl_mode), data)
+                return
             exec(compile(code, f_name, "exec"), data.repl_mode)
         except Exception as e:
             post(e, data)

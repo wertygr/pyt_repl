@@ -173,7 +173,7 @@ def initialisation() -> Data:
 def repl_cycle(data: Data) -> None:
     while True:
         try:
-            data.command = data.session.prompt(str(data.prompt))
+            data.command = data.session.prompt(str(data.settings["prompt"]))
             pars_command(data)
         except (EOFError, KeyboardInterrupt):
             pass
