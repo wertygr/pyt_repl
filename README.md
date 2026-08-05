@@ -154,6 +154,20 @@ The settings are located in the file: "./.pyre_settings.json"(parsing for std li
 
 **plugins:**
 
+<details> <summary>contract</summary>
+plugin - this is file in folder "./plugins" with main function 
+the "main" function must return a dict
+the "main" function must take 2 parameters:
+    1 API: dict,
+    2 command_context: dict 
+
+```python
+def main(api: dict, command_context: dict) -> dict:
+    return {} # minimal plugin code
+```
+
+</details>
+
 register plugin(in settings):
 <details> <summary>example settings plugin</summary>
 
