@@ -1,10 +1,12 @@
-from string import Template
-import inspect
-import types
-import datetime
-from pathlib import Path
+#_________________________________________________________________________________________________
+
 import os
 import sys
+import types
+import inspect
+import datetime
+from pathlib import Path
+from string import Template
 
 #_________________________________________________________________________________________________
 
@@ -342,7 +344,7 @@ def shell_command(data: Data) -> None:
         "alias_list": alias_list_interlayer,
         "run": SSS,
         "help": help_ss,
-        "history_del": lambda: os.remove(".ss_history"),
+        "history_del": lambda: os.remove(".py_history"),
         "open": edit_open_dir,
         "read_vf": read_vf,
         "ls_vf": list_vf,

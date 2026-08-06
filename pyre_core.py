@@ -1,8 +1,11 @@
+#_________________________________________________________________________________________________
+
 import json
 import os
 import builtins
 import keyword
-from typing import Any
+
+#_________________________________________________________________________________________________
 
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
@@ -12,11 +15,17 @@ from tabulate import tabulate
 from pygments.lexers.python import PythonLexer
 from pygments.lexers import PythonLexer
 
+
+
+#_________________________________________________________________________________________________
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 BS = "\033[0m"
 YELLOW = "\033[1;33m"
 RED = "\033[1;31m"
+
+#_________________________________________________________________________________________________
 
 class Data:
 
@@ -26,12 +35,11 @@ class Data:
         **dict.fromkeys({e for e in dir(builtins) if "Error" in e or "Exception" in e})
     }
     last_error =          ""
-    simple_base_command = {}
+    base_command = {}
     repl_mode =           {}
     local_repl_mode =     {}
     _repl_cache_id =      0
     pyt_lex =             PythonLexer()
-    color_container =     {}
     line_name_format =    ""
     script_file =         ""
     separator =           False
@@ -42,7 +50,7 @@ class Data:
     script_dir =          ""
     repl_file =           ""
 
-    api =              {}
+    api =                 {}
 
     plugin_space =        {}
 
@@ -52,12 +60,15 @@ class Data:
     command_prefix =      ""
     command_arg_int =     0
     command_arg =         []
+    hook =                ""
 
     line_cache =          []
 
     lexer =               PythonLexer
     lexer_instance =      lexer()
     session =             None
+
+#_________________________________________________________________________________________________
 
 def PFT(text: str,data: Data) -> None:
     lexer = data.lexer_instance
@@ -73,12 +84,43 @@ def buffer (mode: str = "copy", text: str = ""):
     global _buffer
     if mode == "copy":
         return _buffer
-    if mode == "paste":
+    elif mode == "paste":
         _buffer = text
     elif mode == "add":
         _buffer += text
 
+
+from typing import Any, Optional
+import types
+
+_byte_cache = {"eval":{}, "exec": {}}
+
+def lazy_compile(code: str, data: Data, mode: str) -> Optional[types.CodeType]:
+    global _byte_cache
+    cache_key = _byte_cache[mode].get(code, None)
+
+    if cache_key:
+        return cache_key
+
+
+    try:
+        f_name = register_repl_source(code, data)
+        code_obj = compile(code, f_name, mode)
+
+        if len(_byte_cache[mode]) >= 64:
+            oldest_key = next(iter(_byte_cache[mode]))
+            _byte_cache[mode].pop(oldest_key)
+
+        _byte_cache[mode][code] = code_obj
+        return code_obj
+    except Exception as e:
+        post(e, data)
+        return None
+
+
 def post(e: Any, data: Data) -> None:
+    import pyre_plug_load
+    pyre_plug_load.hooks_dispatch(data, "post", {"e": f"{e}"})
     data.last_error = e
     PFT(f"{e}", data)
 
@@ -229,9 +271,17 @@ def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
     data.line_name_format = line_name_format
     data.settings         = settings
 
-    pygments_token_dict = {
-        string_to_tokentype(key): value
-        for key, value in settings.get("color", {}).items()
-    }
-    data.pt_style =        style_from_pygments_dict(pygments_token_dict)
+    try:
+        pygments_token_dict = {
+            string_to_tokentype(key): value
+            for key, value in settings.get("color", {}).items()
+        }
+    except (ValueError, AttributeError) as e:
+        pygments_token_dict = {
+            string_to_tokentype(key): value
+            for key, value in {}.items()
+        }
+        post(e, data)
+
+    data.pt_style = style_from_pygments_dict(pygments_token_dict)
     data.script_dir =      os.path.dirname(os.path.abspath(__file__))

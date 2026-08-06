@@ -105,7 +105,7 @@ def initialisation() -> Data:
     data.repl_file = Path(__file__).resolve()
     data.line_cache = linecache
     settings_load(data)
-    data.simple_base_command = {
+    data.base_command = {
         "_#_": None,
         "_pyt_": data.grammatical,
         "_pyt-exec_": data.grammatical,
@@ -135,8 +135,6 @@ def initialisation() -> Data:
         **dict.fromkeys(data.settings.get("alias_dict", {}), None),
     }
     data.api = {
-        "color_container": data.color_container,
-
         "settings": data.settings,
         "prompt": data.prompt,
 

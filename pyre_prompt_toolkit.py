@@ -40,7 +40,7 @@ def completer(data: Data):
     if not isinstance(dynamics, dict):
         dynamics = {}
 
-    updated_base = dict(data.simple_base_command)
+    updated_base = data.base_command
     updated_base["_pyt-exec_"] = dynamics
     updated_base["_pyt-eval_"] = dynamics
     updated_base["_pyt_"]      = dynamics
@@ -65,7 +65,7 @@ def completer_3(data: Data):
     if isinstance(data.grammatical, dict):
         grammatical_words = list(data.grammatical.keys())
 
-    builtins_words = list({name for name in dir(builtins) if name[0].islower()})
+    builtins_words = [name for name in dir(builtins) if name[0].islower()]
     all_words = set(dynamic_words + grammatical_words + keyword.kwlist + builtins_words)
     return WordCompleter(all_words, WORD=True, ignore_case=False)
 
