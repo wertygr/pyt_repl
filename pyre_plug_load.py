@@ -1,16 +1,10 @@
 import importlib.util
 import os
 import sys
-import ast
 from typing import Optional, Any
-
-from tabulate import tabulate
 
 from pyre_core import PFT, Data
 from pyre_core import post
-
-def _plugin_execute(module_func, *args, **kwargs):
-    return module_func(*args, **kwargs)
 
 def _plugin_load(plugin, f_locate):
     spec = importlib.util.spec_from_file_location(plugin, f_locate)
@@ -45,7 +39,7 @@ def _plugin(data: Data, plugin: Optional[str] = None) -> None:
         module = _plugin_cache_load(plugin, plugin_settings)
 
         name_space[plugin] = module
-        result_plug_load = _plugin_execute(module.main, api=api, command_context={
+        result_plug_load = module.main (api=api, command_context={
             "command_arg": command_arg,
             "command_arg_int": command_arg_int,
             "command_prefix": command_prefix
@@ -94,47 +88,11 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
             module = _plugin_cache_load(i, plugin_settings)
 
             name_space[i] = module
-            result_plug_load = _plugin_execute(module.hook_run, api=api, hook=hook_name, hook_parameter=hook_parameter)
+            result_plug_load = module.hook_run(api=api, hook=hook_name, hook_parameter=hook_parameter)
             if not (isinstance(result_plug_load, dict)):
-                e = f"[hooks_dispatch]: invalid plugin result. plugin result = {result_plug_load}"
+                e = f"[hooks_dispatch]: invalid type({type, result_plug_load}) plugin result. plugin result = {result_plug_load}"
                 _post(e, data)
                 continue
             data.plugin_space[i] = result_plug_load
         except Exception as e:
             _post(e, data)
-
-def plugins_list(data):
-    script_dir = data.script_dir
-    def check_dispatch(file_path):
-        try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                tree = ast.parse(file.read())
-
-            for i in ast.walk(tree):
-                if isinstance(i, ast.FunctionDef) and i.name == "main":
-                    return True
-        except Exception as e:
-            post(e, data)
-        return False
-    try:
-        settings = data.settings
-        table_data = []
-
-        for i in settings.get("plugin", {}):
-            plugin_info = settings["plugin"][i]
-            filename = plugin_info.get("file", "None")
-
-            plugin_file = f"{filename}.py"
-            full_path = f"{script_dir}/plugins/{plugin_file}"
-
-            if os.path.isfile(full_path):
-                func = check_dispatch(full_path)
-                table_data.append([i, plugin_file, str(func)])
-
-        headers = ["prefix", "file_Name", "main"]
-
-        PFT(tabulate(table_data, headers=headers, tablefmt="grid"), data)
-    except FileNotFoundError as e:
-        post(e, data)
-    except Exception as e:
-        post(e, data)

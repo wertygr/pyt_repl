@@ -1,4 +1,3 @@
 prompt-toolkit
 jedi
-tabulate
 pygments

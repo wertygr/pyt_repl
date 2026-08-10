@@ -4,6 +4,8 @@ import json
 import os
 import builtins
 import keyword
+import traceback
+from types import TracebackType
 
 #_________________________________________________________________________________________________
 
@@ -11,19 +13,13 @@ from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit.styles import style_from_pygments_dict
 from pygments.token import string_to_tokentype
-from tabulate import tabulate
 from pygments.lexers.python import PythonLexer
 from pygments.lexers import PythonLexer
 
-
-
 #_________________________________________________________________________________________________
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
 
 BS = "\033[0m"
 YELLOW = "\033[1;33m"
-RED = "\033[1;31m"
 
 #_________________________________________________________________________________________________
 
@@ -102,7 +98,6 @@ def lazy_compile(code: str, data: Data, mode: str) -> Optional[types.CodeType]:
     if cache_key:
         return cache_key
 
-
     try:
         f_name = register_repl_source(code, data)
         code_obj = compile(code, f_name, mode)
@@ -117,12 +112,15 @@ def lazy_compile(code: str, data: Data, mode: str) -> Optional[types.CodeType]:
         post(e, data)
         return None
 
-
 def post(e: Any, data: Data) -> None:
-    import pyre_plug_load
-    pyre_plug_load.hooks_dispatch(data, "post", {"e": f"{e}"})
+    from pyre_plug_load import hooks_dispatch
+    if isinstance(e, TracebackType):
+        e = "".join(traceback.format_tb(e))
+    elif isinstance(e, BaseException):
+        e = "".join(traceback.format_exception(type(e), e, e.__traceback__))
     data.last_error = e
-    PFT(f"{e}", data)
+    hooks_dispatch(data, "post", {"e": f"{e}"})
+    PFT(e, data)
 
 def command_separators(command_arg) -> list:
     subarrays = []
@@ -193,23 +191,6 @@ def alias_parser(data: Data, alias_dict: dict, command_arg: list, mode: str) -> 
         else:
             result.append(item)
     return result
-
-def alias_list(data) -> None:
-    alias_dict = data.settings
-    table_data = []
-
-    for i in alias_dict.get("alias_dict", {}):
-        alias_info = alias_dict["alias_dict"][i]
-
-        scope = alias_info.get("scope", "local")
-        value = alias_info.get("value", "NONE_ALIAS")
-        position = alias_info.get("position", None)
-
-        table_data.append([i, scope, position, value])
-
-    headers = ["alias", "scope", "position", "value"]
-
-    PFT(tabulate(table_data, headers=headers, tablefmt="grid"), data)
 
 def dynamics_completer(data: Data):
     return {

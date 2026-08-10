@@ -11,11 +11,9 @@ from string import Template
 #_________________________________________________________________________________________________
 
 from pyre_plug_load import unload_plugin
-from pyre_plug_load import plugins_list
 from pyre_core import PFT
 from pyre_prompt_toolkit import bindings, make_jedi_completer
 from pyre_core import post
-from pyre_core import alias_list
 from pyre_core import buffer
 from pyre_core import Data
 from pyre_core import line_num
@@ -122,7 +120,7 @@ def source_code(data) -> None:
 def pyt_pp(data: Data) -> None:
     code = ""
     def save():
-        time_now = str(datetime.datetime.now().strftime("%H_%M_%S"))
+        time_now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         try:
             with open(f"pyt_save/{time_now}.py", "w") as file:
                 file.write(code)
@@ -144,12 +142,10 @@ def pyt_pp(data: Data) -> None:
         if data.pyt_plus_old_text == "":
             with open("pyt_save/.pyt_save", "r", encoding="utf-8") as f:
                 data.pyt_plus_old_text = f.read()
-        else: data.pyt_plus_old_text = data.pyt_plus_old_text
     else:
         data.pyt_plus_old_text = ""
     if "paste" in data.command_arg:
         data.pyt_plus_old_text += buffer("copy")
-
 
     try:
         code = prompt(
@@ -179,6 +175,71 @@ def pyt_pp(data: Data) -> None:
         "save": [save, True],
         "copy": [lambda: buffer("paste", data.pyt_plus_old_text), True],
         "not_exec": [execute, False],
+    }
+    for flag, (action, run_if_present) in flag_map.items():
+        is_present = flag in data.command_arg[1:]
+        if is_present == run_if_present:
+            action()
+
+# beta
+def n_pyt_pp(data: Data):
+    def read_cache():
+        if not data.pyt_plus_old_text:
+            with open("pyt_save/.pyt_save", "r", encoding="utf-8") as f:
+                data.pyt_plus_old_text = f.read()
+    def save():
+        time_now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        try:
+            with open(f"pyt_save/{time_now}.py", "w") as file:
+                file.write(data.pyt_plus_old_text)
+                print(YELLOW, f"{time_now}.py", BS)
+        except Exception as e:
+            post(e, data)
+    def save_cache():
+        with open("pyt_save/.pyt_save", "w") as f:
+            f.write(data.pyt_plus_old_text)
+    def execute():
+        f_name = register_repl_source(data.pyt_plus_old_text, data)
+        try:
+            if "eval" in data.command_arg:
+                PFT(eval(compile(data.pyt_plus_old_text, f_name, "eval"), data.repl_mode), data)
+                return
+            exec(compile(data.pyt_plus_old_text, f_name, "exec"), data.repl_mode)
+        except Exception as e:
+            post(e, data)
+    def editor():
+        try:
+            data.pyt_plus_old_text = prompt(
+                line_num(0, 0, 0, data),
+                default=data.pyt_plus_old_text,
+                completer=make_jedi_completer(data),
+                lexer=PygmentsLexer(data.lexer),
+                style=data.pt_style,
+                multiline=True,
+                prompt_continuation=lambda w, h, s: line_num(w, h, s, data),
+                key_bindings=bindings
+            )
+            return
+        except (KeyboardInterrupt, EOFError):
+            pass
+        except Exception as e:
+            post(e, data)
+        data.pyt_plus_old_text = None
+    if "old" in data.command_arg:
+        read_cache()
+    if "paste" in data.command_arg:
+        data.pyt_plus_old_text += buffer("copy")
+
+    editor()
+    if data.pyt_plus_old_text is None:
+        data.pyt_plus_old_text = ""
+        return
+
+    flag_map = {
+        "save": [save, True],
+        "copy": [lambda: buffer("paste", data.pyt_plus_old_text), True],
+        "not_exec": [execute, False],
+        "not_cache": [save_cache, False]
     }
     for flag, (action, run_if_present) in flag_map.items():
         is_present = flag in data.command_arg[1:]
@@ -297,21 +358,22 @@ def shell_command(data: Data) -> None:
                 continue
             del data.line_cache.cache[i]
 
-
     def list_vf():
         for i in data.line_cache.cache:
-            print(i)
+            print(f"{i} - {len(''.join(data.line_cache.getlines(i)))} char")
 
     def edit_open_dir() -> None:
         if data.command_arg_int < 2:
-            return None
+            e = "[shell_command::edit_open_dir]: not enough arguments"
+            post(e, data)
+            return
         path = Path(data.command_arg[2]).resolve()
+        if not Path(path).is_dir():
+            e = f"[shell_command::edit_open_dir]: not directory: {path}"
+            post(e, data)
+            return
+        os.chdir(path)
 
-        if Path(path).is_dir():
-            os.chdir(path)
-
-    def alias_list_interlayer():
-        alias_list(data.settings)
     def help_ss():
         with open(data.repl_file, "r", encoding="utf-8") as f:
             PFT(f.read(), data)
@@ -329,19 +391,16 @@ def shell_command(data: Data) -> None:
             with open(path) as file:
                 lines = file.readlines()
                 for item_2 in lines:
-                    if item_2 == "":
+                    if not item_2:
                         continue
-                    data.ss_api["pars_command"](item_2)
+                    data.api["pars_command"](item_2)
         except Exception as e:
             post(e, data)
-
 
     command_map = {
         "clear": lambda: os.system("cls" if os.name == "nt" else "clear"),
         "exit": lambda: sys.exit(0),
         "settings_reload": lambda: settings_load(data),
-        "plugins_list": lambda: plugins_list(data),
-        "alias_list": alias_list_interlayer,
         "run": SSS,
         "help": help_ss,
         "history_del": lambda: os.remove(".py_history"),

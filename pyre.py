@@ -117,7 +117,6 @@ def initialisation() -> Data:
             "clear": None,
             "history_del": None,
             "settings_reload": None,
-            "plugins_list": None,
             "run": {
                 "{script_dir}": None
             },
