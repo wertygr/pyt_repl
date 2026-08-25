@@ -79,7 +79,7 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
     data.hook = hook_name
     name_space = data.repl_mode
     plugin_list = []
-    for i in data.settings["plugin"]:
+    for i in data.settings.get("plugin", {}):
         if hook_name in data.settings["plugin"][i].get("hooks", []):
             plugin_list.append(i)
     for i in plugin_list:

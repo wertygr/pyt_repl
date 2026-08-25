@@ -1,7 +1,5 @@
 #_________________________________________________________________________________________________
 
-import json
-import os
 import builtins
 import keyword
 import traceback
@@ -11,8 +9,6 @@ from types import TracebackType
 
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
-from prompt_toolkit.styles import style_from_pygments_dict
-from pygments.token import string_to_tokentype
 from pygments.lexers.python import PythonLexer
 from pygments.lexers import PythonLexer
 
@@ -31,7 +27,7 @@ class Data:
         **dict.fromkeys({e for e in dir(builtins) if "Error" in e or "Exception" in e})
     }
     last_error =          ""
-    base_command = {}
+    base_command =        {}
     repl_mode =           {}
     local_repl_mode =     {}
     _repl_cache_id =      0
@@ -113,12 +109,12 @@ def lazy_compile(code: str, data: Data, mode: str) -> Optional[types.CodeType]:
         return None
 
 def post(e: Any, data: Data) -> None:
-    from pyre_plug_load import hooks_dispatch
     if isinstance(e, TracebackType):
         e = "".join(traceback.format_tb(e))
     elif isinstance(e, BaseException):
         e = "".join(traceback.format_exception(type(e), e, e.__traceback__))
     data.last_error = e
+    hooks_dispatch = data.api.get("hook_dispatch", lambda *x: None)
     hooks_dispatch(data, "post", {"e": f"{e}"})
     PFT(e, data)
 
@@ -215,54 +211,3 @@ def register_repl_source(source: str, data) -> str:
     filename = f"<py_repl_{data._repl_cache_id}>"
     data.line_cache.cache[filename] = (len(source), None, source.splitlines(keepends=True), filename)
     return filename
-
-
-def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
-    try:
-        with open(file, encoding="utf-8") as f:
-            settings = json.load(f)
-    except Exception as e:
-        post(e, data)
-        settings = {}
-
-    line_name_format =    settings.get("line_name_format", "{line_number} |")
-    script_file =         settings.get("file", {}).get("script_file", None)
-
-    if isinstance(script_file, str):
-        script_file = script_file
-    else:
-        script_file = None
-
-    data.separator =      settings.get("separator", False)
-
-    data.prompt =         settings.get("prompt", ">>> ")
-
-    if settings.get("repl_mode", "locals") == "globals":
-        data.repl_mode = globals()
-        data.repl_mode["data"] = data
-    else:
-        data.repl_mode = data.local_repl_mode
-
-    if settings.get("shell_container", False):
-        data.shell_container = data.repl_mode
-    else:
-        data.shell_container = {}
-
-    data.script_file      = script_file
-    data.line_name_format = line_name_format
-    data.settings         = settings
-
-    try:
-        pygments_token_dict = {
-            string_to_tokentype(key): value
-            for key, value in settings.get("color", {}).items()
-        }
-    except (ValueError, AttributeError) as e:
-        pygments_token_dict = {
-            string_to_tokentype(key): value
-            for key, value in {}.items()
-        }
-        post(e, data)
-
-    data.pt_style = style_from_pygments_dict(pygments_token_dict)
-    data.script_dir =      os.path.dirname(os.path.abspath(__file__))

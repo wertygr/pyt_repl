@@ -1,11 +1,17 @@
 """
 This is python repl
 """
+
 #________________________________________________________________________________________________
 
+import os
+import json
 import shlex
 import linecache
 from pathlib import Path
+
+from prompt_toolkit.styles import style_from_pygments_dict
+from pygments.token import string_to_tokentype
 
 #_________________________________________________________________________________________________
 
@@ -17,7 +23,6 @@ from pyre_core import buffer
 from pyre_core import Data
 from pyre_core import line_num
 from pyre_core import register_repl_source
-from pyre_core import settings_load
 from pyre_commands import source_code
 from pyre_commands import pyt_eval
 from pyre_commands import sh
@@ -26,6 +31,7 @@ from pyre_commands import pyt_exec
 from pyre_commands import pyt_pp
 from pyre_commands import shell_command
 from pyre_plug_load import _plugin
+from pyre_plug_load import hooks_dispatch
 from pyre_prompt_toolkit import completer
 #_________________________________________________________________________________________________
 
@@ -100,6 +106,56 @@ def pars_command(data: Data) -> None:
 
 #_________________________________________________________________________________________________
 
+def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
+    try:
+        with open(file, encoding="utf-8") as f:
+            settings = json.load(f)
+    except Exception as e:
+        post(e, data)
+        settings = {}
+
+    line_name_format =    settings.get("line_name_format", "{line_number} |")
+    script_file =         settings.get("file", {}).get("script_file", None)
+
+    if isinstance(script_file, str):
+        script_file = script_file
+    else:
+        script_file = None
+
+    data.separator =      settings.get("separator", False)
+
+    data.prompt =         settings.get("prompt", ">>> ")
+
+    if settings.get("repl_mode", "locals") == "globals":
+        data.repl_mode = globals()
+        data.repl_mode["data"] = data
+    else:
+        data.repl_mode = data.local_repl_mode
+
+    if settings.get("shell_container", False):
+        data.shell_container = data.repl_mode
+    else:
+        data.shell_container = {}
+
+    data.script_file      = script_file
+    data.line_name_format = line_name_format
+    data.settings         = settings
+
+    try:
+        pygments_token_dict = {
+            string_to_tokentype(key): value
+            for key, value in settings.get("color", {}).items()
+        }
+    except (ValueError, AttributeError) as e:
+        pygments_token_dict = {
+            string_to_tokentype(key): value
+            for key, value in {}.items()
+        }
+        post(e, data)
+
+    data.pt_style = style_from_pygments_dict(pygments_token_dict)
+    data.script_dir = os.path.dirname(os.path.abspath(__file__))
+
 def initialisation() -> Data:
     data = Data()
     data.repl_file = Path(__file__).resolve()
@@ -136,7 +192,7 @@ def initialisation() -> Data:
     data.api = {
         "settings": data.settings,
         "prompt": data.prompt,
-
+        "settings_load": settings_load,
         "script_dir": data.script_dir,
         "script_file": data.script_file,
 
@@ -151,9 +207,9 @@ def initialisation() -> Data:
         "buffer": buffer,
         "alias_parser": alias_parser,
         "data": data,
-        "register_repl_source": register_repl_source
+        "register_repl_source": register_repl_source,
+        "hook_dispatch": hooks_dispatch
     }
-
     data.session = PromptSession(
         completer=DynamicCompleter(lambda: completer(data)),
         multiline=data.settings.get("multiline", False),
@@ -170,7 +226,7 @@ def initialisation() -> Data:
 def repl_cycle(data: Data) -> None:
     while True:
         try:
-            data.command = data.session.prompt(str(data.settings["prompt"]))
+            data.command = data.session.prompt(str(data.settings.get("prompt")))
             pars_command(data)
         except (EOFError, KeyboardInterrupt):
             pass

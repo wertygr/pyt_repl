@@ -1,4 +1,4 @@
-from g4f.models import command_afrom pyre_core import command_separatorsfrom pyre_core import Datapython repl
+python repl
 ***
 **install:**
 ```bash

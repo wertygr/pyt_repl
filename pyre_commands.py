@@ -10,7 +10,7 @@ from string import Template
 
 #_________________________________________________________________________________________________
 
-from pyre_plug_load import unload_plugin
+from pyre_plug_load import unload_plugin, _plugin
 from pyre_core import PFT
 from pyre_prompt_toolkit import bindings, make_jedi_completer
 from pyre_core import post
@@ -18,7 +18,7 @@ from pyre_core import buffer
 from pyre_core import Data
 from pyre_core import line_num
 from pyre_core import register_repl_source
-from pyre_core import settings_load
+# from pyre import settings_load
 from pyre_prompt_toolkit import completer_3
 from pyre_core import YELLOW
 from pyre_core import BS
@@ -260,6 +260,13 @@ def shell_command(data: Data) -> None:
         for i in data.command_arg[2:]:
             unload_plugin(i, data)
 
+    def load_plug():
+        if data.command_arg_int < 3:
+            e = "[shell_command::load_plug]: not enough arguments"
+            post(e, data)
+            return
+        _plugin(data, data.command_arg[2])
+
     def rname_vf():
         if data.command_arg_int < 4:
             e = "[shell_command::rname_vf]: not enough arguments"
@@ -378,11 +385,23 @@ def shell_command(data: Data) -> None:
         with open(data.repl_file, "r", encoding="utf-8") as f:
             PFT(f.read(), data)
             return
-
+    def hook_run():
+        if data.command_arg_int < 4:
+            e = "[shell_command::hook_run]: not enough arguments"
+            post(e, data)
+        hooks_dispatch = data.api["hook_dispatch"]
+        hook_name = data.command_arg[2]
+        try:
+            # _._ hook_run "name" "{\"test\": \"test\"}"
+            hook_arg = eval(data.command_arg[3], data.repl_mode)
+        except Exception as e:
+            post(e, data)
+            return
+        hooks_dispatch(data, hook_name, hook_arg)
     def critical_error(*args):
         raise RuntimeError("critical error in core(tester except)")
 
-    def SSS():
+    def run_script():
         if data.command_arg_int < 2:
             return None
         path = data.command_arg[2]
@@ -400,8 +419,8 @@ def shell_command(data: Data) -> None:
     command_map = {
         "clear": lambda: os.system("cls" if os.name == "nt" else "clear"),
         "exit": lambda: sys.exit(0),
-        "settings_reload": lambda: settings_load(data),
-        "run": SSS,
+        "settings_reload": lambda: data.api["settings_load"](data),
+        "run": run_script,
         "help": help_ss,
         "history_del": lambda: os.remove(".py_history"),
         "open": edit_open_dir,
@@ -412,7 +431,9 @@ def shell_command(data: Data) -> None:
         "n_vf": n_vf,
         "e_vf": e_vf,
         "unload_plug": unload_plug,
-        "critical_error": critical_error
+        "critical_error": critical_error,
+        "hook_run": hook_run,
+        "load_plug": load_plug,
     }
     if not(command_map.get(data.command_arg[1])):
         e = f"[shell_command]: unknown command: {data.command_arg[1]}"
