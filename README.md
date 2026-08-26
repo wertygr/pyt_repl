@@ -5,7 +5,7 @@ python repl
 mkdir pyrepl
 cd pyrepl
 git clone <repo-url>
-pip install req.txt
+pip install -r req.txt
 python pyre.py
 ```
 ***
@@ -156,12 +156,12 @@ The settings are located in the file: "./.pyre_settings.json"(parsing for std li
 <details> <summary>contract</summary>
 
 plugin - this is file in folder "./plugins" with main function\
-the "main" function must return a dict\
+the "main" function must return a Any(ignore)\
 the "main" function must take 2 parameters:
 
 - 1 API: dict,
 - 2 command_context: dict 
-
+- 3 plugin_space: dict
 
 ```python
 def main(api: dict, command_context: dict) -> dict:
@@ -196,10 +196,9 @@ def main(api: dict, command_context: dict) -> dict:
 
 ```python
 # code in ./plugins/plug_test
-def main(api: dict, command_context: dict) -> dict:
+def main(api: dict, command_context: dict, plugin_space: dict):
     for i in command_context:
         print(f"{i}: {command_context[i]}")
-    return {} # the "main" function must return a dict
 ```
 </details>
 
@@ -228,7 +227,7 @@ _._ unload_plug <plugin_name>
 <details> <summary>buffer: example code and use</summary>
 
 ```python
-def main(api: dict, command_context: dict) -> dict:
+def main(api: dict, command_context: dict, plugin_space: dict):
     buffer = api["buffer"]
     """
     arg_1 - mode(type str) "copy"/"paste"/"add"
@@ -241,7 +240,6 @@ def main(api: dict, command_context: dict) -> dict:
     mode="paste" - paste to buffer
     """
     print(buffer("copy"))
-    return {}
 ```
 example use:
 ```pycon
@@ -265,13 +263,12 @@ def buffer (mode: str = "copy", text: str = ""):
 <details> <summary>settings: example code and use</summary>
 
 ```python
-def main(api: dict, command_context: dict) -> dict:
+def main(api: dict, command_context: dict, plugin_space):
     if len(command_context["command_arg"]) < 2:
         new_prompt = ">>>> "
     else:
         new_prompt = command_context["command_arg"][1]
     api["settings"]["prompt"] = new_prompt
-    return {}
 ```
 
 ```pycon
@@ -289,7 +286,7 @@ data this is an instance of a class "Data"
 register_repl_source this is function in api used for source code registration and introspection
 
 ```python
-def main(api: dict, command_context: dict) -> dict:
+def main(api: dict, command_context: dict, plugin_space: dict):
     register_repl_source = api["register_repl_source"]
     data = api["data"]
     code = """
@@ -298,7 +295,6 @@ def test():
     """
     f_name = register_repl_source(code, data)
     exec(compile(code, f_name, "exec"), data.repl_mode)
-    return {}
 ```
 
 ```pycon
@@ -320,7 +316,7 @@ def test():
 <details> <summary>post and PFT: example code and use</summary>
 
 ```python
-def main(api: dict, command_context: dict) -> dict:
+def main(api: dict, command_context: dict, plugin_space: dict):
     data = api["data"] 
     post = api["post"] # print error and register error
     PFT =  api["PFT"] # print formated text
@@ -340,7 +336,6 @@ def main(api: dict, command_context: dict) -> dict:
     post signature - post(e: Any, data: Data)
     PFT signature - PFT(text: Any, data: Data)
     """
-    return {}
 ```
 
 ```pycon
@@ -364,7 +359,7 @@ test error
 <details><summary>command_separator: example code and use</summary>
 
 ```python
-def main(api: dict, command_context: dict) -> dict:
+def main(api: dict, command_context: dict, plugin_space: dict):
     post = api["post"]
     data = api["data"]
     command_separators = api["command_separators"]
@@ -376,7 +371,6 @@ def main(api: dict, command_context: dict) -> dict:
     print(f"command_arg: {command_context['command_arg']}\ncommands: {commands}\n__")
     for i in commands:
         print(i)
-    return {}
 ```
 
 ```pycon

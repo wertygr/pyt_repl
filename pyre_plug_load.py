@@ -33,24 +33,17 @@ def _plugin(data: Data, plugin: Optional[str] = None) -> None:
     command_prefix = data.command_prefix
     name_space = data.repl_mode
 
-    plugin_settings = api["settings"].get("plugin", {}).get(plugin, {})
+    plugin_settings = data.settings.get("plugin", {}).get(plugin, {})
 
     try:
         module = _plugin_cache_load(plugin, plugin_settings)
 
         name_space[plugin] = module
-        result_plug_load = module.main (api=api, command_context={
+        module.main (api=api, command_context={
             "command_arg": command_arg,
             "command_arg_int": command_arg_int,
             "command_prefix": command_prefix
-        })
-        if not(isinstance(result_plug_load, dict)):
-            e = f"[_plugin]: invalid plugin result. plugin result = {result_plug_load}"
-            post(e, data)
-            return
-        data.plugin_space[plugin] = result_plug_load
-        return
-
+        }, plugin_space=data.plugin_space)
     except Exception as e:
         post(e, data)
 

@@ -18,10 +18,9 @@ from pyre_core import buffer
 from pyre_core import Data
 from pyre_core import line_num
 from pyre_core import register_repl_source
-# from pyre import settings_load
 from pyre_prompt_toolkit import completer_3
 from pyre_core import YELLOW
-from pyre_core import BS
+from pyre_core import RESET
 
 #_________________________________________________________________________________________________
 
@@ -98,7 +97,7 @@ def source_code(data) -> None:
             text = _copy
         except (OSError, TypeError):
             _copy = getattr(obj, "__doc__", "no docstring")
-            text = f"{YELLOW}[no docstring]{BS}"
+            text = f"{YELLOW}[no docstring]{RESET}"
     elif command_arg[1] in repl_mode:
         _copy = repr(obj)
         text = f"{command_arg[1]} = {_copy}"
@@ -124,7 +123,7 @@ def pyt_pp(data: Data) -> None:
         try:
             with open(f"pyt_save/{time_now}.py", "w") as file:
                 file.write(code)
-                print(YELLOW, f"{time_now}.py", BS)
+                print(YELLOW, f"{time_now}.py", RESET)
         except Exception as e:
             post(e, data)
 
@@ -192,7 +191,7 @@ def n_pyt_pp(data: Data):
         try:
             with open(f"pyt_save/{time_now}.py", "w") as file:
                 file.write(data.pyt_plus_old_text)
-                print(YELLOW, f"{time_now}.py", BS)
+                print(YELLOW, f"{time_now}.py", RESET)
         except Exception as e:
             post(e, data)
     def save_cache():

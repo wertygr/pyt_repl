@@ -3,7 +3,8 @@
 import builtins
 import keyword
 import traceback
-from types import TracebackType
+from typing import Any, Optional
+from types import TracebackType, CodeType
 
 #_________________________________________________________________________________________________
 
@@ -14,7 +15,7 @@ from pygments.lexers import PythonLexer
 
 #_________________________________________________________________________________________________
 
-BS = "\033[0m"
+RESET = "\033[0m"
 YELLOW = "\033[1;33m"
 
 #_________________________________________________________________________________________________
@@ -81,13 +82,9 @@ def buffer (mode: str = "copy", text: str = ""):
     elif mode == "add":
         _buffer += text
 
-
-from typing import Any, Optional
-import types
-
 _byte_cache = {"eval":{}, "exec": {}}
 
-def lazy_compile(code: str, data: Data, mode: str) -> Optional[types.CodeType]:
+def lazy_compile(code: str, data: Data, mode: str) -> Optional[CodeType]:
     global _byte_cache
     cache_key = _byte_cache[mode].get(code, None)
 
