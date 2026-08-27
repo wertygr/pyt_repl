@@ -112,7 +112,7 @@ def post(e: Any, data: Data) -> None:
         e = "".join(traceback.format_exception(type(e), e, e.__traceback__))
     data.last_error = e
     hooks_dispatch = data.api.get("hook_dispatch", lambda *x: None)
-    hooks_dispatch(data, "post", {"e": f"{e}"})
+    hooks_dispatch(data, "post", {"err": f"{e}"})
     PFT(e, data)
 
 def command_separators(command_arg) -> list:

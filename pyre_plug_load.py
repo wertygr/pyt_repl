@@ -21,7 +21,7 @@ def _plugin_cache_load(plugin, plugin_settings):
         sys.modules.pop(plugin, None)
 
         file_name = plugin_settings.get("file", None)
-        module = _plugin_load(plugin, f"{script_dir}/plugins/{file_name}.py")
+        module = _plugin_load(plugin, f"{script_dir}/plugins/{file_name}")
     return module
 
 def _plugin(data: Data, plugin: Optional[str] = None) -> None:

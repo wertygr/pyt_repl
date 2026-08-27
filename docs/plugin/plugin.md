@@ -3,7 +3,7 @@
 <details> <summary>contract</summary>
 
 plugin - this is file in folder "./plugins" with main function\
-the "main" function must return a Any(ignore)\
+the "main" function must return an Any(ignore)\
 the "main" function must take 3 parameters(kwargs):
 
 - 1 API: dict,
@@ -23,7 +23,7 @@ def main(api: dict, command_context: dict, plugin_space: dict):
 {
     "plugin": {
         "_test_plugin_": {
-            "file": "plug_test",
+            "file": "plug_test.py",
             "cache": true,
             "api": true
         } 
@@ -32,12 +32,12 @@ def main(api: dict, command_context: dict, plugin_space: dict):
 ```
 </details>
 
-| name           | type |                                             description |
-|:---------------|------|--------------------------------------------------------:|
-| \_test_plugin_ | str  |                                             plugin name |
-| file           | str  | file name(in folder: "plugins"(without file extension)) |
-| api            | bool |                                            use pyre api |
-| cache          | bool |                                  use cache(sys.modules) |
+| name           | type |                      description |
+|:---------------|------|---------------------------------:|
+| \_test_plugin_ | str  |                      plugin name |
+| file           | str  | file name(in folder: "plugins" ) |
+| api            | bool |                     use pyre api |
+| cache          | bool |           use cache(sys.modules) |
 
 <details> <summary>example plugin code</summary>
 
@@ -70,3 +70,4 @@ _._ unload_plug <plugin_name>
 ```
 ***
 * [plugin api](api/api.md)
+* [hooks](hook/hook.md)

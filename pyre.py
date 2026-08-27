@@ -29,7 +29,7 @@ from pyre_commands import pyt_exec
 from pyre_commands import shell_command
 from pyre_plug_load import _plugin
 from pyre_plug_load import hooks_dispatch
-from pyre_prompt_toolkit import completer
+from pyre_prompt_toolkit import completer, bindings
 #_________________________________________________________________________________________________
 
 from prompt_toolkit import PromptSession
@@ -216,7 +216,8 @@ def initialisation() -> Data:
         style=data.pt_style,
         prompt_continuation=lambda w, h, s: line_num(w, h, s, data),
         history=FileHistory(".py_history"),
-        include_default_pygments_style=False
+        include_default_pygments_style=False,
+        key_bindings=bindings
     )
     return data
 

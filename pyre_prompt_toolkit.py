@@ -3,6 +3,8 @@
 import builtins
 import keyword
 
+from prompt_toolkit.key_binding.bindings.named_commands import unix_word_rubout
+
 #_________________________________________________________________________________________________
 
 from pyre_core import Data
@@ -34,6 +36,15 @@ grammatical = {
     **exceptions
 }
 bindings = KeyBindings()
+
+@bindings.add("c-q")
+def _(event):
+    buffer = event.current_buffer
+    buffer.text = ""
+
+@bindings.add('c-w')
+def _(event):
+    unix_word_rubout(event)
 
 def completer(data: Data):
     dynamics = dynamics_completer(data) or {}
