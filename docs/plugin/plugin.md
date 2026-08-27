@@ -4,7 +4,7 @@
 
 plugin - this is file in folder "./plugins" with main function\
 the "main" function must return a Any(ignore)\
-the "main" function must take 2 parameters:
+the "main" function must take 3 parameters(kwargs):
 
 - 1 API: dict,
 - 2 command_context: dict 

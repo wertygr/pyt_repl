@@ -82,10 +82,6 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
 
             name_space[i] = module
             result_plug_load = module.hook_run(api=api, hook=hook_name, hook_parameter=hook_parameter)
-            if not (isinstance(result_plug_load, dict)):
-                e = f"[hooks_dispatch]: invalid type({type, result_plug_load}) plugin result. plugin result = {result_plug_load}"
-                _post(e, data)
-                continue
             data.plugin_space[i] = result_plug_load
         except Exception as e:
             _post(e, data)

@@ -77,7 +77,6 @@ def pyt_exec(data: Data) -> None:
     except Exception as e:
         post(e, data)
 
-
 def source_code(data) -> None:
     _copy = ""
     text = ""
@@ -89,9 +88,12 @@ def source_code(data) -> None:
         e = "[source_code]: not enough arguments"
         post(e, data)
         return
-    obj = repl_mode.get(command_arg[1])
-
-    if callable(obj) or inspect.isclass(obj) or isinstance(obj, types.ModuleType):
+    try:
+        obj = eval(command_arg[1], repl_mode)
+    except Exception as e:
+        post(e, data)
+        return
+    if callable(obj) or inspect.isclass(obj) or isinstance(obj, types.ModuleType) or inspect.ismodule(obj) or inspect.isfunction(obj) or inspect.isroutine(obj) or inspect.ismethod(obj):
         try:
             _copy = inspect.getsource(obj)
             text = _copy
@@ -115,73 +117,7 @@ def source_code(data) -> None:
         if is_present == run_if_present:
             action()
 
-
-def pyt_pp(data: Data) -> None:
-    code = ""
-    def save():
-        time_now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        try:
-            with open(f"pyt_save/{time_now}.py", "w") as file:
-                file.write(code)
-                print(YELLOW, f"{time_now}.py", RESET)
-        except Exception as e:
-            post(e, data)
-
-    def execute():
-        f_name = register_repl_source(code, data)
-        try:
-            if "eval" in data.command_arg:
-                PFT(eval(compile(code, f_name, "eval"), data.repl_mode), data)
-                return
-            exec(compile(code, f_name, "exec"), data.repl_mode)
-        except Exception as e:
-            post(e, data)
-
-    if "old" in data.command_arg:
-        if data.pyt_plus_old_text == "":
-            with open("pyt_save/.pyt_save", "r", encoding="utf-8") as f:
-                data.pyt_plus_old_text = f.read()
-    else:
-        data.pyt_plus_old_text = ""
-    if "paste" in data.command_arg:
-        data.pyt_plus_old_text += buffer("copy")
-
-    try:
-        code = prompt(
-            line_num(0, 0, 0, data),
-            default=data.pyt_plus_old_text,
-            completer=make_jedi_completer(data),
-            lexer=PygmentsLexer(data.lexer),
-            style=data.pt_style,
-            multiline=True,
-            prompt_continuation=lambda w ,h, s: line_num(w, h, s, data),
-            key_bindings=bindings
-        )
-
-        if not ("not_cache" in data.command_arg):
-            data.pyt_plus_old_text = code
-            try:
-                with open("pyt_save/.pyt_save", "w") as f:
-                    f.write(data.pyt_plus_old_text)
-            except Exception as e:
-                post(e, data)
-    except (KeyboardInterrupt , EOFError):
-        pass
-    except Exception as e:
-        post(e, data)
-
-    flag_map = {
-        "save": [save, True],
-        "copy": [lambda: buffer("paste", data.pyt_plus_old_text), True],
-        "not_exec": [execute, False],
-    }
-    for flag, (action, run_if_present) in flag_map.items():
-        is_present = flag in data.command_arg[1:]
-        if is_present == run_if_present:
-            action()
-
-# beta
-def n_pyt_pp(data: Data):
+def pyt_pp(data: Data):
     def read_cache():
         if not data.pyt_plus_old_text:
             with open("pyt_save/.pyt_save", "r", encoding="utf-8") as f:

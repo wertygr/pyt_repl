@@ -10,9 +10,6 @@ import shlex
 import linecache
 from pathlib import Path
 
-from prompt_toolkit.styles import style_from_pygments_dict
-from pygments.token import string_to_tokentype
-
 #_________________________________________________________________________________________________
 
 from pyre_core import PFT
@@ -24,11 +21,11 @@ from pyre_core import Data
 from pyre_core import line_num
 from pyre_core import register_repl_source
 from pyre_commands import source_code
+from pyre_commands import pyt_pp
 from pyre_commands import pyt_eval
 from pyre_commands import sh
 from pyre_commands import pyt
 from pyre_commands import pyt_exec
-from pyre_commands import pyt_pp
 from pyre_commands import shell_command
 from pyre_plug_load import _plugin
 from pyre_plug_load import hooks_dispatch
@@ -38,7 +35,9 @@ from pyre_prompt_toolkit import completer
 from prompt_toolkit import PromptSession
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.history import FileHistory
+from pygments.token import string_to_tokentype
 from prompt_toolkit.completion import DynamicCompleter
+from prompt_toolkit.styles import style_from_pygments_dict
 
 #_________________________________________________________________________________________________
 
