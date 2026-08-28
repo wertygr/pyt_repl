@@ -1,0 +1,1 @@
+user namespace: dict

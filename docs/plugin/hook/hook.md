@@ -49,4 +49,4 @@ This Python code use system hooks "post"
 </details>
 
 * [description for system hooks](system_hooks.md)
-* [plugin create hooks](../api/hook_dispath.md)
+* [plugin create hooks](../api/api_object/hook_dispatch.md)
