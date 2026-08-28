@@ -1,1 +1,5 @@
 api: dict
+```pycon
+>>> _#_ data.settings["repl_mode"] == "globals" = True _&_ _pyt-eval_ data.api
+{'prompt': '>>> ', 'settings_load': <function settings_load at 0x7f0d6cfcf3d0>, 'script_dir': '/home/wertygr/PycharmProjects/SS/flash', 'pyt_lex': <pygments.lexers.PythonLexer>, 'pt_style': <prompt_toolkit.styles.style.Style object at 0x7f0d6d102900>, 'post': <function post at 0x7f0d6d3ee560>, 'PFT': <function PFT at 0x7f0d6d3ee090>, 'command_separators': <function command_separators at 0x7f0d6d3ee6c0>, 'pars_command': <function pars_command at 0x7f0d6cfcf270>, 'dispatcher': <function dispatcher at 0x7f0d6cfcf110>, 'buffer': <function buffer at 0x7f0d6d3ee140>, 'alias_parser': <function alias_parser at 0x7f0d6d3eeda0>, 'data': <pyre_core.Data object at 0x7f0d6d7a3e00>, 'register_repl_source': <function register_repl_source at 0x7f0d6d3eefb0>, 'hook_dispatch': <function hooks_dispatch at 0x7f0d6d3ef8a0>}
+```

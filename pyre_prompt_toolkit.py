@@ -8,7 +8,6 @@ from prompt_toolkit.key_binding.bindings.named_commands import unix_word_rubout
 #_________________________________________________________________________________________________
 
 from pyre_core import Data
-from pyre_core import dynamics_completer
 
 #_________________________________________________________________________________________________
 
@@ -22,19 +21,12 @@ from prompt_toolkit.completion import Completer
 
 #_________________________________________________________________________________________________
 
-
-exceptions = {e for e in dir(builtins) if 'Error' in e or 'Exception' in e}
-exceptions = dict.fromkeys(exceptions)
-functions = {name for name in dir(builtins) if name[0].islower()}
-functions = dict.fromkeys(functions)
-keywords = keyword.kwlist
-keywords = dict.fromkeys(keywords)
-
 grammatical = {
-    **functions,
-    **keywords,
-    **exceptions
+        **dict.fromkeys({name for name in dir(builtins) if name[0].islower()}),
+        **dict.fromkeys(keyword.kwlist),
+        **dict.fromkeys({e for e in dir(builtins) if "Error" in e or "Exception" in e})
 }
+
 bindings = KeyBindings()
 
 @bindings.add("c-q")
@@ -45,6 +37,12 @@ def _(event):
 @bindings.add('c-w')
 def _(event):
     unix_word_rubout(event)
+
+def dynamics_completer(data: Data):
+    return {
+        **dict.fromkeys(data.repl_mode, None),
+        **grammatical
+    }
 
 def completer(data: Data):
     dynamics = dynamics_completer(data) or {}
@@ -57,7 +55,7 @@ def completer(data: Data):
     updated_base["_pyt_"]      = dynamics
     updated_base["_._"]["read_vf"] = dict.fromkeys(data.line_cache.cache, None)
     updated_base["_._"]["del_vf"] = updated_base["_._"]["read_vf"]
-    updated_base["_._"]["unload_plug"] = dict.fromkeys(data.settings["plugin"], None)
+    updated_base["_._"]["unload_plug"] = dict.fromkeys(data.settings.get("plugin", {}), None)
 
     fallback_keys = data.repl_mode if isinstance(data.repl_mode, (list, tuple, set)) else []
     modes_and_dynamics = dict.fromkeys(fallback_keys, None)
@@ -73,8 +71,8 @@ def completer_3(data: Data):
     dynamic_words = list(dynamics.keys()) if dynamics else []
 
     grammatical_words = []
-    if isinstance(data.grammatical, dict):
-        grammatical_words = list(data.grammatical.keys())
+    if isinstance(grammatical, dict):
+        grammatical_words = list(grammatical.keys())
 
     builtins_words = [name for name in dir(builtins) if name[0].islower()]
     all_words = set(dynamic_words + grammatical_words + keyword.kwlist + builtins_words)

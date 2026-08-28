@@ -1,5 +1,5 @@
 **settings:**\
-The settings are located in the file: "./.pyre_settings.json"(parsing for std lib python "json")
+The settings are located in the file: "./.pyre_settings.json"(parsing for std lib python [json](https://docs.python.org/3/library/json.html))
 <details> <summary>example settings</summary>
 
 ```json
@@ -55,18 +55,22 @@ The settings are located in the file: "./.pyre_settings.json"(parsing for std li
 </details>
 
 
-| name                           | type |                                                                                                                                  description |
-|:-------------------------------|:----:|---------------------------------------------------------------------------------------------------------------------------------------------:|
-| prompt                         | str  |                                                                                                                                       prompt |
-| color                          | dict |                                                                                                   syntax highlighting(format prompt-toolkit) |
-| line_name_format               | str  |                                                                                                       format number line in multiline editor |
-| shlex                          | bool |                                                                                                                use shlex for command parsing |
-| posix                          | bool |                                                                                                    use posix for parsing command(with shlex) |
-| multiline                      | bool |                                                                                                                                use multiline |
-| separator                      | bool |                                                                                                                           use pipeline(\_&_) |
-| repl_mode                      | str  |   if data.settings.get("repl_mode")== "globals":<br/>repl_mode = globals()<br/> else: repl_mode = data.local_repl_mode <br/>#repl name space |
-| alias_globals<br/>alias_locals | bool |                                                                                                                                    use alias |
-| alias_dict                     | dict |                                                                                                                                 regist alias |
-| plugin                         | dict |                                                                                                                                regist plugin |
-| shell_container                | bool |                                  integration system shell & pyre<br/> example:<br/>>>> \_pyt-exec_ fffff = 4<br/>>>> \_sh_ echo $fffff<br/>4 |
+| name                           | type |                                                                                                                                description |
+|:-------------------------------|:----:|-------------------------------------------------------------------------------------------------------------------------------------------:|
+| prompt                         | str  |                                                                                                                                     prompt |
+| color                          | dict |    syntax highlighting([format prompt-toolkit](https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/styling.html)) |
+| line_name_format               | str  |                                                                                                     format number line in multiline editor |
+| shlex                          | bool |                                                                                                              use shlex for command parsing |
+| posix                          | bool |                                                                                                  use posix for parsing command(with shlex) |
+| multiline                      | bool |                                                                                                                              use multiline |
+| separator                      | bool |                                                                                                                         use pipeline(\_&_) |
+| repl_mode                      | str  | if data.settings.get("repl_mode")== "globals":<br/>repl_mode = globals()<br/> else: repl_mode = data.local_repl_mode <br/>#repl name space |
+| alias_globals<br/>alias_locals | bool |                                                                                                                                  use alias |
+| alias_dict                     | dict |                                                                                                                               regist alias |
+| plugin                         | dict |                                                                                                                              regist plugin |
+| shell_container                | bool |                                integration system shell & pyre<br/> example:<br/>>>> \_pyt-exec_ fffff = 4<br/>>>> \_sh_ echo $fffff<br/>4 |
+***
+
+* [default_settings](default_settings.md)
+
 ***

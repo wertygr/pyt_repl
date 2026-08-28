@@ -1,10 +1,8 @@
 #_________________________________________________________________________________________________
 
-import builtins
-import keyword
 import traceback
-from typing import Any, Optional
-from types import TracebackType, CodeType
+from typing import Any
+from types import TracebackType
 
 #_________________________________________________________________________________________________
 
@@ -22,21 +20,12 @@ YELLOW = "\033[1;33m"
 
 class Data:
 
-    grammatical = {
-        **dict.fromkeys({name for name in dir(builtins) if name[0].islower()}),
-        **dict.fromkeys(keyword.kwlist),
-        **dict.fromkeys({e for e in dir(builtins) if "Error" in e or "Exception" in e})
-    }
     last_error =          ""
     base_command =        {}
     repl_mode =           {}
     local_repl_mode =     {}
     _repl_cache_id =      0
     pyt_lex =             PythonLexer()
-    line_name_format =    ""
-    script_file =         ""
-    separator =           False
-    prompt =              ""
     settings =            {}
     shell_container =     {}
     pt_style =            {}
@@ -47,13 +36,12 @@ class Data:
 
     plugin_space =        {}
 
-    command =             ""
     pyt_plus_old_text =   ""
 
+    command =             ""
     command_prefix =      ""
     command_arg_int =     0
     command_arg =         []
-    hook =                ""
 
     line_cache =          []
 
@@ -81,29 +69,6 @@ def buffer (mode: str = "copy", text: str = ""):
         _buffer = text
     elif mode == "add":
         _buffer += text
-
-_byte_cache = {"eval":{}, "exec": {}}
-
-def lazy_compile(code: str, data: Data, mode: str) -> Optional[CodeType]:
-    global _byte_cache
-    cache_key = _byte_cache[mode].get(code, None)
-
-    if cache_key:
-        return cache_key
-
-    try:
-        f_name = register_repl_source(code, data)
-        code_obj = compile(code, f_name, mode)
-
-        if len(_byte_cache[mode]) >= 64:
-            oldest_key = next(iter(_byte_cache[mode]))
-            _byte_cache[mode].pop(oldest_key)
-
-        _byte_cache[mode][code] = code_obj
-        return code_obj
-    except Exception as e:
-        post(e, data)
-        return None
 
 def post(e: Any, data: Data) -> None:
     if isinstance(e, TracebackType):
@@ -185,19 +150,13 @@ def alias_parser(data: Data, alias_dict: dict, command_arg: list, mode: str) -> 
             result.append(item)
     return result
 
-def dynamics_completer(data: Data):
-    return {
-        **dict.fromkeys(data.repl_mode, None),
-        **data.grammatical
-    }
-
 def line_num(
         width: int,
         line_number: int,
         is_soft_wrap: int,
         data: Data
     ) -> str:
-    return data.line_name_format.format(
+    return data.settings.get("line_name_format", "{line_number} |").format(
          width=width,
          line_number=line_number + 1,
          is_soft_wrap=is_soft_wrap

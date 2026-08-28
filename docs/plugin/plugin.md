@@ -1,5 +1,9 @@
 **plugins:**
 
+<details> <summary>Warning</summary>
+plugins do not have a sandbox!!!
+</details>
+
 <details> <summary>contract</summary>
 
 plugin - this is file in folder "./plugins" with main function\
@@ -9,6 +13,8 @@ the "main" function must take 3 parameters(kwargs):
 - 1 API: dict,
 - 2 command_context: dict 
 - 3 plugin_space: dict
+
+plugins are loaded via [importlib](https://docs.python.org/3/library/importlib.html)
 
 ```python
 def main(api: dict, command_context: dict, plugin_space: dict):
@@ -30,7 +36,6 @@ def main(api: dict, command_context: dict, plugin_space: dict):
     }
 }
 ```
-</details>
 
 | name           | type |                      description |
 |:---------------|------|---------------------------------:|
@@ -38,19 +43,19 @@ def main(api: dict, command_context: dict, plugin_space: dict):
 | file           | str  | file name(in folder: "plugins" ) |
 | api            | bool |                     use pyre api |
 | cache          | bool |           use cache(sys.modules) |
+</details>
 
 <details> <summary>example plugin code</summary>
 
+code:
 ```python
 # code in ./plugins/plug_test
 def main(api: dict, command_context: dict, plugin_space: dict):
     for i in command_context:
         print(f"{i}: {command_context[i]}")
 ```
-</details>
 
-<details> <summary>example use plugin</summary>
-
+use:
 ```pycon
 >>> _test_plugin_ test plugin
 command_arg: ['_test_plugin_', 'test', 'plugin']
@@ -62,12 +67,14 @@ command_arg_int: 8
 command_prefix: test plugin 1 2 3 4 4
 >>>
 ```
-</details>
 
 unload plugin: 
-```commandline
-_._ unload_plug <plugin_name>
+```pycon
+>>> _._ unload_plug <plugin_name>
 ```
+
+</details>
+
 ***
 * [plugin api](api/api.md)
 * [hooks](hook/hook.md)

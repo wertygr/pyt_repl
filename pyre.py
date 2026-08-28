@@ -90,7 +90,7 @@ def pars_command(data: Data) -> None:
         return None
     if data.settings.get("alias_globals", False):
         data.command_arg = alias_parser(data, data.settings.get("alias_dict", {}), data.command_arg, "global")
-    if data.separator:
+    if data.settings.get("separator"):
         commands = command_separators(data.command_arg)
         for i in commands:
             if data.settings.get("alias_locals", False):
@@ -113,18 +113,6 @@ def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
         post(e, data)
         settings = {}
 
-    line_name_format =    settings.get("line_name_format", "{line_number} |")
-    script_file =         settings.get("file", {}).get("script_file", None)
-
-    if isinstance(script_file, str):
-        script_file = script_file
-    else:
-        script_file = None
-
-    data.separator =      settings.get("separator", False)
-
-    data.prompt =         settings.get("prompt", ">>> ")
-
     if settings.get("repl_mode", "locals") == "globals":
         data.repl_mode = globals()
         data.repl_mode["data"] = data
@@ -136,8 +124,6 @@ def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
     else:
         data.shell_container = {}
 
-    data.script_file      = script_file
-    data.line_name_format = line_name_format
     data.settings         = settings
 
     try:
@@ -162,9 +148,9 @@ def initialisation() -> Data:
     settings_load(data)
     data.base_command = {
         "_#_": None,
-        "_pyt_": data.grammatical,
-        "_pyt-exec_": data.grammatical,
-        "_pyt-eval_": data.grammatical,
+        "_pyt_": None,
+        "_pyt-exec_": None,
+        "_pyt-eval_": None,
         "_&_": None,
         "_?_": None,
         "_._": {
@@ -189,15 +175,7 @@ def initialisation() -> Data:
         **dict.fromkeys(data.settings.get("alias_dict", {}), None),
     }
     data.api = {
-        "settings": data.settings,
-        "prompt": data.prompt,
         "settings_load": settings_load,
-        "script_dir": data.script_dir,
-        "script_file": data.script_file,
-
-        "pyt_lex": data.pyt_lex,
-        "pt_style": data.pt_style,
-
         "post": post,
         "PFT": PFT,
         "command_separators": command_separators,

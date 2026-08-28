@@ -16,7 +16,7 @@ def main(api: dict, command_context: dict, plugin_space: dict):
 ```
 
 ```pycon
->>> _#_ settings.md["shlex"] == True = True; settings.md["posix"] == True = True
+>>> _#_ data.settings["shlex"] == True = True; data.settings["posix"] == True = True
 >>> _example_plugin_ "command_1 _&_ command2 _&_ command3"
 command_arg: ['_example_plugin_', 'command_1 _&_ command2 _&_ command3']
 commands: [['command_1'], ['command2'], ['command3']]

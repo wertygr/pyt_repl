@@ -69,7 +69,6 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
         data.last_error = e
         PFT(f"{e}", data)
     api = data.api
-    data.hook = hook_name
     name_space = data.repl_mode
     plugin_list = []
     for i in data.settings.get("plugin", {}):

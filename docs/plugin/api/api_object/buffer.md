@@ -17,7 +17,7 @@ def main(api: dict, command_context: dict, plugin_space: dict):
 ```
 example use:
 ```pycon
->>> _#_ settings.md["repl_mode"] == "globals" = True
+>>> _#_ data.settings["repl_mode"] == "globals" = True
 >>> _?_ buffer -copy -silent
 >>> _example-plugin_
 def buffer (mode: str = "copy", text: str = ""):
