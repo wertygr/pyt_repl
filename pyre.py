@@ -32,7 +32,7 @@ from pyre_plug_load import hooks_dispatch
 from pyre_prompt_toolkit import completer, bindings
 #_________________________________________________________________________________________________
 
-from prompt_toolkit import PromptSession
+from prompt_toolkit import prompt
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.history import FileHistory
 from pygments.token import string_to_tokentype
@@ -187,16 +187,6 @@ def initialisation() -> Data:
         "register_repl_source": register_repl_source,
         "hook_dispatch": hooks_dispatch
     }
-    data.session = PromptSession(
-        completer=DynamicCompleter(lambda: completer(data)),
-        multiline=data.settings.get("multiline", False),
-        lexer=PygmentsLexer(data.lexer),
-        style=data.pt_style,
-        prompt_continuation=lambda w, h, s: line_num(w, h, s, data),
-        history=FileHistory(".py_history"),
-        include_default_pygments_style=False,
-        key_bindings=bindings
-    )
     return data
 
 #_________________________________________________________________________________________________
@@ -204,7 +194,17 @@ def initialisation() -> Data:
 def repl_cycle(data: Data) -> None:
     while True:
         try:
-            data.command = data.session.prompt(str(data.settings.get("prompt")))
+            data.command = prompt(
+                data.settings.get("prompt", ">>> "),
+                completer=DynamicCompleter(lambda: completer(data)),
+                multiline=data.settings.get("multiline", False),
+                lexer=PygmentsLexer(data.lexer),
+                style=data.pt_style,
+                prompt_continuation=lambda w, h, s: line_num(w, h, s, data),
+                history=FileHistory(".py_history"),
+                include_default_pygments_style=False,
+                key_bindings=bindings
+                )
             pars_command(data)
         except (EOFError, KeyboardInterrupt):
             pass

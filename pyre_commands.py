@@ -11,7 +11,7 @@ from string import Template
 #_________________________________________________________________________________________________
 
 from pyre_plug_load import unload_plugin, _plugin
-from pyre_core import PFT
+from pyre_core import PFT, require_args
 from pyre_prompt_toolkit import bindings, make_jedi_completer
 from pyre_core import post
 from pyre_core import buffer
@@ -77,21 +77,17 @@ def pyt_exec(data: Data) -> None:
     except Exception as e:
         post(e, data)
 
+@require_args(2)
 def source_code(data) -> None:
     _copy = ""
     text = ""
 
     repl_mode = data.repl_mode
     command_arg = data.command_arg
-    command_arg_int = data.command_arg_int
-    if command_arg_int < 2:
-        e = "[source_code]: not enough arguments"
-        post(e, data)
-        return
     try:
         obj = eval(command_arg[1], repl_mode)
-    except Exception as e:
-        post(e, data)
+    except:
+        post(f"[source_code]: not object: {command_arg[1]}", data)
         return
     if callable(obj) or inspect.isclass(obj) or isinstance(obj, types.ModuleType) or inspect.ismodule(obj) or inspect.isfunction(obj) or inspect.isroutine(obj) or inspect.ismethod(obj):
         try:
@@ -181,32 +177,17 @@ def pyt_pp(data: Data):
         if is_present == run_if_present:
             action()
 
+@require_args(2)
 def shell_command(data: Data) -> None:
-    if data.command_arg_int < 2:
-        e = "[shell_command]: not enough arguments"
-        post(e, data)
-        return None
-
-    def unload_plug():
-        if data.command_arg_int < 3:
-            e = "[shell_command::unload_plug]: not enough arguments"
-            post(e, data)
-            return
+    @require_args(3)
+    def unload_plug(data):
         for i in data.command_arg[2:]:
             unload_plugin(i, data)
-
-    def load_plug():
-        if data.command_arg_int < 3:
-            e = "[shell_command::load_plug]: not enough arguments"
-            post(e, data)
-            return
+    @require_args(3)
+    def load_plug(data):
         _plugin(data, data.command_arg[2])
-
-    def rname_vf():
-        if data.command_arg_int < 4:
-            e = "[shell_command::rname_vf]: not enough arguments"
-            post(e, data)
-            return
+    @require_args(4)
+    def rname_vf(data):
         if not(data.command_arg[2] in data.line_cache.cache):
             e = "[shell_command::rname_vf]: not virtual file: " + data.command_arg[2]
             post(e, data)
@@ -228,24 +209,16 @@ def shell_command(data: Data) -> None:
             )
         ).splitlines(keepends=True), data.command_arg[3])
         del data.line_cache.cache[data.command_arg[2]]
-
-    def n_vf():
-        if data.command_arg_int < 3:
-            e = "[shell_command::n_vf]: not enough arguments"
-            post(e, data)
-            return
+    @require_args(3)
+    def n_vf(data):
         data.line_cache.cache[data.command_arg[2]] = (
             0, # memory size
             None, # xz
             "".splitlines(keepends=True),# text
             data.command_arg[2]# name
         )
-
-    def e_vf():
-        if data.command_arg_int < 3:
-            e = "[shell_command::e_vf]: not enough arguments"
-            post(e, data)
-            return
+    @require_args(3)
+    def e_vf(data):
         if not(data.command_arg[2] in data.line_cache.cache):
             e = "[shell_command::e_vf]: not virtual file: " + data.command_arg[2]
             post(e, data)
@@ -266,12 +239,8 @@ def shell_command(data: Data) -> None:
             )
         except (KeyboardInterrupt, EOFError):
             pass
-
-    def read_vf():
-        if data.command_arg_int < 3:
-            e = "[shell_command::read_vf]: not enough arguments"
-            post(e, data)
-            return
+    @require_args(3)
+    def read_vf(data):
         if not(data.command_arg[2] in data.line_cache.cache):
             e = "[shell_command::read_vf]: not virtual file: " + data.command_arg[2]
             post(e, data)
@@ -287,12 +256,8 @@ def shell_command(data: Data) -> None:
 
             if is_present == run_if_present:
                 action()
-
-    def del_vf():
-        if data.command_arg_int < 3:
-            e = "[shell_command::del_vf]: not enough arguments"
-            post(e, data)
-            return
+    @require_args(3)
+    def del_vf(data):
         for i in data.command_arg[2:]:
             if not(i in data.line_cache.cache):
                 e = f"[shell_command::del_vf]: not virtual file: \"{i}\""
@@ -300,15 +265,11 @@ def shell_command(data: Data) -> None:
                 continue
             del data.line_cache.cache[i]
 
-    def list_vf():
+    def list_vf(data):
         for i in data.line_cache.cache:
             print(f"{i} - {len(''.join(data.line_cache.getlines(i)))} char")
-
-    def edit_open_dir() -> None:
-        if data.command_arg_int < 2:
-            e = "[shell_command::edit_open_dir]: not enough arguments"
-            post(e, data)
-            return
+    @require_args(3)
+    def edit_open_dir(data) -> None:
         path = Path(data.command_arg[2]).resolve()
         if not Path(path).is_dir():
             e = f"[shell_command::edit_open_dir]: not directory: {path}"
@@ -316,14 +277,12 @@ def shell_command(data: Data) -> None:
             return
         os.chdir(path)
 
-    def help_ss():
+    def help_ss(data):
         with open(data.repl_file, "r", encoding="utf-8") as f:
             PFT(f.read(), data)
             return
-    def hook_run():
-        if data.command_arg_int < 4:
-            e = "[shell_command::hook_run]: not enough arguments"
-            post(e, data)
+    @require_args(4)
+    def hook_run(data):
         hooks_dispatch = data.api["hook_dispatch"]
         hook_name = data.command_arg[2]
         try:
@@ -335,10 +294,8 @@ def shell_command(data: Data) -> None:
         hooks_dispatch(data, hook_name, hook_arg)
     def critical_error(*args):
         raise RuntimeError("critical error in core(tester except)")
-
-    def run_script():
-        if data.command_arg_int < 2:
-            return None
+    @require_args(3)
+    def run_script(data):
         path = data.command_arg[2]
 
         try:
@@ -352,12 +309,12 @@ def shell_command(data: Data) -> None:
             post(e, data)
 
     command_map = {
-        "clear": lambda: os.system("cls" if os.name == "nt" else "clear"),
-        "exit": lambda: sys.exit(0),
-        "settings_reload": lambda: data.api["settings_load"](data),
+        "clear": lambda *_: os.system("cls" if os.name == "nt" else "clear"),
+        "exit": lambda *_: sys.exit(0),
+        "settings_reload": lambda *_: data.api["settings_load"](data),
         "run": run_script,
         "help": help_ss,
-        "history_del": lambda: os.remove(".py_history"),
+        "history_del": lambda *_: os.remove(".py_history"),
         "open": edit_open_dir,
         "read_vf": read_vf,
         "ls_vf": list_vf,
@@ -374,4 +331,4 @@ def shell_command(data: Data) -> None:
         e = f"[shell_command]: unknown command: {data.command_arg[1]}"
         post(e, data)
         return None
-    command_map[data.command_arg[1]]()
+    command_map[data.command_arg[1]](data)

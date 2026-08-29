@@ -44,16 +44,5 @@ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __
 >>> _._ exit
 ```
 ***
-| prefix                         |          arg           |                    info |
-|:-------------------------------|:----------------------:|------------------------:|
-| \_?_                           |   \<object> \<flag>    |           introspection |
-| \_pyt++_                       |        \<flag>         |        multiline editor |
-| \_pyt-exec_                    |        \<code>         |            execute code |
-| \_pyt-eval_                    |        \<code>         |               eval code |
-| \_._                           | \<command> \<argument> |            repl command |
-| \_#_                           |       \<comment>       |                 comment |
-| \<command_1> \_&_ \<command_2> |                        |                pipeline |
-| \_sh_                          |       \<command>       | command on system shell |
-| \_pyt_                         |        \<code>         |      auto(eval or exec) |
 * [commands](../commands/commands.md)
 ***

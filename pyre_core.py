@@ -47,9 +47,18 @@ class Data:
 
     lexer =               PythonLexer
     lexer_instance =      lexer()
-    session =             None
 
 #_________________________________________________________________________________________________
+
+def require_args(min_args):
+    def decorator(func):
+        def wrapper(data):
+            if data.command_arg_int < min_args:
+                post(f"[{func.__name__}]: not enough arguments", data)
+                return
+            return func(data)
+        return wrapper
+    return decorator
 
 def PFT(text: str,data: Data) -> None:
     lexer = data.lexer_instance
@@ -60,6 +69,9 @@ def PFT(text: str,data: Data) -> None:
         ),
         style=data.pt_style
     )
+    hooks_dispatch = data.api.get("hook_dispatch", lambda *_: None)
+    hooks_dispatch(data, "PFT", {"text": f"{text}"})
+
 _buffer = ""
 def buffer (mode: str = "copy", text: str = ""):
     global _buffer
@@ -76,7 +88,7 @@ def post(e: Any, data: Data) -> None:
     elif isinstance(e, BaseException):
         e = "".join(traceback.format_exception(type(e), e, e.__traceback__))
     data.last_error = e
-    hooks_dispatch = data.api.get("hook_dispatch", lambda *x: None)
+    hooks_dispatch = data.api.get("hook_dispatch", lambda *_: None)
     hooks_dispatch(data, "post", {"err": f"{e}"})
     PFT(e, data)
 
@@ -132,7 +144,7 @@ def alias_paste(value: list[str], result: list, token: str, command_arg: list[st
     result.extend(value_copy)
     return result
 
-def alias_parser(data: Data, alias_dict: dict, command_arg: list, mode: str) -> list: # V5.1
+def alias_parser(data: Data, alias_dict: dict, command_arg: list, mode: str) -> list:
     result = []
     for index, item in enumerate(command_arg):
         if not(item in alias_dict):

@@ -3,8 +3,6 @@
 import builtins
 import keyword
 
-from prompt_toolkit.key_binding.bindings.named_commands import unix_word_rubout
-
 #_________________________________________________________________________________________________
 
 from pyre_core import Data
@@ -14,10 +12,11 @@ from pyre_core import Data
 import jedi
 from prompt_toolkit.completion import NestedCompleter
 from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.completion import Completion
 from prompt_toolkit.completion import DynamicCompleter
 from prompt_toolkit.completion import Completer
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding.bindings.named_commands import unix_word_rubout
 
 #_________________________________________________________________________________________________
 
@@ -34,7 +33,7 @@ def _(event):
     buffer = event.current_buffer
     buffer.text = ""
 
-@bindings.add('c-w')
+@bindings.add("c-w")
 def _(event):
     unix_word_rubout(event)
 
@@ -86,9 +85,6 @@ def completer_5(data: Data) -> str:
             continue
         text = text + "".join(data.line_cache.getlines(f_name)) + "\n"
     return text
-
-
-
 
 def jedi_completer(document, complete_event, data):
     history_text = completer_5(data)

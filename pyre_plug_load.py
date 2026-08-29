@@ -1,6 +1,8 @@
 import importlib.util
 import os
 import sys
+import traceback
+from types import TracebackType
 from typing import Optional, Any
 
 from pyre_core import PFT, Data
@@ -66,8 +68,12 @@ def unload_plugin(plugin_name, data):
 
 def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
     def _post(e: Any, data: Data) -> None:
+        if isinstance(e, TracebackType):
+            e = "".join(traceback.format_tb(e))
+        elif isinstance(e, BaseException):
+            e = "".join(traceback.format_exception(type(e), e, e.__traceback__))
         data.last_error = e
-        PFT(f"{e}", data)
+        PFT(e, data)
     api = data.api
     name_space = data.repl_mode
     plugin_list = []
