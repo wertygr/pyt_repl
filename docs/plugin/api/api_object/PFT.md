@@ -3,7 +3,7 @@
 ```python
 def main(api: dict, command_context: dict, plugin_space: dict):
     data = api["data"] 
-    PFT =  api["PFT"] # print formated text
+    PFT =  api["PFT"] # print formated text(with syntax highlighting(python3))
     PFT(
         """
 class test:
@@ -27,6 +27,8 @@ class test:
 
 >>>
 ```
+<details> <summary> in console </summary>
 
-![../../](../../../img/example_PFT.png)
+![example_PFT.png](../../../img/example_PFT.png)
+</details>
 </details>
