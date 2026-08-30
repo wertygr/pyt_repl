@@ -1,0 +1,1 @@
+plugins are loaded in [data.repl_mode](api/api_object/data/repl_mode.md)

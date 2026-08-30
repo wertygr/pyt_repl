@@ -25,6 +25,35 @@ grammatical = {
         **dict.fromkeys(keyword.kwlist),
         **dict.fromkeys({e for e in dir(builtins) if "Error" in e or "Exception" in e})
 }
+def create_base_command(settings: dict) -> dict[str, None|dict]:
+    return {
+            "_#_": None,
+            "_pyt_": None,
+            "_pyt-exec_": None,
+            "_pyt-eval_": None,
+            "_&_": None,
+            "_?_": None,
+            "_._": {
+                "exit": None,
+                "clear": None,
+                "history_del": None,
+                "settings_reload": None,
+                "run": {
+                    "{script_dir}": None
+                },
+                "help": None,
+                "ls_vf": None,
+                "read_vf": None,
+                "rname_vf": None
+            },
+            "_pyt++_": {
+                "old": None
+            },
+            "_sh_": None,
+
+            **dict.fromkeys(settings.get("plugin", {}), None),
+            **dict.fromkeys(settings.get("alias_dict", {}), None),
+        }
 
 bindings = KeyBindings()
 
@@ -48,7 +77,7 @@ def completer(data: Data):
     if not isinstance(dynamics, dict):
         dynamics = {}
 
-    updated_base = data.base_command
+    updated_base = create_base_command(data.settings)
     updated_base["_pyt-exec_"] = dynamics
     updated_base["_pyt-eval_"] = dynamics
     updated_base["_pyt_"]      = dynamics

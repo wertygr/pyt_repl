@@ -37,7 +37,7 @@ def pyt_eval(data: Data) ->  None:
         post(e, data)
 def sh (data: Data) -> None:
     contr = Template(data.command_prefix)
-    os.system(contr.safe_substitute(data.shell_container))
+    os.system(contr.safe_substitute(data.repl_mode if data.settings.get("shell_container") else {}))
 
 def pyt(data: Data) -> None:
     ev_except = ""

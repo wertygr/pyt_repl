@@ -8,6 +8,7 @@ from types import TracebackType
 
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit.styles import BaseStyle
 from pygments.lexers.python import PythonLexer
 from pygments.lexers import PythonLexer
 
@@ -21,14 +22,11 @@ YELLOW = "\033[1;33m"
 class Data:
 
     last_error =          ""
-    base_command =        {}
     repl_mode =           {}
-    local_repl_mode =     {}
     _repl_cache_id =      0
     pyt_lex =             PythonLexer()
     settings =            {}
-    shell_container =     {}
-    pt_style =            {}
+    pt_style: BaseStyle
     script_dir =          ""
     repl_file =           ""
 

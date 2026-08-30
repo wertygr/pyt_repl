@@ -41,6 +41,8 @@ from prompt_toolkit.styles import style_from_pygments_dict
 
 #_________________________________________________________________________________________________
 
+local_repl_mode = {}
+
 def dispatcher(data: Data) -> None:
     data.command_prefix = " ".join(data.command_arg[1:])
     data.command_arg_int = len(data.command_arg)
@@ -109,12 +111,7 @@ def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
         data.repl_mode = globals()
         data.repl_mode["data"] = data
     else:
-        data.repl_mode = data.local_repl_mode
-
-    if settings.get("shell_container", False):
-        data.shell_container = data.repl_mode
-    else:
-        data.shell_container = {}
+        data.repl_mode = local_repl_mode
 
     data.settings         = settings
 
@@ -138,34 +135,6 @@ def initialisation() -> Data:
     data.repl_file = Path(__file__).resolve()
     data.line_cache = linecache
     settings_load(data)
-    data.base_command = {
-        "_#_": None,
-        "_pyt_": None,
-        "_pyt-exec_": None,
-        "_pyt-eval_": None,
-        "_&_": None,
-        "_?_": None,
-        "_._": {
-            "exit": None,
-            "clear": None,
-            "history_del": None,
-            "settings_reload": None,
-            "run": {
-                "{script_dir}": None
-            },
-            "help": None,
-            "ls_vf": None,
-            "read_vf": None,
-            "rname_vf": None
-        },
-        "_pyt++_": {
-            "old": None
-        },
-        "_sh_": None,
-
-        **dict.fromkeys(data.settings.get("plugin", {}), None),
-        **dict.fromkeys(data.settings.get("alias_dict", {}), None),
-    }
     data.api = {
         "settings_load": settings_load,
         "post": post,
