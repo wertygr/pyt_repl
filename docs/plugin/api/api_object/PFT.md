@@ -29,6 +29,7 @@ class test:
 ```
 <details> <summary> in console </summary>
 
-![example_PFT.png](../../../img/example_PFT.png)
+<img width="232" height="158" alt="example_PFT" src="https://github.com/user-attachments/assets/36d364f0-ea37-42f8-ad04-828de59eb2e8" />
+
 </details>
 </details>
