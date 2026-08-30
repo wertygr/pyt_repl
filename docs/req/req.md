@@ -1,5 +1,6 @@
 **req:**\
-python3.12+(test on 3.14.6)\
-python-jedi\
-python-prompt-toolkit\
-python-pygments\
+[python3.12+](https://www.python.org/downloads/)(test on 3.14.6)\
+[jedi](https://pypi.org/project/jedi/)\
+[prompt-toolkit](https://pypi.org/project/prompt_toolkit/)\
+[pygments](https://pypi.org/project/Pygments/)
+***

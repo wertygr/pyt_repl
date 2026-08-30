@@ -41,14 +41,6 @@ from prompt_toolkit.styles import style_from_pygments_dict
 
 #_________________________________________________________________________________________________
 
-def plugin_load(data: Data) -> bool:
-    if not(data.command_arg[0] in data.settings.get("plugin", {})):
-        return False
-    _plugin(data)
-    return True
-
-#_________________________________________________________________________________________________
-
 def dispatcher(data: Data) -> None:
     data.command_prefix = " ".join(data.command_arg[1:])
     data.command_arg_int = len(data.command_arg)
@@ -66,8 +58,8 @@ def dispatcher(data: Data) -> None:
     func = command_map.get(data.command_arg[0])
     if func:
         func(data)
-    elif plugin_load(data):
-        pass
+    elif data.command_arg[0] in data.settings.get("plugin", {}):
+        _plugin(data)
     else:
         e = f"[dispatcher]: unknown command: {data.command_arg[0]}"
         post(e, data)

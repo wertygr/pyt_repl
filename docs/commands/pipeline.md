@@ -1,0 +1,1 @@
+"command_1 \_&_ command_2"  -(split/shlex.split)-> ["command_1", "_&_", "command_2"]  -([command_separator](../plugin/api/api_object/command_separator.md))-> [["command_1"], [command_2]]
