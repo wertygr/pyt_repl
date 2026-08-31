@@ -27,4 +27,5 @@ class test:
 ```
 
 ![example_PFT.png](../../../img/example_pft.png)
- 
+
+GitHub broke the image rendering here. Go look at "/docs/img/example_pft.png"
