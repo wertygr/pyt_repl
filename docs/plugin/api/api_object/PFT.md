@@ -1,5 +1,3 @@
-<details> <summary> example use </summary>
-
 ```python
 def main(api: dict, command_context: dict, plugin_space: dict):
     data = api["data"] 
@@ -27,8 +25,5 @@ class test:
 
 >>>
 ```
-<details> <summary> in console </summary>
 
-![example_PFT.png](../../../img/example_PFT.png)
-</details>
-</details>
+![example_PFT.png](../../../img/example_pft.png)
