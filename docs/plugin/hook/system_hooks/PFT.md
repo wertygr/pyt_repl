@@ -11,6 +11,6 @@ hook_parameter = {
 
 <details> <summary> read also </summary> 
 
-[plugins API - PFT](../../api/api_object/PFT&post.md)
+[plugins API - PFT](../../api/api_object/PFT.md)
 
 </details>

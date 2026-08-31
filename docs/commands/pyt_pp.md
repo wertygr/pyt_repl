@@ -1,4 +1,9 @@
 multiline editor\
+
+```pycon
+_pyt++_ <flags>
+```
+
 **flag:**
 
 | flag      |                                  description |

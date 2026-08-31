@@ -148,6 +148,7 @@ def initialisation() -> Data:
         "register_repl_source": register_repl_source,
         "hook_dispatch": hooks_dispatch
     }
+    hooks_dispatch(data, "init", {"data": data})
     return data
 
 #_________________________________________________________________________________________________

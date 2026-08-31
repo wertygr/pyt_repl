@@ -1,4 +1,9 @@
 introspection\
+
+```pycon
+_?_ <object> <flags>
+```
+
 **flag:**
 
 | flag   |       description       |
