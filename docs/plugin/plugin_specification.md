@@ -48,4 +48,4 @@ unload from:
 - sys.modules
 - [data.repl_mode](api/api_object/data/repl_mode.md)
 - data.plugin_space[plugin_name]
-</details>
+</details> 
