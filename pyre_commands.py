@@ -304,7 +304,8 @@ def shell_command(data: Data) -> None:
                 for item_2 in lines:
                     if not item_2:
                         continue
-                    data.api["pars_command"](item_2)
+                    data.command = item_2
+                    data.api["pars_command"](data)
         except Exception as e:
             post(e, data)
 
