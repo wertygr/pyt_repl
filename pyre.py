@@ -8,7 +8,6 @@ import os
 import json
 import shlex
 import linecache
-from pathlib import Path
 
 #_________________________________________________________________________________________________
 
@@ -19,23 +18,25 @@ from pyre_core import alias_parser
 from pyre_core import buffer
 from pyre_core import Data
 from pyre_core import line_num
-from pyre_core import register_repl_source
 from pyre_commands import source_code
-from pyre_commands import pyt_pp
-from pyre_commands import pyt_eval
 from pyre_commands import sh
 from pyre_commands import pyt
+from pyre_commands import pyt_pp
+from pyre_commands import pyt_eval
 from pyre_commands import pyt_exec
-from pyre_commands import shell_command
+from pyre_bindings import bindings
 from pyre_plug_load import _plugin
+from pyre_commands import shell_command
 from pyre_plug_load import hooks_dispatch
-from pyre_prompt_toolkit import completer, bindings
+from pyre_prompt_toolkit import completer
+from pyre_core import register_repl_source
+
 #_________________________________________________________________________________________________
 
 from prompt_toolkit import prompt
-from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.history import FileHistory
 from pygments.token import string_to_tokentype
+from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.completion import DynamicCompleter
 from prompt_toolkit.styles import style_from_pygments_dict
 
@@ -132,7 +133,6 @@ def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
 
 def initialisation() -> Data:
     data = Data()
-    data.repl_file = Path(__file__).resolve()
     data.line_cache = linecache
     settings_load(data)
     data.api = {

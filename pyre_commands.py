@@ -5,14 +5,13 @@ import sys
 import types
 import inspect
 import datetime
-from pathlib import Path
 from string import Template
 
 #_________________________________________________________________________________________________
 
 from pyre_plug_load import unload_plugin, _plugin
 from pyre_core import PFT, require_args
-from pyre_prompt_toolkit import bindings, make_jedi_completer
+from pyre_prompt_toolkit import make_jedi_completer
 from pyre_core import post
 from pyre_core import buffer
 from pyre_core import Data
@@ -21,6 +20,7 @@ from pyre_core import register_repl_source
 from pyre_prompt_toolkit import completer_3
 from pyre_core import YELLOW
 from pyre_core import RESET
+from pyre_bindings import bindings
 
 #_________________________________________________________________________________________________
 
@@ -268,19 +268,7 @@ def shell_command(data: Data) -> None:
     def list_vf(data):
         for i in data.line_cache.cache:
             print(f"{i} - {len(''.join(data.line_cache.getlines(i)))} char")
-    @require_args(3)
-    def edit_open_dir(data) -> None:
-        path = Path(data.command_arg[2]).resolve()
-        if not Path(path).is_dir():
-            e = f"[shell_command::edit_open_dir]: not directory: {path}"
-            post(e, data)
-            return
-        os.chdir(path)
 
-    def help_ss(data):
-        with open(data.repl_file, "r", encoding="utf-8") as f:
-            PFT(f.read(), data)
-            return
     @require_args(4)
     def hook_run(data):
         hooks_dispatch = data.api["hook_dispatch"]
@@ -314,9 +302,7 @@ def shell_command(data: Data) -> None:
         "exit": lambda *_: sys.exit(0),
         "settings_reload": lambda *_: data.api["settings_load"](data),
         "run": run_script,
-        "help": help_ss,
         "history_del": lambda *_: os.remove(".py_history"),
-        "open": edit_open_dir,
         "read_vf": read_vf,
         "ls_vf": list_vf,
         "del_vf": del_vf,

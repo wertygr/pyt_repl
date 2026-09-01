@@ -28,7 +28,6 @@ class Data:
     settings =            {}
     pt_style: BaseStyle
     script_dir =          ""
-    repl_file =           ""
 
     api =                 {}
 

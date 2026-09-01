@@ -15,8 +15,6 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.completion import Completion
 from prompt_toolkit.completion import DynamicCompleter
 from prompt_toolkit.completion import Completer
-from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.key_binding.bindings.named_commands import unix_word_rubout
 
 #_________________________________________________________________________________________________
 
@@ -41,7 +39,6 @@ def create_base_command(settings: dict) -> dict[str, None|dict]:
                 "run": {
                     "{script_dir}": None
                 },
-                "help": None,
                 "ls_vf": None,
                 "read_vf": None,
                 "rname_vf": None
@@ -54,17 +51,6 @@ def create_base_command(settings: dict) -> dict[str, None|dict]:
             **dict.fromkeys(settings.get("plugin", {}), None),
             **dict.fromkeys(settings.get("alias_dict", {}), None),
         }
-
-bindings = KeyBindings()
-
-@bindings.add("c-q")
-def _(event):
-    buffer = event.current_buffer
-    buffer.text = ""
-
-@bindings.add("c-w")
-def _(event):
-    unix_word_rubout(event)
 
 def dynamics_completer(data: Data):
     return {
