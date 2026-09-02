@@ -300,9 +300,8 @@ def shell_command(data: Data) -> None:
     command_map = {
         "clear": lambda *_: os.system("cls" if os.name == "nt" else "clear"),
         "exit": lambda *_: sys.exit(0),
-        "settings_reload": lambda *_: data.api["settings_load"](data),
+        "settings_reload": lambda *_: data.api["settings_load"](data, ".pyre_settings.json" if data.command_arg_int < 3 else data.command_arg[2]),
         "run": run_script,
-        "history_del": lambda *_: os.remove(".py_history"),
         "read_vf": read_vf,
         "ls_vf": list_vf,
         "del_vf": del_vf,
