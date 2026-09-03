@@ -70,7 +70,7 @@ The settings are located in the file: "./.pyre_settings.json"(parsing for std li
 | alias_globals<br/>alias_locals                          | bool |                                                                                                                                  use alias |
 | [alias_dict](../alias/alias.md)                         | dict |                                                                                                                               regist alias |
 | [plugin](../plugin/plugin.md)                           | dict |                                                                                                                              regist plugin |
-| shell_container                                         | bool |                                integration system shell & pyre<br/> example:<br/>>>> \_pyt-exec_ fffff = 4<br/>>>> \_sh_ echo $fffff<br/>4 |
+| [shell_container](../commands/sh.md)                    | bool |                                                                                                                     enable shell container |
 
 </details>
 

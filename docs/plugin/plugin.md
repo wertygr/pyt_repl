@@ -78,6 +78,7 @@ unload plugin:
 ***
 <details> <summary> read also</summary>
 
+* [plugin_space](plugin_space.md)
 * [plugin api](api/api.md)
 * [hooks](hook/hook.md)
 * [plugin specification](plugin_specification.md)
