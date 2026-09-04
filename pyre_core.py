@@ -57,14 +57,15 @@ def require_args(min_args):
         return wrapper
     return decorator
 
-def PFT(text: str,data: Data) -> None:
+def PFT(text: str, data: Data, end: str= "\n") -> None:
     lexer = data.lexer_instance
     tokens = list(lexer.get_tokens(str(text)))
     print_formatted_text(
         PygmentsTokens(
             tokens
         ),
-        style=data.pt_style
+        style=data.pt_style,
+        end=end
     )
     hooks_dispatch = data.api.get("hook_dispatch", lambda *_: None)
     hooks_dispatch(data, "PFT", {"text": f"{text}"})

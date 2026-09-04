@@ -30,9 +30,6 @@ def _plugin(data: Data, plugin: Optional[str] = None) -> None:
     api = data.api
     if not plugin:
         plugin = data.command_arg[0]
-    command_arg_int = data.command_arg_int
-    command_arg = data.command_arg
-    command_prefix = data.command_prefix
     name_space = data.repl_mode
 
     plugin_settings = data.settings.get("plugin", {}).get(plugin, {})
@@ -41,10 +38,10 @@ def _plugin(data: Data, plugin: Optional[str] = None) -> None:
         module = _plugin_cache_load(plugin, plugin_settings)
 
         name_space[plugin] = module
-        module.main (api=api, command_context={
-            "command_arg": command_arg,
-            "command_arg_int": command_arg_int,
-            "command_prefix": command_prefix
+        module.main (api=api if plugin_settings.get("api", False) else {}, command_context={
+            "command_arg": data.command_arg,
+            "command_arg_int": data.command_arg_int,
+            "command_prefix": data.command_prefix
         }, plugin_space=data.plugin_space)
     except Exception as e:
         post(e, data)
@@ -86,7 +83,12 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
             module = _plugin_cache_load(i, plugin_settings)
 
             name_space[i] = module
-            result_plug_load = module.hook_run(api=api, hook=hook_name, hook_parameter=hook_parameter)
+            result_plug_load = module.hook_run(
+                api=api if plugin_settings.get("api", False) else {} ,
+                hook=hook_name,
+                hook_parameter=hook_parameter,
+                plugin_space=data.plugin_space
+            )
             data.plugin_space[i] = result_plug_load
         except Exception as e:
             _post(e, data)

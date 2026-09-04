@@ -1,9 +1,9 @@
-example
+example:
 
 ```python
 PLUGIN_NAME = "_test_"
 
-def main(api: dict, command_context: dict, plugin_space):
+def main(api: dict, command_context: dict, plugin_space: dict):
     # init
     if PLUGIN_NAME not in plugin_space:
         plugin_space[PLUGIN_NAME] = {

@@ -9,7 +9,7 @@ the "hook_run" function must take 3 parameters(kwargs):
 - 3 hook_parameter: dict
 
 ```python
-def hook_run(api: dict, hook: str, hook_parameter: dict):
+def hook_run(api: dict, hook: str, hook_parameter: dict, plugin_space: dict):
     return
 ```
 
@@ -35,7 +35,7 @@ def hook_run(api: dict, hook: str, hook_parameter: dict):
 <details> <summary> example code </summary> 
 
 ```python
-def hook_run(api: dict, hook: str, hook_parameter: dict):
+def hook_run(api: dict, hook: str, hook_parameter: dict, plugin_space: dict):
     data = api["data"]
     post = api["post"]
     if hook != "post":

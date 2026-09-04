@@ -7,8 +7,18 @@ plugins are loaded in [data.repl_mode](api/api_object/data/repl_mode.md) and sys
 there is no sandbox
 </details>
 
-<details> <summary> open file in plugin </summary>
-Plugins open files relative to the project root
+<details> <summary> open file and import in plugin </summary>
+Plugins open files and import modules relative to the project root
+
+import: \
+wrong
+```python
+import test
+```
+correct
+```python
+import plugins.test as test
+```
 </details>
 
 <details> <summary> error in plugin </summary>

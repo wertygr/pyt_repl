@@ -12,7 +12,7 @@ class test:
         data
     )
     """
-    PFT signature - PFT(text: str, data: Data)
+    def PFT(text: str, data: Data, end: str= "\n") -> None:
     """
 ```
 ```pycon
