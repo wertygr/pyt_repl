@@ -2,11 +2,12 @@
 
 plugin - this is file in folder "./plugins" "with hook_run" function\
 the "hook_run" function must return an Any\
-the "hook_run" function must take 3 parameters(kwargs):
+the "hook_run" function must take 4 parameters(kwargs):
 
 - 1 API: dict,
 - 2 hook: str, 
 - 3 hook_parameter: dict
+- 4 plugin_space: dict
 
 ```python
 def hook_run(api: dict, hook: str, hook_parameter: dict, plugin_space: dict):

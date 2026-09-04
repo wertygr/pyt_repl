@@ -34,11 +34,11 @@ Traceback (most recent call last):
   File ".../pyre_plug_load.py", line 44, in _plugin
     module.main (api=api, command_context={
     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        "command_arg": command_arg,
+        "command_arg": data.command_arg,
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        "command_arg_int": command_arg_int,
+        "command_arg_int": data.command_arg_int,
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        "command_prefix": command_prefix
+        "command_prefix": data.command_prefix
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     }, plugin_space=data.plugin_space)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

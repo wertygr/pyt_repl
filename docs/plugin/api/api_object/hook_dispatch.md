@@ -1,4 +1,4 @@
-from flash.pyre_plug_load import hooks_dispatchPlugins can call hooks via the API.
+Plugins can call hooks via the API.
 
 <details> <summary> example code</summary> 
 

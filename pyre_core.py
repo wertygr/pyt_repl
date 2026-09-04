@@ -71,7 +71,7 @@ def PFT(text: str, data: Data, end: str= "\n") -> None:
     hooks_dispatch(data, "PFT", {"text": f"{text}"})
 
 _buffer = ""
-def buffer (mode: str = "copy", text: str = ""):
+def buffer (mode: str = "copy", text: str = "") -> str|None:
     global _buffer
     if mode == "copy":
         return _buffer

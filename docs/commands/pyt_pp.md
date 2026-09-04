@@ -1,4 +1,4 @@
-multiline editor\
+multiline editor
 
 ```pycon
 _pyt++_ <flags>

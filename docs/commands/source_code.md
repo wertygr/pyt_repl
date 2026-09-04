@@ -1,4 +1,4 @@
-introspection\
+introspection
 
 ```pycon
 _?_ <object> <flags>

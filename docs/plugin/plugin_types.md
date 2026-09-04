@@ -1,11 +1,11 @@
 ```python
 from __future__ import annotations
-from typing import TypedDict, Callable, Any, Optional, Protocol
+from typing import TypedDict, Callable, Any, Protocol
 
 from prompt_toolkit.styles import BaseStyle
 
 class OptBuffer(Protocol):
-    def __call__(self, text: Optional[str] = ..., mode: Optional[str] = ...) -> Optional[str]:
+    def __call__(self, mode: str = ..., text: str = ...) -> str|None:
         ...
 
 class PluginApi(TypedDict):
