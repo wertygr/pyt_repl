@@ -168,9 +168,9 @@ def line_num(
         width: int,
         line_number: int,
         is_soft_wrap: int,
-        data: Data
+        format_sample: str = "{line_number} |"
     ) -> str:
-    return data.settings.get("line_name_format", "{line_number} |").format(
+    return format_sample.format(
          width=width,
          line_number=line_number + 1,
          is_soft_wrap=is_soft_wrap

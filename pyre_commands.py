@@ -6,6 +6,7 @@ import types
 import inspect
 import datetime
 from string import Template
+from typing import Callable
 
 #_________________________________________________________________________________________________
 
@@ -87,16 +88,17 @@ def source_code(data) -> None:
     try:
         obj = eval(command_arg[1], repl_mode)
         obj = inspect.unwrap(obj)
-        while hasattr(obj, "__closure__") and obj.__closure__:
-            found_inner = False
-            for cell in obj.__closure__:
-                cell_contents = cell.cell_contents
-                if callable(cell_contents):
-                    obj = cell_contents
-                    found_inner = True
+        if isinstance(obj, Callable):
+            while hasattr(obj, "__closure__") and obj.__closure__:
+                found_inner = False
+                for cell in obj.__closure__:
+                    cell_contents = cell.cell_contents
+                    if callable(cell_contents):
+                        obj = cell_contents
+                        found_inner = True
+                        break
+                if not found_inner:
                     break
-            if not found_inner:
-                break
 
     except Exception:
         post(f"[source_code]: not object: {command_arg[1]}", data)
@@ -108,7 +110,7 @@ def source_code(data) -> None:
         except (OSError, TypeError):
             _copy = getattr(obj, "__doc__", "no docstring")
             text = f"{YELLOW}[no docstring]{RESET}"
-    elif command_arg[1] in repl_mode:
+    elif command_arg[1] in repl_mode or isinstance(obj, (int, str, float, bool, type(None))):
         _copy = repr(obj)
         text = f"{command_arg[1]} = {_copy}"
     else:
@@ -153,13 +155,13 @@ def pyt_pp(data: Data):
     def editor():
         try:
             data.pyt_plus_old_text = prompt(
-                line_num(0, 0, 0, data),
+                line_num(0, 0, 0, data.settings.get("line_name_format", "line_number |")),
                 default=data.pyt_plus_old_text,
                 completer=make_jedi_completer(data),
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 multiline=True,
-                prompt_continuation=lambda w, h, s: line_num(w, h, s, data),
+                prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings.get("line_name_format", "line_number |")),
                 key_bindings=bindings
             )
             return
