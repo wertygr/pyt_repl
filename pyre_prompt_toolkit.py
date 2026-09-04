@@ -48,8 +48,8 @@ def create_base_command(settings: dict) -> dict[str, None|dict]:
             },
             "_sh_": None,
 
-            **dict.fromkeys(settings.get("plugin", {}), None),
-            **dict.fromkeys(settings.get("alias_dict", {}), None),
+            **dict.fromkeys(settings["plugin"], None),
+            **dict.fromkeys(settings["alias_dict"], None),
         }
 
 def dynamics_completer(data: Data):

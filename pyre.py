@@ -30,6 +30,7 @@ from pyre_commands import shell_command
 from pyre_plug_load import hooks_dispatch
 from pyre_prompt_toolkit import completer
 from pyre_core import register_repl_source
+from pyre_const import DEFAULT_SETTINGS
 
 #_________________________________________________________________________________________________
 
@@ -61,7 +62,7 @@ def dispatcher(data: Data) -> None:
     func = command_map.get(data.command_arg[0])
     if func:
         func(data)
-    elif data.command_arg[0] in data.settings.get("plugin", {}):
+    elif data.command_arg[0] in data.settings["plugin"]:
         _plugin(data)
     else:
         e = f"[dispatcher]: unknown command: {data.command_arg[0]}"
@@ -107,8 +108,11 @@ def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
     except Exception as e:
         post(e, data)
         settings = {}
-
-    if settings.get("repl_mode", "locals") == "globals":
+    settings = {
+        **DEFAULT_SETTINGS,
+        **settings,
+    }
+    if settings["repl_mode"] == "globals":
         data.repl_mode = globals()
         data.repl_mode["data"] = data
     else:
@@ -119,7 +123,7 @@ def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
     try:
         pygments_token_dict = {
             string_to_tokentype(key): value
-            for key, value in settings.get("color", {}).items()
+            for key, value in settings["color"].items()
         }
     except (ValueError, AttributeError) as e:
         pygments_token_dict = {
@@ -162,7 +166,7 @@ def repl_cycle(data: Data) -> None:
                 multiline=data.settings.get("multiline", False),
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
-                prompt_continuation=lambda w, h, s: line_num(w, h, s, data),
+                prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings["line_name_format"]),
                 history=FileHistory(".py_history"),
                 include_default_pygments_style=False,
                 key_bindings=bindings

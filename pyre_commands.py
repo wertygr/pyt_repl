@@ -19,8 +19,8 @@ from pyre_core import Data
 from pyre_core import line_num
 from pyre_core import register_repl_source
 from pyre_prompt_toolkit import completer_3
-from pyre_core import YELLOW
-from pyre_core import RESET
+from pyre_const import YELLOW
+from pyre_const import RESET
 from pyre_bindings import bindings
 
 #_________________________________________________________________________________________________

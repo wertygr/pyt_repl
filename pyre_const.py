@@ -1,6 +1,7 @@
-default settings:
- ```python
-data.settings = {
+RESET = "\033[0m"
+YELLOW = "\033[33m"
+
+DEFAULT_SETTINGS = {
     "color": {},
     "plugin": {},
     "alias_dict": {},
@@ -15,6 +16,3 @@ data.settings = {
     "repl_mode": "locals",
     "line_name_format": "{line_number} |"
 }
-```
-
-You can override the default settings in the `pyre_const.py` file by modifying the `DEFAULT_SETTINGS` variable. Important: To prevent `KeyError` exceptions, ensure that all configuration keys are defined in the default settings.
