@@ -3,6 +3,7 @@
 import traceback
 from typing import Any
 from types import TracebackType
+from functools import wraps
 
 #_________________________________________________________________________________________________
 
@@ -49,12 +50,15 @@ class Data:
 
 def require_args(min_args):
     def decorator(func):
+        @wraps(func)
         def wrapper(data):
             if data.command_arg_int < min_args:
                 post(f"[{func.__name__}]: not enough arguments", data)
                 return
             return func(data)
+
         return wrapper
+
     return decorator
 
 def PFT(text: str, data: Data, end: str= "\n") -> None:

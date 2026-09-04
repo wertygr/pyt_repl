@@ -86,7 +86,19 @@ def source_code(data) -> None:
     command_arg = data.command_arg
     try:
         obj = eval(command_arg[1], repl_mode)
-    except:
+        obj = inspect.unwrap(obj)
+        while hasattr(obj, "__closure__") and obj.__closure__:
+            found_inner = False
+            for cell in obj.__closure__:
+                cell_contents = cell.cell_contents
+                if callable(cell_contents):
+                    obj = cell_contents
+                    found_inner = True
+                    break
+            if not found_inner:
+                break
+
+    except Exception:
         post(f"[source_code]: not object: {command_arg[1]}", data)
         return
     if callable(obj) or inspect.isclass(obj) or isinstance(obj, types.ModuleType) or inspect.ismodule(obj) or inspect.isfunction(obj) or inspect.isroutine(obj) or inspect.ismethod(obj):
