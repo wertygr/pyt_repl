@@ -109,13 +109,10 @@ def source_code(data) -> None:
             text = _copy
         except (OSError, TypeError):
             _copy = getattr(obj, "__doc__", "no docstring")
-            text = f"{YELLOW}[no docstring]{RESET}"
-    elif command_arg[1] in repl_mode or isinstance(obj, (int, str, float, bool, type(None))):
+            text = f"[no docstring]"
+    else:
         _copy = repr(obj)
         text = f"{command_arg[1]} = {_copy}"
-    else:
-        e = f"[source_code]: no object: {command_arg[1]}"
-        post(e, data)
 
     flag_map = {
         "-copy": [lambda: buffer("paste", text), True],
