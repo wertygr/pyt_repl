@@ -5,7 +5,10 @@ import traceback
 from types import TracebackType
 from typing import Optional, Any
 
-from pyre_core import PFT, Data
+from pyre_core import (
+    PFT,
+    Data
+)
 from pyre_core import post
 
 def _plugin_load(plugin, f_locate):
@@ -26,7 +29,7 @@ def _plugin_cache_load(plugin, plugin_settings):
         module = _plugin_load(plugin, f"{script_dir}/plugins/{file_name}")
     return module
 
-def _plugin(data: Data, plugin: Optional[str] = None) -> None:
+def load_plugin(data: Data, plugin: Optional[str] = None) -> None:
     api = data.api
     if not plugin:
         plugin = data.command_arg[0]

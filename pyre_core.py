@@ -1,7 +1,7 @@
 #_________________________________________________________________________________________________
 
 import traceback
-from typing import Any
+from typing import Any, Callable
 from types import TracebackType
 from functools import wraps
 
@@ -43,10 +43,10 @@ class Data:
 
 #_________________________________________________________________________________________________
 
-def require_args(min_args):
-    def decorator(func):
+def require_args(min_args) -> Callable[[Callable], Callable]:
+    def decorator(func) -> Callable:
         @wraps(func)
-        def wrapper(data):
+        def wrapper(data) -> Callable|None:
             if data.command_arg_int < min_args:
                 post(f"[{func.__name__}]: not enough arguments", data)
                 return
@@ -89,7 +89,7 @@ def post(e: Any, data: Data) -> None:
     hooks_dispatch(data, "post", {"err": f"{e}"})
     PFT(e, data)
 
-def command_separators(command_arg) -> list:
+def command_separators(command_arg) -> list[list[str]]:
     subarrays = []
     current = []
 
@@ -105,7 +105,7 @@ def command_separators(command_arg) -> list:
         subarrays.append(current)
     return subarrays
 
-def is_int_to_str(string):
+def is_int_to_str(string) -> bool:
     if not string:
         return False
     if string[0] in ["+","-"]:
@@ -120,7 +120,7 @@ def alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
         return True
     return False
 
-def alias_paste(value: list[str], result: list, token: str, command_arg: list[str], alias_position: int, data: Data) -> list:
+def alias_paste(value: list[str], result: list, token: str, command_arg: list[str], alias_position: int, data: Data) -> list[str]:
     if not(isinstance(value, list)):
         e = f"Invalid value type {type(value)} for alias {token}"
         post(e, data)
@@ -141,7 +141,7 @@ def alias_paste(value: list[str], result: list, token: str, command_arg: list[st
     result.extend(value_copy)
     return result
 
-def alias_parser(data: Data, alias_dict: dict, command_arg: list, mode: str) -> list:
+def alias_parser(data: Data, alias_dict: dict, command_arg: list, mode: str) -> list[str]:
     result = []
     for index, item in enumerate(command_arg):
         if not(item in alias_dict):

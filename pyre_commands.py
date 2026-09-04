@@ -10,17 +10,19 @@ from typing import Callable
 
 #_________________________________________________________________________________________________
 
-from pyre_plug_load import unload_plugin, _plugin
-from pyre_core import PFT, require_args
+from pyre_plug_load import (unload_plugin, load_plugin)
 from pyre_prompt_toolkit import make_jedi_completer
-from pyre_core import post
-from pyre_core import buffer
-from pyre_core import Data
-from pyre_core import line_num
-from pyre_core import register_repl_source
+from pyre_core import (
+    post,
+    buffer,
+    Data,
+    line_num,
+    register_repl_source,
+    PFT,
+    require_args
+)
 from pyre_prompt_toolkit import completer_3
-from pyre_const import YELLOW
-from pyre_const import RESET
+from pyre_const import YELLOW, RESET
 from pyre_bindings import bindings
 
 #_________________________________________________________________________________________________
@@ -196,7 +198,7 @@ def shell_command(data: Data) -> None:
             unload_plugin(i, data)
     @require_args(3)
     def load_plug(data):
-        _plugin(data, data.command_arg[2])
+        load_plugin(data, data.command_arg[2])
     @require_args(4)
     def rname_vf(data):
         if not(data.command_arg[2] in data.line_cache.cache):

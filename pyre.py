@@ -11,26 +11,32 @@ import linecache
 
 #_________________________________________________________________________________________________
 
-from pyre_core import PFT
-from pyre_core import post
-from pyre_core import command_separators
-from pyre_core import alias_parser
-from pyre_core import buffer
-from pyre_core import Data
-from pyre_core import line_num
-from pyre_commands import source_code
-from pyre_commands import sh
-from pyre_commands import pyt
-from pyre_commands import pyt_pp
-from pyre_commands import pyt_eval
-from pyre_commands import pyt_exec
-from pyre_bindings import bindings
-from pyre_plug_load import _plugin
-from pyre_commands import shell_command
-from pyre_plug_load import hooks_dispatch
+from pyre_core import (
+    PFT,
+    post,
+    command_separators,
+    register_repl_source,
+    alias_parser,
+    buffer,
+    Data,
+    line_num,
+)
+from pyre_commands import (
+    sh,
+    pyt,
+    pyt_pp,
+    pyt_eval,
+    pyt_exec,
+    source_code,
+    shell_command
+)
+from pyre_plug_load import (
+    load_plugin,
+    hooks_dispatch
+)
 from pyre_prompt_toolkit import completer
-from pyre_core import register_repl_source
 from pyre_const import DEFAULT_SETTINGS
+from pyre_bindings import bindings
 
 #_________________________________________________________________________________________________
 
@@ -63,7 +69,7 @@ def dispatcher(data: Data) -> None:
     if func:
         func(data)
     elif data.command_arg[0] in data.settings["plugin"]:
-        _plugin(data)
+        load_plugin(data)
     else:
         e = f"[dispatcher]: unknown command: {data.command_arg[0]}"
         post(e, data)
