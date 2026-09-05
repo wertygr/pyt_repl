@@ -1,5 +1,7 @@
 ```python
-def main(api: dict, command_context: dict, plugin_space: dict):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"] 
     PFT =  api["PFT"] # print formated text(with syntax highlighting(python3))
     PFT(

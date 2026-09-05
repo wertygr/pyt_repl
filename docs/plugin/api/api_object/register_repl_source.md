@@ -3,7 +3,9 @@ data this is an instance of a class "Data"
 register_repl_source this is function in api used for source code registration and introspection
 
 ```python
-def main(api: dict, command_context: dict, plugin_space: dict):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     register_repl_source = api["register_repl_source"]
     data = api["data"]
     code = """

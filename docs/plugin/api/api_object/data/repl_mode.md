@@ -2,7 +2,9 @@ data.repl_mode - user namespace
 
 ```python
 # example use data.repl_mode 
-def main(api: dict, command_context: dict, plugin_space: dict):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
     code = "# Any python code"
     exec(code, data.repl_mode) # it is recommended to register the source code 

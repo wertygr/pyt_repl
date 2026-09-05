@@ -50,7 +50,10 @@ def main(api: dict, command_context: dict, plugin_space: dict):
 code:
 ```python
 # code in ./plugins/plug_test
-def main(api: dict, command_context: dict, plugin_space: dict):
+
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     for i in command_context:
         print(f"{i}: {command_context[i]}")
 ```

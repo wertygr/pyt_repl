@@ -56,7 +56,7 @@ def require_args(min_args) -> Callable[[Callable], Callable]:
 
     return decorator
 
-def PFT(text: str, data: Data, end: str= "\n") -> None:
+def PFT(text: Any, data: Data, end: str= "\n") -> None:
     lexer = data.lexer_instance
     tokens = list(lexer.get_tokens(str(text)))
     print_formatted_text(

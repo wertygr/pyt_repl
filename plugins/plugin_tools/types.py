@@ -9,8 +9,8 @@ class OptBuffer(Protocol):
 
 class PluginApi(TypedDict):
     settings_load: Callable[[PluginData, str], None]
-    post: Callable[[PluginData, str], None]
-    PFT: Callable[[PluginData, Any], None]
+    post: Callable[[Any, PluginData], None]
+    PFT: Callable[[Any, PluginData], None]
     command_separators: Callable[[list[str]], list[list[str]]]
     pars_command: Callable[[PluginData], None]
     dispatcher: Callable[[PluginData], None]

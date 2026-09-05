@@ -24,7 +24,9 @@ import plugins.test as test
 <details> <summary> error in plugin </summary>
 
 ```python
-def main(api: dict, command_context: dict, plugin_space: dict) -> None:
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict) -> None:
     bad_var = 0/0
 ```
 

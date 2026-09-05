@@ -3,7 +3,9 @@ Plugins can call hooks via the API.
 <details> <summary> example code</summary> 
 
 ```python
-def main(api: dict, command_context: dict, plugin_space: dict):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     hooks_dispatch = api["hook_dispatch"]
     data = api["data"]
     hook_parametr = {}

@@ -1,7 +1,9 @@
 <details> <summary>post</summary>
 
 ```python
-def main(api: dict, command_context: dict, plugin_space: dict):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
     post = api["post"]
     try:

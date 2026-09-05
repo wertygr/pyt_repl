@@ -1,9 +1,11 @@
 example:
 
 ```python
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
 PLUGIN_NAME = "_test_"
 
-def main(api: dict, command_context: dict, plugin_space: dict):
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     # init
     if PLUGIN_NAME not in plugin_space:
         plugin_space[PLUGIN_NAME] = {

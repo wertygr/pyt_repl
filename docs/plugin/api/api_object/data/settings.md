@@ -1,7 +1,9 @@
 <details> <summary>settings: example code and use</summary>
 
 ```python
-def main(api: dict, command_context: dict, plugin_space):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space):
     data = api["data"]
     if len(command_context["command_arg"]) < 2:
         new_prompt = ">>>> "

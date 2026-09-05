@@ -1,7 +1,9 @@
 <details><summary>command_separator: example code and use</summary>
 
 ```python
-def main(api: dict, command_context: dict, plugin_space: dict):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     post = api["post"]
     data = api["data"]
     command_separators = api["command_separators"]

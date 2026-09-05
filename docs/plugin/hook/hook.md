@@ -10,7 +10,9 @@ the "hook_run" function must take 4 parameters(kwargs):
 - 4 plugin_space: dict
 
 ```python
-def hook_run(api: dict, hook: str, hook_parameter: dict, plugin_space: dict):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def hook_run(api: PluginApi, hook: str, hook_parameter: dict, plugin_space: dict):
     return
 ```
 
