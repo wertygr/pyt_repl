@@ -62,6 +62,15 @@ def unload_plugin(plugin_name, data):
     if in_repl:
         del data.repl_mode[plugin_name]
     if in_sys:
+        module = sys.modules[plugin_name]
+        if hasattr(module, 'destroy'):
+            try:
+                submodules_to_clean = module.destroy()
+                if isinstance(submodules_to_clean, list):
+                    for mod in submodules_to_clean:
+                        sys.modules.pop(mod, None)
+            except Exception as e:
+                post(e, data)
         del sys.modules[plugin_name]
     if in_plugin_space:
         del data.plugin_space[plugin_name]

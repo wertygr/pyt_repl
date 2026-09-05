@@ -38,7 +38,9 @@ def hook_run(api: PluginApi, hook: str, hook_parameter: dict, plugin_space: dict
 <details> <summary> example code </summary> 
 
 ```python
-def hook_run(api: dict, hook: str, hook_parameter: dict, plugin_space: dict):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def hook_run(api: PluginApi, hook: str, hook_parameter: dict, plugin_space: dict):
     data = api["data"]
     post = api["post"]
     if hook != "post":

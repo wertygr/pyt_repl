@@ -6,9 +6,9 @@ plugins do not have a sandbox!!!
 
 <details> <summary>contract</summary>
 
-plugin - this is file in folder "./plugins" with main function\
-the "main" function must return an Any(ignore)\
-the "main" function must take 3 parameters(kwargs):
+Plugin - this is file in folder "./plugins" with main function\
+The "main" function can return Any (the return value is ignored).
+The "main" function must take 3 parameters(kwargs):
 
 - 1 API: dict,
 - 2 command_context: dict 
@@ -17,7 +17,9 @@ the "main" function must take 3 parameters(kwargs):
 plugins are loaded via [importlib](https://docs.python.org/3/library/importlib.html)
 
 ```python
-def main(api: dict, command_context: dict, plugin_space: dict):
+from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+
+def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     pass
 ```
 

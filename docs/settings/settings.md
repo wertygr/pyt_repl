@@ -57,20 +57,20 @@ The settings are located in the file: "./.pyre_settings.json"(parsing for std li
 
 <details> <summary> table </summary>
 
-| name                                                    | type |                                                                                                                                description |
-|:--------------------------------------------------------|:----:|-------------------------------------------------------------------------------------------------------------------------------------------:|
-| prompt                                                  | str  |                                                                                                                                     prompt |
-| color                                                   | dict |    syntax highlighting([format prompt-toolkit](https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/styling.html)) |
-| line_name_format                                        | str  |                                                                                                     format number line in multiline editor |
-| shlex                                                   | bool |                                                              use [shlex](https://docs.python.org/3/library/shlex.html) for command parsing |
-| posix                                                   | bool |                                                                                          use posix parsing for parsing command(with shlex) |
-| multiline                                               | bool |                                                                                                                              use multiline |
-| separator                                               | bool |                                                                                                                         use pipeline(\_&_) |
-| [repl_mode](../plugin/api/api_object/data/repl_mode.md) | str  | if data.settings.get("repl_mode")== "globals":<br/>repl_mode = globals()<br/> else: repl_mode = data.local_repl_mode <br/>#repl name space |
-| alias_globals<br/>alias_locals                          | bool |                                                                                                                                  use alias |
-| [alias_dict](../alias/alias.md)                         | dict |                                                                                                                               regist alias |
-| [plugin](../plugin/plugin.md)                           | dict |                                                                                                                              regist plugin |
-| [shell_container](../commands/sh.md)                    | bool |                                                                                                                     enable shell container |
+| name                                                    | type |                                                                                                                             description |
+|:--------------------------------------------------------|:----:|----------------------------------------------------------------------------------------------------------------------------------------:|
+| prompt                                                  | str  |                                                                                                                                  prompt |
+| color                                                   | dict |  syntax highlighting([format prompt-toolkit](https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/styling.html) |
+| line_name_format                                        | str  |                                                                                                  format number line in multiline editor |
+| shlex                                                   | bool |                                                           use [shlex](https://docs.python.org/3/library/shlex.html) for command parsing |
+| posix                                                   | bool |                                                                                       use posix parsing for parsing command(with shlex) |
+| multiline                                               | bool |                                                                                                                           use multiline |
+| separator                                               | bool |                                                                                                                      use pipeline(\_&_) |
+| [repl_mode](../plugin/api/api_object/data/repl_mode.md) | str  |                                                                                                                      namespace settings |
+| alias_globals<br/>alias_locals                          | bool |                                                                                                                               use alias |
+| [alias_dict](../alias/alias.md)                         | dict |                                                                                                                            regist alias |
+| [plugin](../plugin/plugin.md)                           | dict |                                                                                                                           regist plugin |
+| [shell_container](../commands/sh.md)                    | bool |                                                                                                                  enable shell container |
 
 </details>
 
