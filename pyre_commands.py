@@ -20,7 +20,8 @@ from pyre_core import (
     line_num,
     register_repl_source,
     PFT,
-    require_args
+    require_args,
+    traceback_format
 )
 from pyre_const import (
     SETTINGS_FILE
@@ -74,7 +75,7 @@ def pyt(data: Data) -> None:
         except Exception as e:
             post(e, data)
     else:
-        e = f"{'__ '*15} \neval: {ev_except} \n{'__ '*15}\nexec: {ex_except} \n{'__ '*15}"
+        e = f"{'__ '*15} \neval: \n{traceback_format(ev_except)} \n{'__ '*15}\nexec: {traceback_format(ex_except)} \n{'__ '*15}"
         post(e, data)
 
 def pyt_exec(data: Data) -> None:
