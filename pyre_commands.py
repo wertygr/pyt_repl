@@ -5,6 +5,7 @@ import sys
 import types
 import inspect
 import datetime
+import linecache
 from string import Template
 from typing import Callable
 
@@ -20,6 +21,9 @@ from pyre_core import (
     register_repl_source,
     PFT,
     require_args
+)
+from pyre_const import (
+    SETTINGS_FILE
 )
 from pyre_prompt_toolkit import completer_3
 from pyre_const import YELLOW, RESET
@@ -81,7 +85,7 @@ def pyt_exec(data: Data) -> None:
         post(e, data)
 
 @require_args(2)
-def source_code(data) -> None:
+def source_code(data: Data) -> None:
     _copy = ""
     text = ""
 
@@ -193,72 +197,72 @@ def pyt_pp(data: Data):
 @require_args(2)
 def shell_command(data: Data) -> None:
     @require_args(3)
-    def unload_plug(data):
+    def unload_plug(data: Data):
         for i in data.command_arg[2:]:
             unload_plugin(i, data)
     @require_args(3)
-    def load_plug(data):
+    def load_plug(data: Data):
         load_plugin(data, data.command_arg[2])
     @require_args(4)
-    def rname_vf(data):
-        if not(data.command_arg[2] in data.line_cache.cache):
+    def rname_vf(data: Data):
+        if not(data.command_arg[2] in linecache.cache):
             e = "[shell_command::rname_vf]: not virtual file: " + data.command_arg[2]
             post(e, data)
             return
-        if data.command_arg[3] in data.line_cache.cache:
+        if data.command_arg[3] in linecache.cache:
             e = f"[shell_command::rname_vf] file name: \"{data.command_arg[3]}\" taken"
             post(e, data)
             return
-        data.line_cache.cache[data.command_arg[3]] = (
+        linecache.cache[data.command_arg[3]] = (
             len(
                 "".join(
-                    data.line_cache.getlines(
+                    linecache.getlines(
                         data.command_arg[2]
                     )
                 )
             ), None, "".join(
-            data.line_cache.getlines(
+            linecache.getlines(
                 data.command_arg[2]
             )
         ).splitlines(keepends=True), data.command_arg[3])
-        del data.line_cache.cache[data.command_arg[2]]
+        del linecache.cache[data.command_arg[2]]
     @require_args(3)
-    def n_vf(data):
-        data.line_cache.cache[data.command_arg[2]] = (
+    def n_vf(data: Data):
+        linecache.cache[data.command_arg[2]] = (
             0, # memory size
             None, # xz
             "".splitlines(keepends=True),# text
             data.command_arg[2]# name
         )
     @require_args(3)
-    def e_vf(data):
-        if not(data.command_arg[2] in data.line_cache.cache):
+    def e_vf(data: Data):
+        if not(data.command_arg[2] in linecache.cache):
             e = "[shell_command::e_vf]: not virtual file: " + data.command_arg[2]
             post(e, data)
             return
         try:
             text = prompt(
-                line_num(0, 0, 0, data),
-                default= "".join(data.line_cache.getlines(data.command_arg[2])),
+                line_num(0, 0, 0, data.settings["line_name_format"]),
+                default= "".join(linecache.getlines(data.command_arg[2])),
                 completer=completer_3(data),
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 multiline=True,
-                prompt_continuation=lambda w ,h, s: line_num(w, h, s, data),
+                prompt_continuation=lambda w ,h, s: line_num(w, h, s, data.settings["line_name_format"]),
                 key_bindings=bindings
             )
-            data.line_cache.cache[data.command_arg[2]] = (
+            linecache.cache[data.command_arg[2]] = (
                 len(text), None, text.splitlines(keepends=True), data.command_arg[2]
             )
         except (KeyboardInterrupt, EOFError):
             pass
     @require_args(3)
-    def read_vf(data):
-        if not(data.command_arg[2] in data.line_cache.cache):
+    def read_vf(data: Data):
+        if not(data.command_arg[2] in linecache.cache):
             e = "[shell_command::read_vf]: not virtual file: " + data.command_arg[2]
             post(e, data)
             return
-        text = "".join(data.line_cache.getlines(data.command_arg[2]))
+        text = "".join(linecache.getlines(data.command_arg[2]))
 
         flag_map = {
             "-copy": [lambda: buffer("paste", text), True],
@@ -270,20 +274,20 @@ def shell_command(data: Data) -> None:
             if is_present == run_if_present:
                 action()
     @require_args(3)
-    def del_vf(data):
+    def del_vf(data: Data):
         for i in data.command_arg[2:]:
-            if not(i in data.line_cache.cache):
+            if not(i in linecache.cache):
                 e = f"[shell_command::del_vf]: not virtual file: \"{i}\""
                 post(e, data)
                 continue
-            del data.line_cache.cache[i]
+            del linecache.cache[i]
 
     def list_vf(data):
         for i in data.line_cache.cache:
             print(f"{i} - {len(''.join(data.line_cache.getlines(i)))} char")
 
     @require_args(4)
-    def hook_run(data):
+    def hook_run(data: Data):
         hooks_dispatch = data.api["hook_dispatch"]
         hook_name = data.command_arg[2]
         try:
@@ -293,10 +297,10 @@ def shell_command(data: Data) -> None:
             post(e, data)
             return
         hooks_dispatch(data, hook_name, hook_arg)
-    def critical_error(*args):
+    def critical_error(*_):
         raise RuntimeError("critical error in core(tester except)")
     @require_args(3)
-    def run_script(data):
+    def run_script(data: Data):
         path = data.command_arg[2]
 
         try:
@@ -313,7 +317,7 @@ def shell_command(data: Data) -> None:
     command_map = {
         "clear": lambda *_: os.system("cls" if os.name == "nt" else "clear"),
         "exit": lambda *_: sys.exit(0),
-        "settings_reload": lambda *_: data.api["settings_load"](data, ".pyre_settings.json" if data.command_arg_int < 3 else data.command_arg[2]),
+        "settings_reload": lambda *_: data.api["settings_load"](data, SETTINGS_FILE if data.command_arg_int < 3 else data.command_arg[2]),
         "run": run_script,
         "read_vf": read_vf,
         "ls_vf": list_vf,
@@ -325,9 +329,6 @@ def shell_command(data: Data) -> None:
         "critical_error": critical_error,
         "hook_run": hook_run,
         "load_plug": load_plug,
+        "reload_plug": reload_plugin,
     }
-    if not(command_map.get(data.command_arg[1])):
-        e = f"[shell_command]: unknown command: {data.command_arg[1]}"
-        post(e, data)
-        return None
-    command_map[data.command_arg[1]](data)
+    command_map.get(data.command_arg[1], lambda *_: post(f"[shell_command]: unknown command: {data.command_arg[1]}", data))()

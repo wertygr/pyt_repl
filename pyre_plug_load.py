@@ -1,15 +1,14 @@
 import importlib.util
 import os
 import sys
-import traceback
-from types import TracebackType
 from typing import Optional, Any
 
 from pyre_core import (
     PFT,
-    Data
+    Data,
+    post,
+    traceback_format
 )
-from pyre_core import post
 
 def _plugin_load(plugin, f_locate):
     spec = importlib.util.spec_from_file_location(plugin, f_locate)
@@ -52,9 +51,8 @@ def load_plugin(data: Data, plugin: Optional[str] = None) -> None:
 def unload_plugin(plugin_name, data):
     in_sys = plugin_name in sys.modules
     in_repl = plugin_name in data.repl_mode
-    in_plugin_space = plugin_name in data.plugin_space
 
-    if ((not(in_sys)) and (not(in_repl)) and (not(in_plugin_space))):
+    if not in_sys and not in_repl:
         e = f"[unload_plugin] plugin {plugin_name} not found anywhere"
         post(e, data)
         return
@@ -63,24 +61,16 @@ def unload_plugin(plugin_name, data):
         del data.repl_mode[plugin_name]
     if in_sys:
         module = sys.modules[plugin_name]
-        if hasattr(module, 'destroy'):
+        if hasattr(module, "destructor"):
             try:
-                submodules_to_clean = module.destroy()
-                if isinstance(submodules_to_clean, list):
-                    for mod in submodules_to_clean:
-                        sys.modules.pop(mod, None)
+                module.destroy(plugin_space=data.plugin_space)
             except Exception as e:
                 post(e, data)
         del sys.modules[plugin_name]
-    if in_plugin_space:
-        del data.plugin_space[plugin_name]
 
 def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
     def _post(e: Any, data: Data) -> None:
-        if isinstance(e, TracebackType):
-            e = "".join(traceback.format_tb(e))
-        elif isinstance(e, BaseException):
-            e = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+        e = traceback_format(e)
         data.last_error = e
         PFT(e, data)
     api = data.api

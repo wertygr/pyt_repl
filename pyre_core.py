@@ -1,9 +1,11 @@
 #_________________________________________________________________________________________________
 
 import traceback
+import linecache
 from typing import Any, Callable
 from types import TracebackType
 from functools import wraps
+from dataclasses import dataclass
 
 #_________________________________________________________________________________________________
 
@@ -15,14 +17,14 @@ from pygments.lexers import PythonLexer
 
 #_________________________________________________________________________________________________
 
+@dataclass()
 class Data:
-
     last_error =          ""
     repl_mode =           {}
-    _repl_cache_id =      0
+    repl_cache_id =      0
     pyt_lex =             PythonLexer()
     settings =            {}
-    pt_style: BaseStyle
+    pt_style: BaseStyle = None
     script_dir =          ""
 
     api =                 {}
@@ -35,8 +37,6 @@ class Data:
     command_prefix =      ""
     command_arg_int =     0
     command_arg =         []
-
-    line_cache =          []
 
     lexer =               PythonLexer
     lexer_instance =      lexer()
@@ -79,17 +79,21 @@ def buffer (mode: str = "copy", text: str = "") -> str|None:
     elif mode == "add":
         _buffer += text
 
-def post(e: Any, data: Data) -> None:
+def traceback_format(e: TracebackType|BaseException|str) -> str:
     if isinstance(e, TracebackType):
         e = "".join(traceback.format_tb(e))
     elif isinstance(e, BaseException):
         e = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+    return e
+
+def post(e: Any, data: Data) -> None:
+    e = traceback_format(e)
     data.last_error = e
     hooks_dispatch = data.api.get("hook_dispatch", lambda *_: None)
     hooks_dispatch(data, "post", {"err": f"{e}"})
     PFT(e, data)
 
-def command_separators(command_arg) -> list[list[str]]:
+def command_separators(command_arg: list[str]) -> list[list[str]]:
     subarrays = []
     current = []
 
@@ -105,22 +109,22 @@ def command_separators(command_arg) -> list[list[str]]:
         subarrays.append(current)
     return subarrays
 
-def is_int_to_str(string) -> bool:
+def str_is_int(string: str) -> bool:
     if not string:
         return False
     if string[0] in ["+","-"]:
         return string[1:].isdigit()
-    return string.lstrip('+-').isdigit()
+    return string.isdigit()
 
 def alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
     position =  alias_settings.get("position", None)
-    if position == None:
+    if position is None:
         return True
     if isinstance(position, list) and alias_position in position:
         return True
     return False
 
-def alias_paste(value: list[str], result: list, token: str, command_arg: list[str], alias_position: int, data: Data) -> list[str]:
+def alias_paste(value: list[str], result: list[str], token: str, command_arg: list[str], alias_position: int, data: Data) -> list[str]:
     if not(isinstance(value, list)):
         e = f"Invalid value type {type(value)} for alias {token}"
         post(e, data)
@@ -128,11 +132,11 @@ def alias_paste(value: list[str], result: list, token: str, command_arg: list[st
     # // macros beta
     value_copy = value.copy()
     for index, i in enumerate(value_copy):
-        if value_copy[index][:2] == ">#" and is_int_to_str(value_copy[index][2:]):
+        if value_copy[index][:2] == ">#" and str_is_int(value_copy[index][2:]):
             goto_index = int(value_copy[index][2:])
             if len(command_arg) > (alias_position + goto_index):
                 value_copy[index] = command_arg[alias_position + goto_index]
-        elif value_copy[index][:2] == "!#" and is_int_to_str(value_copy[index][2:]):
+        elif value_copy[index][:2] == "!#" and str_is_int(value_copy[index][2:]):
             goto_index = int(value_copy[index][2:])
             if len(command_arg) > goto_index:
                 value_copy[index] = command_arg[goto_index]
@@ -171,8 +175,8 @@ def line_num(
          is_soft_wrap=is_soft_wrap
     )
 
-def register_repl_source(source: str, data) -> str:
-    data._repl_cache_id += 1
-    filename = f"<py_repl_{data._repl_cache_id}>"
-    data.line_cache.cache[filename] = (len(source), None, source.splitlines(keepends=True), filename)
+def register_repl_source(source: str, data: Data) -> str:
+    data.repl_cache_id += 1
+    filename = f"<py_repl_{data.repl_cache_id}>"
+    linecache.cache[filename] = (len(source), None, source.splitlines(keepends=True), filename)
     return filename

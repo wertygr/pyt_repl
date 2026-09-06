@@ -1,6 +1,9 @@
 RESET = "\033[0m"
 YELLOW = "\033[33m"
 
+SETTINGS_FILE = ".pyre_settings.json"
+FILE_HISTORY = ".py_history"
+
 DEFAULT_SETTINGS = {
     "color": {},
     "plugin": {},

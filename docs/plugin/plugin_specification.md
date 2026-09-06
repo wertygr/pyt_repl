@@ -59,5 +59,6 @@ unload from:
 
 - sys.modules
 - [data.repl_mode](api/api_object/data/repl_mode.md)
-- data.plugin_space[plugin_name]
+
+the [destructor](plugin_destructor.md) is called
 </details> 

@@ -7,7 +7,6 @@ This is python repl
 import os
 import json
 import shlex
-import linecache
 
 #_________________________________________________________________________________________________
 
@@ -20,6 +19,7 @@ from pyre_core import (
     buffer,
     Data,
     line_num,
+    traceback_format
 )
 from pyre_commands import (
     sh,
@@ -34,8 +34,12 @@ from pyre_plug_load import (
     load_plugin,
     hooks_dispatch
 )
+from pyre_const import (
+    DEFAULT_SETTINGS,
+    FILE_HISTORY,
+    SETTINGS_FILE
+)
 from pyre_prompt_toolkit import completer
-from pyre_const import DEFAULT_SETTINGS
 from pyre_bindings import bindings
 
 #_________________________________________________________________________________________________
@@ -70,9 +74,9 @@ def dispatcher(data: Data) -> None:
         func(data)
     elif data.command_arg[0] in data.settings["plugin"]:
         load_plugin(data)
-    else:
-        e = f"[dispatcher]: unknown command: {data.command_arg[0]}"
-        post(e, data)
+        return
+    e = f"[dispatcher]: unknown command: {data.command_arg[0]}"
+    post(e, data)
 
 #_________________________________________________________________________________________________
 
@@ -85,29 +89,30 @@ def pars_command(data: Data) -> None:
             return None
     else:
         data.command_arg = data.command.split()
-    data.command_arg_int = len(data.command_arg)
-    if data.command_arg_int < 1:
+
+    if len(data.command_arg) < 1:
         e = "[pars_command]: not enough arguments"
         post(e, data)
         return None
-    if data.settings.get("alias_globals", False):
+    if data.settings["alias_globals"]:
         data.command_arg = alias_parser(data, data.settings.get("alias_dict", {}), data.command_arg, "global")
-    if data.settings.get("separator"):
+    if data.settings["separator"]:
         commands = command_separators(data.command_arg)
         for i in commands:
-            if data.settings.get("alias_locals", False):
+            if data.settings["alias_locals"]:
                 data.command_arg = alias_parser(data, data.settings.get("alias_dict", {}), i, "local")
             dispatcher(data)
     else:
-        if data.settings.get("alias_locals", False):
+        if data.settings.get["alias_locals"]:
             i = alias_parser(data, data.settings.get("alias_dict", {}), data.command_arg, "local")
         else:
             i = data.command_arg
+        data.command_arg = i
         dispatcher(data)
 
 #_________________________________________________________________________________________________
 
-def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
+def settings_load(data: Data, file: str = SETTINGS_FILE) -> None:
     try:
         with open(file, encoding="utf-8") as f:
             settings = json.load(f)
@@ -143,7 +148,6 @@ def settings_load(data: Data, file: str = ".pyre_settings.json") -> None:
 
 def initialisation() -> Data:
     data = Data()
-    data.line_cache = linecache
     settings_load(data)
     data.api = {
         "settings_load": settings_load,
@@ -156,7 +160,8 @@ def initialisation() -> Data:
         "alias_parser": alias_parser,
         "data": data,
         "register_repl_source": register_repl_source,
-        "hook_dispatch": hooks_dispatch
+        "hook_dispatch": hooks_dispatch,
+        "traceback_format": traceback_format
     }
     hooks_dispatch(data, "init", {"data": data})
     return data
@@ -173,7 +178,7 @@ def repl_cycle(data: Data) -> None:
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings["line_name_format"]),
-                history=FileHistory(".py_history"),
+                history=FileHistory(FILE_HISTORY),
                 include_default_pygments_style=False,
                 key_bindings=bindings
                 )
