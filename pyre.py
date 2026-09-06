@@ -72,7 +72,8 @@ def dispatcher(data: Data) -> None:
     func = command_map.get(data.command_arg[0])
     if func:
         func(data)
-    elif data.command_arg[0] in data.settings["plugin"]:
+        return
+    if data.command_arg[0] in data.settings["plugin"]:
         load_plugin(data)
         return
     e = f"[dispatcher]: unknown command: {data.command_arg[0]}"

@@ -2,6 +2,7 @@
 
 import builtins
 import keyword
+import linecache
 
 #_________________________________________________________________________________________________
 
@@ -67,7 +68,7 @@ def completer(data: Data):
     updated_base["_pyt-exec_"] = dynamics
     updated_base["_pyt-eval_"] = dynamics
     updated_base["_pyt_"]      = dynamics
-    updated_base["_._"]["read_vf"] = dict.fromkeys(data.line_cache.cache, None)
+    updated_base["_._"]["read_vf"] = dict.fromkeys(linecache.cache, None)
     updated_base["_._"]["del_vf"] = updated_base["_._"]["read_vf"]
     updated_base["_._"]["unload_plug"] = dict.fromkeys(data.settings.get("plugin", {}), None)
 
@@ -94,11 +95,11 @@ def completer_3(data: Data):
 
 def completer_5(data: Data) -> str:
     text = ""
-    for i in range(data._repl_cache_id + 1):
+    for i in range(data.repl_cache_id + 1):
         f_name = f"<py_repl_{i}>"
-        if not(f_name in data.line_cache.cache):
+        if not(f_name in linecache.cache):
             continue
-        text = text + "".join(data.line_cache.getlines(f_name)) + "\n"
+        text = text + "".join(linecache.getlines(f_name)) + "\n"
     return text
 
 def jedi_completer(document, complete_event, data):

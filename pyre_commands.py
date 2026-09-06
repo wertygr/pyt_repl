@@ -329,6 +329,5 @@ def shell_command(data: Data) -> None:
         "critical_error": critical_error,
         "hook_run": hook_run,
         "load_plug": load_plug,
-        "reload_plug": reload_plugin,
     }
     command_map.get(data.command_arg[1], lambda *_: post(f"[shell_command]: unknown command: {data.command_arg[1]}", data))()
