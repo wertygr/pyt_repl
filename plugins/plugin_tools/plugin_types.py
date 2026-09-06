@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from types import TracebackType
 from typing import TypedDict, Callable, Any, Protocol
 
 from prompt_toolkit.styles import BaseStyle
@@ -19,6 +21,7 @@ class PluginApi(TypedDict):
     data: PluginData
     register_repl_source: Callable[[PluginData, str], None]
     hook_dispatch: Callable[[PluginData, str, dict], list[Any]]
+    traceback_format: Callable[[TracebackType|BaseException|str], str]
 
 class CommandContext(TypedDict):
     command_arg: list[str]

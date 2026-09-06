@@ -9,9 +9,10 @@ plugins
 ```
 
 main.py:
+
 ```python
 import sys
-from plugin_tools.types import (PluginApi, PluginData, CommandContext)
+from plugin_tools.plugin_types import (PluginApi, PluginData, CommandContext)
 from plugins.example_plugin.utils import ...
 
 PLUGIN_NAME = "example_plugin"

@@ -1,13 +1,14 @@
 <details> <summary>post</summary>
 
 ```python
-from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
+
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
     post = api["post"]
     try:
-        bad_var = 0/0
+        bad_var = 0 / 0
     except Exception as e:
         post(e, data)
         print("\n", data.last_error)

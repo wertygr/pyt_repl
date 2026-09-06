@@ -53,8 +53,6 @@ from prompt_toolkit.styles import style_from_pygments_dict
 
 #_________________________________________________________________________________________________
 
-local_repl_mode = {}
-
 def dispatcher(data: Data) -> None:
     data.command_prefix = " ".join(data.command_arg[1:])
     data.command_arg_int = len(data.command_arg)
@@ -128,7 +126,7 @@ def settings_load(data: Data, file: str = SETTINGS_FILE) -> None:
         data.repl_mode = globals()
         data.repl_mode["data"] = data
     else:
-        data.repl_mode = local_repl_mode
+        data.repl_mode = data._local_repl_mode
 
     data.settings         = settings
 
@@ -150,6 +148,7 @@ def settings_load(data: Data, file: str = SETTINGS_FILE) -> None:
 def initialisation() -> Data:
     data = Data()
     settings_load(data)
+    # noinspection PyTypeChecker
     data.api = {
         "settings_load": settings_load,
         "post": post,

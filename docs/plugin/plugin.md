@@ -17,7 +17,8 @@ The "main" function must take 3 parameters(kwargs):
 plugins are loaded via [importlib](https://docs.python.org/3/library/importlib.html)
 
 ```python
-from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
+
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     pass
@@ -50,10 +51,12 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 <details> <summary>example plugin code</summary>
 
 code:
+
 ```python
 # code in ./plugins/plug_test
 
-from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
+
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     for i in command_context:

@@ -5,14 +5,15 @@ import linecache
 from typing import Any, Callable
 from types import TracebackType
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from plugins.plugin_tools.plugin_types import (PluginApi)
 
 #_________________________________________________________________________________________________
 
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit.styles import BaseStyle
-from pygments.lexers.python import PythonLexer
+from pygments.lexers.python import PythonLexer # type: ignore
 from pygments.lexers import PythonLexer
 
 #_________________________________________________________________________________________________
@@ -24,12 +25,12 @@ class Data:
     repl_cache_id =      0
     pyt_lex =             PythonLexer()
     settings =            {}
-    pt_style: BaseStyle = None
+    pt_style: BaseStyle|None = field(default=None, init=False)
     script_dir =          ""
 
-    api =                 {}
-
+    api: PluginApi =      field(default_factory=dict) # type: ignore
     plugin_space =        {}
+    _local_repl_mode =    {}
 
     pyt_plus_old_text =   ""
 
@@ -67,7 +68,7 @@ def PFT(text: Any, data: Data, end: str= "\n") -> None:
         end=end
     )
     hooks_dispatch = data.api.get("hook_dispatch", lambda *_: None)
-    hooks_dispatch(data, "PFT", {"text": f"{text}"})
+    hooks_dispatch(data, "PFT", {"text": f"{text}"}) # type: ignore
 
 _buffer = ""
 def buffer (mode: str = "copy", text: str = "") -> str|None:
@@ -90,7 +91,7 @@ def post(e: Any, data: Data) -> None:
     e = traceback_format(e)
     data.last_error = e
     hooks_dispatch = data.api.get("hook_dispatch", lambda *_: None)
-    hooks_dispatch(data, "post", {"err": f"{e}"})
+    hooks_dispatch(data, "post", {"err": f"{e}"}) # type: ignore
     PFT(e, data)
 
 def command_separators(command_arg: list[str]) -> list[list[str]]:

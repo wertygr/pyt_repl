@@ -2,12 +2,13 @@ data.repl_mode - user namespace
 
 ```python
 # example use data.repl_mode 
-from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
+
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
     code = "# Any python code"
-    exec(code, data.repl_mode) # it is recommended to register the source code 
+    exec(code, data.repl_mode)  # it is recommended to register the source code 
 ```
 
 <details> <summary> global/local(in settings "repl_mode") difference </summary>

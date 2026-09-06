@@ -1,9 +1,11 @@
 <details> <summary> pars_command </summary> 
 
 ```python
-from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
 
 import time
+
+
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
     PFT = api["PFT"]

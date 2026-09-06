@@ -1,9 +1,10 @@
 example:
 
 ```python
-from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
 
 PLUGIN_NAME = "_test_"
+
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     # init

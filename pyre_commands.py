@@ -62,8 +62,8 @@ def pyt(data: Data) -> None:
                 ev_except = e
             return False
 
-    byte_code_ev = byte_code_compile(data.command_prefix, "eval")
-    byte_code_ex = byte_code_compile(data.command_prefix, "exec")
+    byte_code_ev: types.CodeType|False = byte_code_compile(data.command_prefix, "eval")
+    byte_code_ex: types.CodeType|False = byte_code_compile(data.command_prefix, "exec")
     if byte_code_ev:
         try:
             PFT(eval(byte_code_ev, data.repl_mode), data)
@@ -92,6 +92,7 @@ def source_code(data: Data) -> None:
 
     repl_mode = data.repl_mode
     command_arg = data.command_arg
+    # noinspection PyBroadException
     try:
         obj = eval(command_arg[1], repl_mode)
         obj = inspect.unwrap(obj)
@@ -106,7 +107,7 @@ def source_code(data: Data) -> None:
                         break
                 if not found_inner:
                     break
-
+    # noinspection PyBroadException
     except Exception:
         post(f"[source_code]: not object: {command_arg[1]}", data)
         return
@@ -131,7 +132,7 @@ def source_code(data: Data) -> None:
         if is_present == run_if_present:
             action()
 
-def pyt_pp(data: Data):
+def pyt_pp(data: Data) -> None:
     def read_cache():
         if not data.pyt_plus_old_text:
             with open("pyt_save/.pyt_save", "r", encoding="utf-8") as f:
@@ -159,30 +160,29 @@ def pyt_pp(data: Data):
     def editor():
         try:
             data.pyt_plus_old_text = prompt(
-                line_num(0, 0, 0, data.settings.get("line_name_format", "line_number |")),
+                line_num(0, 0, 0, data.settings["line_name_format"]),
                 default=data.pyt_plus_old_text,
                 completer=make_jedi_completer(data),
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 multiline=True,
-                prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings.get("line_name_format", "line_number |")),
+                prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings["line_name_format"]),
                 key_bindings=bindings
             )
             return
         except (KeyboardInterrupt, EOFError):
-            pass
+            data.pyt_plus_old_text = ""
         except Exception as e:
             post(e, data)
-        data.pyt_plus_old_text = None
+            data.pyt_plus_old_text = ""
     if "old" in data.command_arg:
         read_cache()
-    if "paste" in data.command_arg:
-        data.pyt_plus_old_text += buffer("copy")
-
-    editor()
-    if data.pyt_plus_old_text is None:
+    else:
         data.pyt_plus_old_text = ""
-        return
+    if "paste" in data.command_arg:
+        data.pyt_plus_old_text += buffer("copy") # type: ignore
+    editor()
+
 
     flag_map = {
         "save": [save, True],
@@ -297,7 +297,7 @@ def shell_command(data: Data) -> None:
         except Exception as e:
             post(e, data)
             return
-        hooks_dispatch(data, hook_name, hook_arg)
+        hooks_dispatch(data, hook_name, hook_arg) # type: ignore
     def critical_error(*_):
         raise RuntimeError("critical error in core(tester except)")
     @require_args(3)
@@ -311,14 +311,14 @@ def shell_command(data: Data) -> None:
                     if not item_2:
                         continue
                     data.command = item_2
-                    data.api["pars_command"](data)
+                    data.api["pars_command"](data) # type: ignore
         except Exception as e:
             post(e, data)
 
     command_map = {
         "clear": lambda *_: os.system("cls" if os.name == "nt" else "clear"),
         "exit": lambda *_: sys.exit(0),
-        "settings_reload": lambda *_: data.api["settings_load"](data, SETTINGS_FILE if data.command_arg_int < 3 else data.command_arg[2]),
+        "settings_reload": lambda *_: data.api["settings_load"](data, SETTINGS_FILE if data.command_arg_int < 3 else data.command_arg[2]), # type: ignore
         "run": run_script,
         "read_vf": read_vf,
         "ls_vf": list_vf,

@@ -24,10 +24,11 @@ import plugins.test as test
 <details> <summary> error in plugin </summary>
 
 ```python
-from plugins.plugin_tools.types import (PluginData, PluginApi, CommandContext)
+from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
+
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict) -> None:
-    bad_var = 0/0
+    bad_var = 0 / 0
 ```
 
 ```pycon

@@ -68,7 +68,7 @@ def unload_plugin(plugin_name, data):
                 post(e, data)
         del sys.modules[plugin_name]
 
-def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
+def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any]:
     def _post(e: Any, data: Data) -> None:
         e = traceback_format(e)
         data.last_error = e
@@ -76,6 +76,7 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
     api = data.api
     name_space = data.repl_mode
     plugin_list = []
+    result = []
     for i in data.settings.get("plugin", {}):
         if hook_name in data.settings["plugin"][i].get("hooks", []):
             plugin_list.append(i)
@@ -91,6 +92,7 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict):
                 hook_parameter=hook_parameter,
                 plugin_space=data.plugin_space
             )
-            data.plugin_space[i] = result_plug_load
+            result.append(result_plug_load)
         except Exception as e:
             _post(e, data)
+    return result
