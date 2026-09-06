@@ -45,7 +45,7 @@ def pyt_eval(data: Data) ->  None:
         post(e, data)
 def sh (data: Data) -> None:
     contr = Template(data.command_prefix)
-    os.system(contr.safe_substitute(data.repl_mode if data.settings.get("shell_container") else {}))
+    os.system(contr.safe_substitute(data.repl_mode if data.settings["shell_container"] else {}))
 
 def pyt(data: Data) -> None:
     ev_except = ""
@@ -331,4 +331,4 @@ def shell_command(data: Data) -> None:
         "hook_run": hook_run,
         "load_plug": load_plug,
     }
-    command_map.get(data.command_arg[1], lambda *_: post(f"[shell_command]: unknown command: {data.command_arg[1]}", data))()
+    command_map.get(data.command_arg[1], lambda *_: post(f"[shell_command]: unknown command: {data.command_arg[1]}", data))(data)
