@@ -292,7 +292,7 @@ def shell_command(data: Data) -> None:
         hooks_dispatch = data.api["hook_dispatch"]
         hook_name = data.command_arg[2]
         try:
-            # _._ hook_run "name" "{\"test\": \"test\"}"
+            # _._ hook_run "name" "{\"test\": \"test hook run\"}"
             hook_arg = eval(data.command_arg[3], data.repl_mode)
         except Exception as e:
             post(e, data)
@@ -314,7 +314,7 @@ def shell_command(data: Data) -> None:
                     data.api["pars_command"](data) # type: ignore
         except Exception as e:
             post(e, data)
-
+#
     command_map = {
         "clear": lambda *_: os.system("cls" if os.name == "nt" else "clear"),
         "exit": lambda *_: sys.exit(0),
