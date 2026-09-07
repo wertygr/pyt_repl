@@ -16,6 +16,8 @@ from prompt_toolkit.styles import BaseStyle
 from pygments.lexers.python import PythonLexer # type: ignore
 from pygments.lexers import PythonLexer
 
+from pyre_const import NO_OP
+
 #_________________________________________________________________________________________________
 
 @dataclass()
@@ -75,7 +77,7 @@ def PFT(text: Any, data: Data, end: str= "\n") -> None:
         style=data.pt_style,
         end=end
     )
-    hooks_dispatch = data.api.get("hook_dispatch", lambda *_: None)
+    hooks_dispatch = data.api.get("hook_dispatch", NO_OP)
     hooks_dispatch(data, "PFT", {"text": f"{text}"}) # type: ignore
 
 _buffer = ""
@@ -98,7 +100,7 @@ def traceback_format(e: TracebackType|BaseException|str) -> str:
 def post(e: Any, data: Data) -> None:
     e = traceback_format(e)
     data.last_error = e
-    hooks_dispatch = data.api.get("hook_dispatch", lambda *_: None)
+    hooks_dispatch = data.api.get("hook_dispatch", NO_OP)
     hooks_dispatch(data, "post", {"err": f"{e}"}) # type: ignore
     PFT(e, data)
 

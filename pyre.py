@@ -38,7 +38,8 @@ from pyre_plug_load import (
 from pyre_const import (
     DEFAULT_SETTINGS,
     FILE_HISTORY,
-    SETTINGS_FILE
+    SETTINGS_FILE,
+    NO_OP
 )
 from pyre_prompt_toolkit import completer
 from pyre_bindings import bindings
@@ -66,7 +67,7 @@ def dispatcher(data: Data) -> None:
         "_._":        shell_command,
         "_sh_":       sh,
         "_?_":        source_code,
-        "_#_":        lambda *args : None,
+        "_#_":        NO_OP,
     }
     func = command_map.get(data.command_arg[0])
     if func:
@@ -129,7 +130,7 @@ def settings_load(data: Data, file: str = SETTINGS_FILE) -> None:
     else:
         data.repl_mode = data._local_repl_mode
 
-    data.settings         = settings
+    data.settings = settings
 
     try:
         pygments_token_dict = {
