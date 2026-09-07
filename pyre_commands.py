@@ -21,7 +21,8 @@ from pyre_core import (
     register_repl_source,
     PFT,
     require_args,
-    traceback_format
+    traceback_format,
+    flag_mapping
 )
 from pyre_const import (
     SETTINGS_FILE
@@ -123,14 +124,10 @@ def source_code(data: Data) -> None:
         text = f"{command_arg[1]} = {_copy}"
 
     flag_map = {
-        "-copy": [lambda: buffer("paste", text), True],
-        "-silent": [lambda: PFT(text, data), False],
+        "-copy": (lambda: buffer("paste", text), True),
+        "-silent": (lambda: PFT(text, data), False),
     }
-    for flag, (action, run_if_present) in flag_map.items():
-        is_present = flag in command_arg[1:]
-
-        if is_present == run_if_present:
-            action()
+    flag_mapping(flag_map, data.command_arg[1:])
 
 def pyt_pp(data: Data) -> None:
     def read_cache():
@@ -183,15 +180,12 @@ def pyt_pp(data: Data) -> None:
 
 
     flag_map = {
-        "save": [save, True],
-        "copy": [lambda: buffer("paste", data.pyt_plus_old_text), True],
-        "not_exec": [execute, False],
-        "not_cache": [save_cache, False]
+        "save": (save, True),
+        "copy": (lambda: buffer("paste", data.pyt_plus_old_text), True),
+        "not_exec":(execute, False),
+        "not_cache": (save_cache, False)
     }
-    for flag, (action, run_if_present) in flag_map.items():
-        is_present = flag in data.command_arg[1:]
-        if is_present == run_if_present:
-            action()
+    flag_mapping(flag_map, data.command_arg[1:])
 
 @require_args(2)
 def shell_command(data: Data) -> None:

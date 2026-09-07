@@ -44,13 +44,21 @@ class Data:
 
 #_________________________________________________________________________________________________
 
+def flag_mapping(flag_map: dict[str, tuple[Callable, bool]], command_args: list[str], *args, **kwargs) -> None:
+    args_set = set(command_args)
+    any(
+        action(*args, **kwargs)
+        for flag, (action, run_if_present) in flag_map.items()
+        if (flag in args_set) == run_if_present
+    )
+
 def require_args(min_args) -> Callable[[Callable], Callable]:
     def decorator(func) -> Callable:
         @wraps(func)
-        def wrapper(data) -> Callable|None:
+        def wrapper(data) -> Any:
             if data.command_arg_int < min_args:
                 post(f"[{func.__name__}]: not enough arguments", data)
-                return
+                return None
             return func(data)
 
         return wrapper
