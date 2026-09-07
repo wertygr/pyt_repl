@@ -172,9 +172,7 @@ def pyt_pp(data: Data) -> None:
             return
         except (KeyboardInterrupt, EOFError):
             data.pyt_plus_old_text = ""
-        except Exception as e:
-            post(e, data)
-            data.pyt_plus_old_text = ""
+
     if "old" in data.command_arg:
         read_cache()
     else:

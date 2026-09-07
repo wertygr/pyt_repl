@@ -63,7 +63,7 @@ def unload_plugin(plugin_name, data):
         module = sys.modules[plugin_name]
         if hasattr(module, "destructor"):
             try:
-                module.destroy(plugin_space=data.plugin_space)
+                module.destructor(plugin_space=data.plugin_space)
             except Exception as e:
                 post(e, data)
         del sys.modules[plugin_name]
