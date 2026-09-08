@@ -6,6 +6,9 @@ NO_OP = lambda *_, **__: None
 SETTINGS_FILE = ".pyre_settings.json"
 FILE_HISTORY = ".py_history"
 
+PYT_SAVE = "pyt_save"
+PYT_CACHE = ".pyt_save"
+
 DEFAULT_SETTINGS = {
     "color": {},
     "plugin": {},

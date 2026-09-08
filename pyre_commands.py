@@ -26,7 +26,7 @@ from pyre_core import (
     flag_mapping
 )
 from pyre_const import (
-    SETTINGS_FILE
+    SETTINGS_FILE, PYT_SAVE, PYT_CACHE
 )
 from pyre_prompt_toolkit import completer_3
 from pyre_const import YELLOW, RESET
@@ -137,18 +137,18 @@ def source_code(data: Data) -> None:
 def pyt_pp(data: Data) -> None:
     def read_cache():
         if not data.pyt_plus_old_text:
-            with open("pyt_save/.pyt_save", "r", encoding="utf-8") as f:
+            with open(f"{PYT_SAVE}/{PYT_CACHE}", "r", encoding="utf-8") as f:
                 data.pyt_plus_old_text = f.read()
     def save():
         time_now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         try:
-            with open(f"pyt_save/{time_now}.py", "w") as file:
+            with open(f"{PYT_SAVE}/{time_now}.py", "w") as file:
                 file.write(data.pyt_plus_old_text)
                 print(YELLOW, f"{time_now}.py", RESET)
         except Exception as e:
             post(e, data)
     def save_cache():
-        with open("pyt_save/.pyt_save", "w") as f:
+        with open(f"{PYT_SAVE}/{PYT_CACHE}", "w") as f:
             f.write(data.pyt_plus_old_text)
     def execute():
         f_name = register_repl_source(data.pyt_plus_old_text, data)
@@ -278,11 +278,9 @@ def shell_command(data: Data) -> None:
                 post(e, data)
                 continue
             del linecache.cache[i]
-
     def list_vf(data):
         for i in data.line_cache.cache:
             print(f"{i} - {len(''.join(data.line_cache.getlines(i)))} char")
-
     @require_args(4)
     def hook_run(data: Data):
         hooks_dispatch = data.api["hook_dispatch"]
@@ -299,20 +297,17 @@ def shell_command(data: Data) -> None:
     @require_args(3)
     def run_script(data: Data):
         path = data.command_arg[2]
-
         try:
-            with open(path) as file:
-                lines = file.readlines()
-                for item_2 in lines:
-                    if not item_2:
+            with open(path) as f:
+                for i in f:
+                    if not i:
                         continue
-                    data.command = item_2
+                    data.command = i
                     data.api["pars_command"](data) # type: ignore
         except Exception as e:
             post(e, data)
-#
     command_map = {
-        "clear": lambda *_: os.system("cls" if os.name == "nt" else "clear"),
+        "clear": lambda *_: os.system("cls") if os.name == "nt" else print("\033c"),
         "exit": lambda *_: sys.exit(0),
         "settings_reload": lambda *_: data.api["settings_load"](data, SETTINGS_FILE if data.command_arg_int < 3 else data.command_arg[2]), # type: ignore
         "run": run_script,
