@@ -134,11 +134,7 @@ def alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
         return True
     return False
 
-def alias_paste(value: list[str], result: list[str], token: str, command_arg: list[str], alias_position: int, data: Data) -> list[str]:
-    if not(isinstance(value, list)):
-        e = f"Invalid value type {type(value)} for alias {token}"
-        post(e, data)
-        result.append(str(value))
+def alias_paste(value: list[str], result: list[str], token: str, command_arg: list[str], alias_position: int) -> list[str]:
     # // macros beta
     value_copy = value.copy()
     for index, i in enumerate(value_copy):
@@ -155,7 +151,7 @@ def alias_paste(value: list[str], result: list[str], token: str, command_arg: li
     result.extend(value_copy)
     return result
 
-def alias_parser(data: Data, alias_dict: dict, command_arg: list, mode: str) -> list[str]:
+def alias_parser(alias_dict: dict, command_arg: list, mode: str) -> list[str]:
     result = []
     for index, item in enumerate(command_arg):
         if not(item in alias_dict):
@@ -168,7 +164,7 @@ def alias_parser(data: Data, alias_dict: dict, command_arg: list, mode: str) -> 
         scope = item_dict.get("scope", "local")
         # __ __ __ __ __ __ __ __
         if (scope == mode) and (alias_position_validate(index, alias_dict[item])):
-            result = alias_paste(value, result, item, command_arg, index, data)
+            result = alias_paste(value, result, item, command_arg, index)
         else:
             result.append(item)
     return result

@@ -97,16 +97,16 @@ def pars_command(data: Data) -> None:
         post(e, data)
         return None
     if data.settings["alias_globals"]:
-        data.command_arg = alias_parser(data, data.settings.get("alias_dict", {}), data.command_arg, "global")
+        data.command_arg = alias_parser(data.settings["alias_dict"], data.command_arg, "global")
     if data.settings["separator"]:
         commands = command_separators(data.command_arg)
         for i in commands:
             if data.settings["alias_locals"]:
-                data.command_arg = alias_parser(data, data.settings.get("alias_dict", {}), i, "local")
+                data.command_arg = alias_parser(data.settings["alias_dict"], i, "local")
             dispatcher(data)
     else:
-        if data.settings.get["alias_locals"]:
-            i = alias_parser(data, data.settings.get("alias_dict", {}), data.command_arg, "local")
+        if data.settings["alias_locals"]:
+            i = alias_parser(data.settings["alias_dict"], data.command_arg, "local")
         else:
             i = data.command_arg
         data.command_arg = i
