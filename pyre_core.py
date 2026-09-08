@@ -2,6 +2,7 @@
 
 import traceback
 import linecache
+from collections import deque
 from typing import Any, Callable
 from types import TracebackType
 from functools import wraps
@@ -48,10 +49,10 @@ class Data:
 
 def flag_mapping(flag_map: dict[str, tuple[Callable, bool]], command_args: list[str], *args, **kwargs) -> None:
     args_set = set(command_args)
-    any(
-        action(*args, **kwargs)
-        for flag, (action, run_if_present) in flag_map.items()
-        if (flag in args_set) == run_if_present
+    deque(
+        (action(*args, **kwargs) for flag, (action, run_if_present) in flag_map.items()
+         if (flag in args_set) == run_if_present),
+        maxlen=0
     )
 
 def require_args(min_args) -> Callable[[Callable], Callable]:
@@ -62,9 +63,7 @@ def require_args(min_args) -> Callable[[Callable], Callable]:
                 post(f"[{func.__name__}]: not enough arguments", data)
                 return None
             return func(data)
-
         return wrapper
-
     return decorator
 
 def PFT(text: Any, data: Data, end: str= "\n") -> None:

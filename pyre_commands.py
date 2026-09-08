@@ -13,6 +13,7 @@ from typing import Callable
 
 from pyre_plug_load import (unload_plugin, load_plugin)
 from pyre_prompt_toolkit import make_jedi_completer
+from pyre_bottom_toolbar import (bottom_toolbar)
 from pyre_core import (
     post,
     buffer,
@@ -96,12 +97,16 @@ def source_code(data: Data) -> None:
     # noinspection PyBroadException
     try:
         obj = eval(command_arg[1], repl_mode)
-        obj = inspect.unwrap(obj)
-        if isinstance(obj, Callable):
+        if not "no_unwrap" in command_arg[1]:
+            obj = inspect.unwrap(obj)
+        if  not "no_closure" in data.command_arg and isinstance(obj, Callable):
             while hasattr(obj, "__closure__") and obj.__closure__:
                 found_inner = False
                 for cell in obj.__closure__:
-                    cell_contents = cell.cell_contents
+                    try:
+                        cell_contents = cell.cell_contents
+                    except ValueError:
+                        continue
                     if callable(cell_contents):
                         obj = cell_contents
                         found_inner = True
@@ -164,7 +169,9 @@ def pyt_pp(data: Data) -> None:
                 style=data.pt_style,
                 multiline=True,
                 prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings["line_name_format"]),
-                key_bindings=bindings
+                key_bindings=bindings,
+                vi_mode=data.settings["vi_mode"],
+                bottom_toolbar=lambda: bottom_toolbar(data) if data.settings["bottom_toolbar"] else None,
             )
             return
         except (KeyboardInterrupt, EOFError):
@@ -258,14 +265,10 @@ def shell_command(data: Data) -> None:
         text = "".join(linecache.getlines(data.command_arg[2]))
 
         flag_map = {
-            "-copy": [lambda: buffer("paste", text), True],
-            "-silent": [lambda: PFT(text, data), False],
+            "-copy": (lambda: buffer("paste", text), True),
+            "-silent": (lambda: PFT(text, data), False),
         }
-        for flag, (action, run_if_present) in flag_map.items():
-            is_present = flag in data.command_arg[1:]
-
-            if is_present == run_if_present:
-                action()
+        flag_mapping(flag_map, data.command_arg[1:])
     @require_args(3)
     def del_vf(data: Data):
         for i in data.command_arg[2:]:

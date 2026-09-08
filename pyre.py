@@ -8,6 +8,7 @@ import os
 import json
 import shlex
 
+from pyre_bottom_toolbar import bottom_toolbar
 #_________________________________________________________________________________________________
 
 from pyre_core import (
@@ -175,15 +176,17 @@ def repl_cycle(data: Data) -> None:
     while True:
         try:
             data.command = prompt(
-                data.settings.get("prompt", ">>> "),
+                data.settings["prompt"],
                 completer=DynamicCompleter(lambda: completer(data)),
-                multiline=data.settings.get("multiline", False),
+                multiline=data.settings["multiline"],
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings["line_name_format"]),
                 history=FileHistory(FILE_HISTORY),
                 include_default_pygments_style=False,
-                key_bindings=bindings
+                key_bindings=bindings,
+                vi_mode=data.settings["vi_mode"],
+                bottom_toolbar=lambda: bottom_toolbar(data) if data.settings["bottom_toolbar"] else None,
                 )
             pars_command(data)
         except (EOFError, KeyboardInterrupt):

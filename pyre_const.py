@@ -12,11 +12,13 @@ DEFAULT_SETTINGS = {
     "alias_dict": {},
     "posix": False,
     "shlex": False,
+    "vi_mode": False,
     "multiline": False,
     "separator": False,
     "alias_locals": False,
     "alias_globals": False,
     "shell_container": False,
+    "botton_tool_bar": False,
     "prompt": ">>> ",
     "repl_mode": "locals",
     "line_name_format": "{line_number} |"
