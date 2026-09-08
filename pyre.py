@@ -174,6 +174,7 @@ def initialisation() -> Data:
 
 def repl_cycle(data: Data) -> None:
     while True:
+        toolbar = lambda: bottom_toolbar(data)
         try:
             data.command = prompt(
                 data.settings["prompt"],
@@ -186,7 +187,8 @@ def repl_cycle(data: Data) -> None:
                 include_default_pygments_style=False,
                 key_bindings=bindings,
                 vi_mode=data.settings["vi_mode"],
-                bottom_toolbar=lambda: bottom_toolbar(data) if data.settings["bottom_toolbar"] else None,
+                mouse_support=data.settings["mouse_support"],
+                bottom_toolbar=toolbar() if data.settings["bottom_toolbar"] else None,
                 )
             pars_command(data)
         except (EOFError, KeyboardInterrupt):

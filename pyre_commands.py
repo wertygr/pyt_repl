@@ -160,6 +160,7 @@ def pyt_pp(data: Data) -> None:
         except Exception as e:
             post(e, data)
     def editor():
+        toolbar = lambda: bottom_toolbar(data)
         try:
             data.pyt_plus_old_text = prompt(
                 line_num(0, 0, 0, data.settings["line_name_format"]),
@@ -171,9 +172,9 @@ def pyt_pp(data: Data) -> None:
                 prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings["line_name_format"]),
                 key_bindings=bindings,
                 vi_mode=data.settings["vi_mode"],
-                bottom_toolbar=lambda: bottom_toolbar(data) if data.settings["bottom_toolbar"] else None,
+                mouse_support=data.settings["mouse_support"],
+                bottom_toolbar=toolbar() if data.settings["bottom_toolbar"] else None,
             )
-            return
         except (KeyboardInterrupt, EOFError):
             data.pyt_plus_old_text = ""
 

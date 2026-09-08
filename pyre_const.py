@@ -16,9 +16,10 @@ DEFAULT_SETTINGS = {
     "multiline": False,
     "separator": False,
     "alias_locals": False,
+    "mouse_support": False,
     "alias_globals": False,
+    "bottom_toolbar": False,
     "shell_container": False,
-    "botton_tool_bar": False,
     "prompt": ">>> ",
     "repl_mode": "locals",
     "line_name_format": "{line_number} |"
