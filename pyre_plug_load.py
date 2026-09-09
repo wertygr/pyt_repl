@@ -91,6 +91,6 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any
                 continue
             e = traceback_format(e)
             data.last_error = e
-            PFT(e, data)
+            PFT(e, data, use_hook=False)
             result.append(e)
     return result

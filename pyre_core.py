@@ -66,7 +66,7 @@ def require_args(min_args) -> Callable[[Callable], Callable]:
         return wrapper
     return decorator
 
-def PFT(text: Any, data: Data, end: str= "\n") -> None:
+def PFT(text: Any, data: Data, end: str= "\n", use_hook: bool = True) -> None:
     lexer = data.lexer_instance
     tokens = list(lexer.get_tokens(str(text)))
     print_formatted_text(
@@ -76,8 +76,9 @@ def PFT(text: Any, data: Data, end: str= "\n") -> None:
         style=data.pt_style,
         end=end
     )
-    hooks_dispatch = data.api.get("hook_dispatch", NO_OP)
-    hooks_dispatch(data, "PFT", {"text": f"{text}"}) # type: ignore
+    if use_hook:
+        hooks_dispatch = data.api.get("hook_dispatch", NO_OP)
+        hooks_dispatch(data, "PFT", {"text": f"{text}"}) # type: ignore
 
 _buffer = ""
 def buffer (mode: str = "copy", text: str = "") -> str|None:
@@ -106,7 +107,6 @@ def post(e: Any, data: Data) -> None:
 def command_separators(command_arg: list[str]) -> list[list[str]]:
     subarrays = []
     current = []
-
     for item in command_arg:
         if item == "_&_":
             if current:

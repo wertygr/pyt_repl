@@ -173,8 +173,8 @@ def initialisation() -> Data:
 #_________________________________________________________________________________________________
 
 def repl_cycle(data: Data) -> None:
+    toolbar = lambda: bottom_toolbar(data)
     while True:
-        toolbar = lambda: bottom_toolbar(data)
         try:
             data.command = prompt(
                 data.settings["prompt"],

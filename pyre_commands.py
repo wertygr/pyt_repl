@@ -91,14 +91,13 @@ def pyt_exec(data: Data) -> None:
 def source_code(data: Data) -> None:
     _copy = ""
     text = ""
-
     repl_mode = data.repl_mode
     command_arg = data.command_arg
     # noinspection PyBroadException
     try:
         obj = eval(command_arg[1], repl_mode)
-        if not "no_unwrap" in command_arg[1]:
-            obj = inspect.unwrap(obj)
+        if not "no_unwrap" in command_arg:
+            obj = inspect.unwrap(obj) if isinstance(obj, Callable) else obj
         if  not "no_closure" in data.command_arg and isinstance(obj, Callable):
             while hasattr(obj, "__closure__") and obj.__closure__:
                 found_inner = False
@@ -113,7 +112,6 @@ def source_code(data: Data) -> None:
                         break
                 if not found_inner:
                     break
-    # noinspection PyBroadException
     except Exception:
         post(f"[source_code]: not object: {command_arg[1]}", data)
         return
