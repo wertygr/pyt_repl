@@ -21,29 +21,26 @@ from pyre_const import NO_OP
 
 #_________________________________________________________________________________________________
 
-@dataclass()
 class Data:
-    last_error =          ""
-    repl_mode =           {}
-    repl_cache_id =      0
-    pyt_lex =             PythonLexer()
-    settings =            {}
-    pt_style: BaseStyle|None = field(default=None, init=False)
-    script_dir =          ""
-
-    api: PluginApi =      field(default_factory=dict) # type: ignore
-    plugin_space =        {}
-    _local_repl_mode =    {}
-
-    pyt_plus_old_text =   ""
-
-    command =             ""
-    command_prefix =      ""
-    command_arg_int =     0
-    command_arg =         []
-
-    lexer =               PythonLexer
-    lexer_instance =      lexer()
+    def __init__(self) -> None:
+        self.last_error: str = ""
+        self.plugin_space: dict = {}
+        self.repl_mode: dict = {}
+        self.repl_cache_id: int = 0
+        self.pyt_lex = PythonLexer()
+        self.settings: dict = {}
+        self.pt_style: BaseStyle
+        self.script_dir: str = ""
+        self.api: PluginApi = {}
+        self.plugin_space: dict = {}
+        self._local_repl_mode:dict = {}
+        self.pyt_plus_old_text: str = ""
+        self.command: str = ""
+        self.command_prefix: str = ""
+        self.command_arg_int: int = 0
+        self.command_arg: list[str] = []
+        self.lexer = PythonLexer
+        self.lexer_instance = self.lexer()
 
 #_________________________________________________________________________________________________
 

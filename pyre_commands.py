@@ -161,7 +161,7 @@ def pyt_pp(data: Data) -> None:
         edit_session = PromptSession()
         toolbar = lambda: bottom_toolbar(data)
         try:
-            data.pyt_plus_old_text = edit_session.prompt_async(
+            data.pyt_plus_old_text = edit_session.prompt(
                 line_num(0, 0, 0, data.settings["line_name_format"]),
                 default=data.pyt_plus_old_text,
                 completer=make_jedi_completer(data),
