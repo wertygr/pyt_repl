@@ -11,11 +11,14 @@ from pyre_core import Data
 #_________________________________________________________________________________________________
 
 import jedi
-from prompt_toolkit.completion import NestedCompleter
-from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit.completion import Completion
-from prompt_toolkit.completion import DynamicCompleter
-from prompt_toolkit.completion import Completer
+from prompt_toolkit.completion import(
+    NestedCompleter,
+    Completion,
+    DynamicCompleter,
+    Completer,
+    CompleteEvent
+)
+from prompt_toolkit.document import Document
 
 #_________________________________________________________________________________________________
 
@@ -81,18 +84,6 @@ def completer(data: Data):
 
     return NestedCompleter.from_nested_dict(dynamic_dict)
 
-def completer_3(data: Data):
-    dynamics = dynamics_completer(data)
-    dynamic_words = list(dynamics.keys()) if dynamics else []
-
-    grammatical_words = []
-    if isinstance(grammatical, dict):
-        grammatical_words = list(grammatical.keys())
-
-    builtins_words = [name for name in dir(builtins) if name[0].islower()]
-    all_words = set(dynamic_words + grammatical_words + keyword.kwlist + builtins_words)
-    return WordCompleter(all_words, WORD=True, ignore_case=False)
-
 def completer_5(data: Data) -> str:
     text = ""
     for i in range(data.repl_cache_id + 1):
@@ -128,12 +119,10 @@ def jedi_completer(document, complete_event, data):
 class JediCompleter(Completer):
     def __init__(self, data):
         self.data = data
-
-    def get_completions(self, doc, ev):
+    def get_completions(self, document: Document, complete_event: CompleteEvent):
         pass
-
-    async def get_completions_async(self, doc, ev):
-        for completion in jedi_completer(doc, ev, self.data):
+    async def get_completions_async(self, document: Document, complete_event: CompleteEvent):
+        for completion in jedi_completer(document, complete_event, self.data):
             yield completion
 
 def make_jedi_completer(data):

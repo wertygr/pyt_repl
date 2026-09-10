@@ -66,7 +66,7 @@ def require_args(min_args) -> Callable[[Callable], Callable]:
         return wrapper
     return decorator
 
-def PFT(text: Any, data: Data, end: str= "\n", use_hook: bool = True) -> None:
+def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True) -> None:
     lexer = data.lexer_instance
     tokens = list(lexer.get_tokens(str(text)))
     print_formatted_text(
@@ -102,7 +102,7 @@ def post(e: Any, data: Data) -> None:
     data.last_error = e
     hooks_dispatch = data.api.get("hook_dispatch", NO_OP)
     hooks_dispatch(data, "post", {"err": f"{e}"}) # type: ignore
-    PFT(e, data)
+    pft(e, data)
 
 def command_separators(command_arg: list[str]) -> list[list[str]]:
     subarrays = []
@@ -134,7 +134,7 @@ def alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
         return True
     return False
 
-def alias_paste(value: list[str], result: list[str], token: str, command_arg: list[str], alias_position: int) -> list[str]:
+def alias_paste(value: list[str], result: list[str], command_arg: list[str], alias_position: int) -> list[str]:
     # // macros beta
     value_copy = value.copy()
     for index, i in enumerate(value_copy):
@@ -164,7 +164,7 @@ def alias_parser(alias_dict: dict, command_arg: list, mode: str) -> list[str]:
         scope = item_dict.get("scope", "local")
         # __ __ __ __ __ __ __ __
         if (scope == mode) and (alias_position_validate(index, alias_dict[item])):
-            result = alias_paste(value, result, item, command_arg, index)
+            result = alias_paste(value, result, command_arg, index)
         else:
             result.append(item)
     return result

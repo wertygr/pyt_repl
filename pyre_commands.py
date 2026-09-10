@@ -20,7 +20,7 @@ from pyre_core import (
     Data,
     line_num,
     register_repl_source,
-    PFT,
+    pft,
     require_args,
     traceback_format,
     flag_mapping
@@ -28,9 +28,9 @@ from pyre_core import (
 from pyre_const import (
     SETTINGS_FILE, PYT_SAVE, PYT_CACHE
 )
-from pyre_prompt_toolkit import completer_3
 from pyre_const import YELLOW, RESET
 from pyre_bindings import bindings
+from prompt_toolkit import PromptSession
 
 #_________________________________________________________________________________________________
 
@@ -42,7 +42,7 @@ from prompt_toolkit.lexers import PygmentsLexer
 def pyt_eval(data: Data) ->  None:
     try:
         result_eval = eval(data.command_prefix, data.repl_mode)
-        PFT(result_eval, data)
+        pft(result_eval, data)
     except Exception as e:
         post(e, data)
 def sh (data: Data) -> None:
@@ -68,7 +68,7 @@ def pyt(data: Data) -> None:
     byte_code_ex: types.CodeType|False = byte_code_compile(data.command_prefix, "exec")
     if byte_code_ev:
         try:
-            PFT(eval(byte_code_ev, data.repl_mode), data)
+            pft(eval(byte_code_ev, data.repl_mode), data)
         except Exception as e:
             post(e, data)
     elif byte_code_ex:
@@ -128,7 +128,7 @@ def source_code(data: Data) -> None:
 
     flag_map = {
         "-copy": (lambda: buffer("paste", text), True),
-        "-silent": (lambda: PFT(text, data), False),
+        "-silent": (lambda: pft(text, data), False),
     }
     flag_mapping(flag_map, data.command_arg[1:])
 
@@ -152,15 +152,16 @@ def pyt_pp(data: Data) -> None:
         f_name = register_repl_source(data.pyt_plus_old_text, data)
         try:
             if "eval" in data.command_arg:
-                PFT(eval(compile(data.pyt_plus_old_text, f_name, "eval"), data.repl_mode), data)
+                pft(eval(compile(data.pyt_plus_old_text, f_name, "eval"), data.repl_mode), data)
                 return
             exec(compile(data.pyt_plus_old_text, f_name, "exec"), data.repl_mode)
         except Exception as e:
             post(e, data)
     def editor():
+        edit_session = PromptSession()
         toolbar = lambda: bottom_toolbar(data)
         try:
-            data.pyt_plus_old_text = prompt(
+            data.pyt_plus_old_text = edit_session.prompt_async(
                 line_num(0, 0, 0, data.settings["line_name_format"]),
                 default=data.pyt_plus_old_text,
                 completer=make_jedi_completer(data),
@@ -243,7 +244,7 @@ def shell_command(data: Data) -> None:
             text = prompt(
                 line_num(0, 0, 0, data.settings["line_name_format"]),
                 default= "".join(linecache.getlines(data.command_arg[2])),
-                completer=completer_3(data),
+                completer=make_jedi_completer(data),
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 multiline=True,
@@ -265,7 +266,7 @@ def shell_command(data: Data) -> None:
 
         flag_map = {
             "-copy": (lambda: buffer("paste", text), True),
-            "-silent": (lambda: PFT(text, data), False),
+            "-silent": (lambda: pft(text, data), False),
         }
         flag_mapping(flag_map, data.command_arg[1:])
     @require_args(3)

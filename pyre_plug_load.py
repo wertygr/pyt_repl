@@ -1,23 +1,28 @@
 import importlib.util
 import os
 import sys
-from typing import Optional, Any
+from types import ModuleType
+from typing import Any
+
+from pygments.lexers import data
 
 from pyre_core import (
-    PFT,
+    pft,
     Data,
     post,
     traceback_format
 )
 
-def _plugin_load(plugin, f_locate):
+def _plugin_load(plugin: str, f_locate: str) -> ModuleType:
     spec = importlib.util.spec_from_file_location(plugin, f_locate)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"[plugin] {plugin} not found(f_locat: {f_locate})")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     sys.modules[plugin] = module
     return module
 
-def _plugin_cache_load(plugin, plugin_settings):
+def _plugin_cache_load(plugin: str, plugin_settings) -> ModuleType:
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if plugin_settings.get("cache", False) and plugin in sys.modules:
         module = sys.modules[plugin]
@@ -27,7 +32,7 @@ def _plugin_cache_load(plugin, plugin_settings):
         module = _plugin_load(plugin, f"{script_dir}/plugins/{file_name}")
     return module
 
-def load_plugin(data: Data, plugin: Optional[str] = None) -> None:
+def load_plugin(data: Data, plugin: str|None = None) -> None:
     api = data.api
     if not plugin:
         plugin = data.command_arg[0]
@@ -91,6 +96,6 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any
                 continue
             e = traceback_format(e)
             data.last_error = e
-            PFT(e, data, use_hook=False)
+            pft(e, data, use_hook=False)
             result.append(e)
     return result

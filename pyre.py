@@ -12,7 +12,7 @@ from pyre_bottom_toolbar import bottom_toolbar
 #_________________________________________________________________________________________________
 
 from pyre_core import (
-    PFT,
+    pft,
     post,
     command_separators,
     register_repl_source,
@@ -44,10 +44,10 @@ from pyre_const import (
 )
 from pyre_prompt_toolkit import completer
 from pyre_bindings import bindings
+from prompt_toolkit import PromptSession
 
 #_________________________________________________________________________________________________
 
-from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
 from pygments.token import string_to_tokentype
 from prompt_toolkit.lexers import PygmentsLexer
@@ -63,17 +63,17 @@ def dispatcher(data: Data) -> None:
     command_map = {
         "_pyt-eval_": pyt_eval,
         "_pyt-exec_": pyt_exec,
-        "_pyt++_":    pyt_pp,
-        "_pyt_":      pyt,
-        "_._":        shell_command,
-        "_sh_":       sh,
-        "_?_":        source_code,
-        "_#_":        NO_OP,
+        "_pyt++_": pyt_pp,
+        "_pyt_": pyt,
+        "_._": shell_command,
+        "_sh_": sh,
+        "_?_": source_code,
+        "_#_": NO_OP,
     }
     func = command_map.get(data.command_arg[0])
     if func:
-        func(data)
-        return
+         func(data)
+         return
     if data.command_arg[0] in data.settings["plugin"]:
         load_plugin(data)
         return
@@ -155,7 +155,7 @@ def initialisation() -> Data:
     data.api = {
         "settings_load": settings_load,
         "post": post,
-        "PFT": PFT,
+        "PFT": pft,
         "command_separators": command_separators,
         "pars_command": pars_command,
         "dispatcher": dispatcher,
@@ -174,22 +174,25 @@ def initialisation() -> Data:
 
 def repl_cycle(data: Data) -> None:
     toolbar = lambda: bottom_toolbar(data)
+    session = PromptSession(
+        history=FileHistory(FILE_HISTORY),
+        include_default_pygments_style=False,
+        key_bindings=bindings,
+    )
+
     while True:
         try:
-            data.command = prompt(
+            data.command = session.prompt(
                 data.settings["prompt"],
                 completer=DynamicCompleter(lambda: completer(data)),
                 multiline=data.settings["multiline"],
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings["line_name_format"]),
-                history=FileHistory(FILE_HISTORY),
-                include_default_pygments_style=False,
-                key_bindings=bindings,
                 vi_mode=data.settings["vi_mode"],
                 mouse_support=data.settings["mouse_support"],
                 bottom_toolbar=toolbar() if data.settings["bottom_toolbar"] else None,
-                )
+            )
             pars_command(data)
         except (EOFError, KeyboardInterrupt):
             pass
@@ -198,8 +201,7 @@ def repl_cycle(data: Data) -> None:
             return
 
 def main() -> None:
-    data = initialisation()
-    repl_cycle(data)
+    repl_cycle(initialisation())
 
 if __name__ == "__main__":
     main()
