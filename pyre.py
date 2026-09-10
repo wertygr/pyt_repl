@@ -179,7 +179,8 @@ def repl_cycle(data: Data) -> None:
         include_default_pygments_style=False,
         key_bindings=bindings,
     )
-
+    session.app.data = data
+    session.app.mode = "repl_cycle"
     while True:
         try:
             data.command = session.prompt(

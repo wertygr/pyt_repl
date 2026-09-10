@@ -6,7 +6,6 @@ from collections import deque
 from typing import Any, Callable
 from types import TracebackType
 from functools import wraps
-from dataclasses import dataclass, field
 from plugins.plugin_tools.plugin_types import (PluginApi)
 
 #_________________________________________________________________________________________________
@@ -29,9 +28,9 @@ class Data:
         self.repl_cache_id: int = 0
         self.pyt_lex = PythonLexer()
         self.settings: dict = {}
-        self.pt_style: BaseStyle
+        self.pt_style: BaseStyle # type: ignore
         self.script_dir: str = ""
-        self.api: PluginApi = {}
+        self.api: PluginApi = {} # type: ignore
         self.plugin_space: dict = {}
         self._local_repl_mode:dict = {}
         self.pyt_plus_old_text: str = ""

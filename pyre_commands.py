@@ -158,7 +158,11 @@ def pyt_pp(data: Data) -> None:
         except Exception as e:
             post(e, data)
     def editor():
-        edit_session = PromptSession()
+        edit_session = PromptSession(
+            key_bindings=bindings,
+        )
+        edit_session.app.data = data
+        edit_session.app.mode = "pyt++"
         toolbar = lambda: bottom_toolbar(data)
         try:
             data.pyt_plus_old_text = edit_session.prompt(
@@ -169,7 +173,6 @@ def pyt_pp(data: Data) -> None:
                 style=data.pt_style,
                 multiline=True,
                 prompt_continuation=lambda w, h, s: line_num(w, h, s, data.settings["line_name_format"]),
-                key_bindings=bindings,
                 vi_mode=data.settings["vi_mode"],
                 mouse_support=data.settings["mouse_support"],
                 bottom_toolbar=toolbar() if data.settings["bottom_toolbar"] else None,
