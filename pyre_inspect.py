@@ -3,13 +3,24 @@ import dis
 import types
 from typing import Callable, Any, Type
 
-def get_source_code(obj: str|Callable[..., Any]|Type[Any]|Any, namespace: dict, use_dis: bool, use_unwrap: bool, use_closure: bool) -> str|None:
+class DisassemblyError(Exception):
+    pass
+class GetObjectError(Exception):
+    pass
+
+def get_source_code(
+        obj_name: str|Callable[..., Any]|Type[Any]|Any,
+        namespace: dict,
+        use_dis: bool,
+        use_unwrap: bool,
+        use_closure: bool) -> str|DisassemblyError|GetObjectError:
     code = None
+    obj = obj_name
     if isinstance(obj, str):
         try:
             obj = eval(obj, namespace)
-        except:
-            return None
+        except Exception:
+            return GetObjectError(f"no object {obj_name}")
     if use_unwrap:
         obj = inspect.unwrap(obj) if isinstance(obj, Callable) else obj
     if use_closure:
@@ -29,8 +40,8 @@ def get_source_code(obj: str|Callable[..., Any]|Type[Any]|Any, namespace: dict, 
     if use_dis:
         try:
             return dis.Bytecode(obj).dis()
-        except:
-            return None
+        except TypeError:
+            return DisassemblyError(f"The object: {obj_name} cannot be disassembled")
     else:
         if isinstance(obj, (types.ModuleType, Callable, type)):
             try:

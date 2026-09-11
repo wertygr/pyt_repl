@@ -3,11 +3,9 @@
 import os
 import sys
 import types
-import inspect
 import datetime
 import linecache
 from string import Template
-from typing import Callable
 
 #_________________________________________________________________________________________________
 
@@ -28,7 +26,7 @@ from pyre_core import (
 from pyre_const import (
     SETTINGS_FILE, PYT_SAVE, PYT_CACHE
 )
-from pyre_inspect import get_source_code
+from pyre_inspect import get_source_code, GetObjectError, DisassemblyError
 from pyre_const import YELLOW, RESET
 from pyre_bindings import bindings
 from prompt_toolkit import PromptSession
@@ -89,61 +87,16 @@ def pyt_exec(data: Data) -> None:
 
 @require_args(2)
 def source_code(data: Data) -> None:
-    _copy = ""
-    text = ""
-    repl_mode = data.repl_mode
-    command_arg = data.command_arg
-    # noinspection PyBroadException
-    try:
-        obj = eval(command_arg[1], repl_mode)
-        if not "no_unwrap" in command_arg:
-            obj = inspect.unwrap(obj) if isinstance(obj, Callable) else obj
-        if  not "no_closure" in data.command_arg and isinstance(obj, Callable):
-            while hasattr(obj, "__closure__") and obj.__closure__:
-                found_inner = False
-                for cell in obj.__closure__:
-                    try:
-                        cell_contents = cell.cell_contents
-                    except ValueError:
-                        continue
-                    if callable(cell_contents):
-                        obj = cell_contents
-                        found_inner = True
-                        break
-                if not found_inner:
-                    break
-    except Exception:
-        post(f"[source_code]: not object: {command_arg[1]}", data)
-        return
-    if callable(obj) or inspect.isclass(obj) or isinstance(obj, types.ModuleType) or inspect.ismodule(obj) or inspect.isfunction(obj) or inspect.isroutine(obj) or inspect.ismethod(obj):
-        try:
-            _copy = inspect.getsource(obj)
-            text = _copy
-        except (OSError, TypeError):
-            _copy = getattr(obj, "__doc__", "no docstring")
-            text = f"[no docstring]"
-    else:
-        _copy = repr(obj)
-        text = f"{command_arg[1]} = {_copy}"
-
-    flag_map = {
-        "-copy": (lambda: buffer("paste", text), True),
-        "-silent": (lambda: pft(text, data), False),
-    }
-    flag_mapping(flag_map, data.command_arg[1:])
-
-@require_args(2)
-def source_code_2(data: Data) -> None:
     obj = data.command_arg[1]
     code = get_source_code(
-        obj=obj,
+        obj_name=obj,
         namespace=data.repl_mode,
         use_dis= "dis" in data.command_arg[2:],
         use_unwrap= "unwrap" in data.command_arg[2:],
         use_closure= "closure" in data.command_arg[2:],
     )
-    if code is None:
-        post(f"[source_code]: not object: {data.command_arg[1]}", data)
+    if isinstance(code, (GetObjectError, DisassemblyError)):
+        post(f"[source_code]: {str(code)}", data)
         return
     flag_map = {
         "copy": (lambda: buffer("paste", code), True),
