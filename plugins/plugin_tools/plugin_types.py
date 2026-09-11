@@ -22,6 +22,10 @@ class PluginApi(TypedDict):
     register_repl_source: Callable[[PluginData, str], None]
     hook_dispatch: Callable[[PluginData, str, dict], list[Any]]
     traceback_format: Callable[[TracebackType|BaseException|str], str]
+    flag_mapping: Callable[
+        [dict[str, tuple[Callable[..., Any], bool]], list[str], Any, Any],
+        None
+    ]
 
 class CommandContext(TypedDict):
     command_arg: list[str]

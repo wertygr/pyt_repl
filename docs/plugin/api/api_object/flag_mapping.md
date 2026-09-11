@@ -1,7 +1,11 @@
 <details> <summary> signature: </summary>
 
 ```python
-def flag_mapping(flag_map: dict[str, tuple[Callable, bool]], command_args: list[str], *args, **kwargs) -> None:
+def flag_mapping(
+        flag_map: dict[str, tuple[Callable, bool]], 
+        command_args: list[str],
+        *args,
+        **kwargs) -> None:
     ...
 ```
 </details>
@@ -14,7 +18,10 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     command_arg = command_context["command_arg"]
     flag_mapping = api["flag_mapping"]
     flag_map = {
-        "test1": (lambda a: print(a, 1), True),
+        "test1": #flag 
+            (
+                lambda a: print(a, 1), #action
+                True), # bool flag
         "test2": (lambda a: print(a, 2), False)
     }
     flag_mapping(flag_map, command_arg[1:], a="test: ")
@@ -29,4 +36,20 @@ test:  2
 >>> _test_ test2
 >>>
 ```
+</details>
+
+<details> <summary> truth table </summary>
+
+| flag in command_args | bool flag | use action |
+|:---------------------|:---------:|-----------:|
+| True                 |   True    |       True |
+| True                 |   False   |      False |
+| False                |   True    |      False |
+| False                |   False   |       True |
+
+</details>
+
+<details> <summary> </summary>
+
+* [XNOR](https://en.wikipedia.org/wiki/XNOR_gate) 
 </details>
