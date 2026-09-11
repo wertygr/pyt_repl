@@ -15,15 +15,10 @@ def mode_info(obj, *_) -> str:
         f"type: {type(obj)}",
         f"address: {hex(id(obj))}",
         None if not hasattr(obj, "__annotations__") else f"annotations: {getattr(obj, '__annotations__')}",
-        None if not hasattr(obj, "__doc__") else f"doc: {obj.__doc__}",
+        getattr(obj, "__doc__", None),
         None if not hasattr(obj, "__file__") else f"file: {obj.__file__}",
     )
-    result = ""
-    for i in info:
-        if i is None:
-            continue
-        result += i + "\n"
-    return result
+    return "\n".join(i for i in info if i)
 
 def mode_normal(obj, *_) -> str:
     if isinstance(obj, (types.ModuleType, Callable, type)):
