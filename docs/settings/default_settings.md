@@ -1,15 +1,18 @@
 default settings:
  ```python
-data.settings = {
+DEFAULT_SETTINGS = {
     "color": {},
     "plugin": {},
     "alias_dict": {},
     "posix": False,
     "shlex": False,
+    "vi_mode": False,
     "multiline": False,
     "separator": False,
     "alias_locals": False,
+    "mouse_support": False,
     "alias_globals": False,
+    "bottom_toolbar": False,
     "shell_container": False,
     "prompt": ">>> ",
     "repl_mode": "locals",
