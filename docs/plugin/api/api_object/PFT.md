@@ -4,8 +4,8 @@ from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandCon
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
-    PFT = api["PFT"]  # print formated text(with syntax highlighting(python3))
-    PFT(
+    pft = api["PFT"]  # print formated text(with syntax highlighting(python3))
+    pft(
         """
 class test:
     def __init__(self):

@@ -6,7 +6,7 @@ from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandCon
 PLUGIN_NAME = "_test_"
 
 def destructor(plugin_space) -> None:
-    del plugin_space[PLUGIN_NAME]
+    plugin_space.pop(PLUGIN_NAME)
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     # init

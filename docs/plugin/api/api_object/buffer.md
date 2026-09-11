@@ -12,8 +12,8 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     
     buffer signature - buffer(mode: str, text: str)
     
-    mode="copy" - read buffer
-    mode="add" - add to buffer
+    mode="copy"  - read buffer
+    mode="add"   - add to buffer
     mode="paste" - paste to buffer
     """
     print(buffer("copy"))

@@ -20,8 +20,8 @@ PLUGIN_NAME = "example_plugin"
 def destructor(plugin_space) -> None:
     moduls = ["plugins.example_plugin.utils"]
     for it in moduls:
-        del sys.modules[it]
-    del plugin_space[PLUGIN_NAME]
+        sys.modules.pop(it, None)
+    plugin_space.pop(PLUGIN_NAME, None)
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     ...
