@@ -8,13 +8,48 @@ class DisassemblyError(Exception):
 class GetObjectError(Exception):
     pass
 
+def mode_info(obj, *_) -> str:
+    info: tuple[str, ...] = (
+        "" if not hasattr(obj, "__name__") else f"name: {obj.__name__}",
+        f"dir: {dir(obj)}",
+        f"type: {type(obj)}",
+        f"address: {hex(id(obj))}",
+        "" if not hasattr(obj, "__annotations__") else f"annotations: {getattr(obj, '__annotations__')}"
+        "" if not hasattr(obj, "__doc__") else f"doc: {obj.__doc__}",
+        "" if not hasattr(obj, "__file__") else f"file: {obj.__file__}",
+    )
+    result = ""
+    for i in info:
+        if not i:
+            continue
+        result += i + "\n"
+    return result
+
+def mode_normal(obj, *_) -> str:
+    if isinstance(obj, (types.ModuleType, Callable, type)):
+        try:
+            code = inspect.getsource(obj)
+        except (OSError, TypeError):
+            code = getattr(obj, "__doc__")
+            if not code:
+                code = repr(obj)
+    else:
+        code = repr(obj)
+    return code
+
+def mode_dis(obj, obj_name) -> str|DisassemblyError:
+    try:
+        return dis.Bytecode(obj).dis()
+    except TypeError:
+        return DisassemblyError(f"The object: {obj_name} cannot be disassembled")
+
 def get_source_code(
-        obj_name: str|Callable[..., Any]|Type[Any]|Any,
-        namespace: dict,
-        use_dis: bool,
-        use_unwrap: bool,
-        use_closure: bool) -> str|DisassemblyError|GetObjectError:
-    code = None
+        obj_name:    str|Callable[..., Any]|Type[Any]|Any,
+        namespace:   dict,
+        mode:        str,
+        use_unwrap:  bool,
+        use_closure: bool
+    ) -> str|DisassemblyError|GetObjectError:
     obj = obj_name
     if isinstance(obj, str):
         try:
@@ -37,19 +72,8 @@ def get_source_code(
                     break
             if not found_inner:
                 break
-    if use_dis:
-        try:
-            return dis.Bytecode(obj).dis()
-        except TypeError:
-            return DisassemblyError(f"The object: {obj_name} cannot be disassembled")
-    else:
-        if isinstance(obj, (types.ModuleType, Callable, type)):
-            try:
-                code = inspect.getsource(obj)
-            except (OSError, TypeError):
-                code = getattr(obj, "__doc__")
-                if not code:
-                    code = repr(obj)
-        else:
-            code = repr(obj)
-    return code
+    return {
+        "normal": mode_normal,
+        "dis":    mode_dis,
+        "info":   mode_info,
+    }[mode](obj, obj_name)

@@ -88,10 +88,16 @@ def pyt_exec(data: Data) -> None:
 @require_args(2)
 def source_code(data: Data) -> None:
     obj = data.command_arg[1]
+    mode = "normal"
+    flags = data.command_arg[2:]
+    if "dis" in flags:
+        mode = "dis"
+    elif "info" in flags:
+        mode = "info"
     code = get_source_code(
         obj_name=obj,
         namespace=data.repl_mode,
-        use_dis= "dis" in data.command_arg[2:],
+        mode=mode,
         use_unwrap= "unwrap" in data.command_arg[2:],
         use_closure= "closure" in data.command_arg[2:],
     )
