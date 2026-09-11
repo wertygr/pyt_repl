@@ -28,13 +28,13 @@ from pyre_core import (
 from pyre_const import (
     SETTINGS_FILE, PYT_SAVE, PYT_CACHE
 )
+from pyre_inspect import get_source_code
 from pyre_const import YELLOW, RESET
 from pyre_bindings import bindings
 from prompt_toolkit import PromptSession
 
 #_________________________________________________________________________________________________
 
-from prompt_toolkit import prompt
 from prompt_toolkit.lexers import PygmentsLexer
 
 #_________________________________________________________________________________________________
@@ -132,6 +132,25 @@ def source_code(data: Data) -> None:
     }
     flag_mapping(flag_map, data.command_arg[1:])
 
+@require_args(2)
+def source_code_2(data: Data) -> None:
+    obj = data.command_arg[1]
+    code = get_source_code(
+        obj=obj,
+        namespace=data.repl_mode,
+        use_dis= "dis" in data.command_arg[2:],
+        use_unwrap= "unwrap" in data.command_arg[2:],
+        use_closure= "closure" in data.command_arg[2:],
+    )
+    if code is None:
+        post(f"[source_code]: not object: {data.command_arg[1]}", data)
+        return
+    flag_map = {
+        "copy": (lambda: buffer("paste", code), True),
+        "silent": (lambda: pft(code, data), False),
+    }
+    flag_mapping(flag_map, data.command_arg[1:])
+
 def pyt_pp(data: Data) -> None:
     def read_cache():
         if not data.pyt_plus_old_text:
@@ -206,59 +225,6 @@ def shell_command(data: Data) -> None:
     @require_args(3)
     def load_plug(data: Data):
         load_plugin(data, data.command_arg[2])
-    @require_args(4)
-    def rname_vf(data: Data):
-        if not(data.command_arg[2] in linecache.cache):
-            e = "[shell_command::rname_vf]: not virtual file: " + data.command_arg[2]
-            post(e, data)
-            return
-        if data.command_arg[3] in linecache.cache:
-            e = f"[shell_command::rname_vf] file name: \"{data.command_arg[3]}\" taken"
-            post(e, data)
-            return
-        linecache.cache[data.command_arg[3]] = (
-            len(
-                "".join(
-                    linecache.getlines(
-                        data.command_arg[2]
-                    )
-                )
-            ), None, "".join(
-            linecache.getlines(
-                data.command_arg[2]
-            )
-        ).splitlines(keepends=True), data.command_arg[3])
-        del linecache.cache[data.command_arg[2]]
-    @require_args(3)
-    def n_vf(data: Data):
-        linecache.cache[data.command_arg[2]] = (
-            0, # memory size
-            None, # xz
-            "".splitlines(keepends=True),# text
-            data.command_arg[2]# name
-        )
-    @require_args(3)
-    def e_vf(data: Data):
-        if not(data.command_arg[2] in linecache.cache):
-            e = "[shell_command::e_vf]: not virtual file: " + data.command_arg[2]
-            post(e, data)
-            return
-        try:
-            text = prompt(
-                line_num(0, 0, 0, data.settings["line_name_format"]),
-                default= "".join(linecache.getlines(data.command_arg[2])),
-                completer=make_jedi_completer(data),
-                lexer=PygmentsLexer(data.lexer),
-                style=data.pt_style,
-                multiline=True,
-                prompt_continuation=lambda w ,h, s: line_num(w, h, s, data.settings["line_name_format"]),
-                key_bindings=bindings
-            )
-            linecache.cache[data.command_arg[2]] = (
-                len(text), None, text.splitlines(keepends=True), data.command_arg[2]
-            )
-        except (KeyboardInterrupt, EOFError):
-            pass
     @require_args(3)
     def read_vf(data: Data):
         if not(data.command_arg[2] in linecache.cache):
@@ -316,9 +282,6 @@ def shell_command(data: Data) -> None:
         "read_vf": read_vf,
         "ls_vf": list_vf,
         "del_vf": del_vf,
-        "rname_vf": rname_vf,
-        "n_vf": n_vf,
-        "e_vf": e_vf,
         "unload_plug": unload_plug,
         "critical_error": critical_error,
         "hook_run": hook_run,

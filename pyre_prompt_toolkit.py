@@ -45,7 +45,6 @@ def create_base_command(settings: dict) -> dict[str, None|dict]:
                 },
                 "ls_vf": None,
                 "read_vf": None,
-                "rname_vf": None
             },
             "_pyt++_": {
                 "old": None
@@ -72,7 +71,6 @@ def completer(data: Data):
     updated_base["_pyt-eval_"] = dynamics
     updated_base["_pyt_"]      = dynamics
     updated_base["_._"]["read_vf"] = dict.fromkeys(linecache.cache, None)
-    updated_base["_._"]["del_vf"] = updated_base["_._"]["read_vf"]
     updated_base["_._"]["unload_plug"] = dict.fromkeys(data.settings.get("plugin", {}), None)
 
     fallback_keys = data.repl_mode if isinstance(data.repl_mode, (list, tuple, set)) else []

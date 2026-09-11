@@ -29,7 +29,7 @@ from pyre_commands import (
     pyt_pp,
     pyt_eval,
     pyt_exec,
-    source_code,
+    source_code_2,
     shell_command
 )
 from pyre_plug_load import (
@@ -67,7 +67,7 @@ def dispatcher(data: Data) -> None:
         "_pyt_": pyt,
         "_._": shell_command,
         "_sh_": sh,
-        "_?_": source_code,
+        "_?_": source_code_2,
         "_#_": NO_OP,
     }
     func = command_map.get(data.command_arg[0])

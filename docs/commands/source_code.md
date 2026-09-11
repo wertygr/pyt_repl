@@ -6,7 +6,8 @@ _?_ <object> <flags>
 
 **flag:**
 
-| flag   |       description       |
-|:-------|:-----------------------:|
-| copy   |   copy code in buffer   |
-| silent | do not print on screen  |
+| flag   |      description       |
+|:-------|:----------------------:|
+| copy   |  copy code in buffer   |
+| silent | do not print on screen |
+| dis    |    disasembly code     |
