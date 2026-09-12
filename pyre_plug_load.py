@@ -4,8 +4,6 @@ import sys
 from types import ModuleType
 from typing import Any
 
-from pygments.lexers import data
-
 from pyre_core import (
     pft,
     Data,

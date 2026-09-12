@@ -98,8 +98,8 @@ def source_code(data: Data) -> None:
         obj_name=obj,
         namespace=data.repl_mode,
         mode=mode,
-        use_unwrap= "unwrap" in data.command_arg[2:],
-        use_closure= "closure" in data.command_arg[2:],
+        use_unwrap= "unwrap" in flags,
+        use_closure= "closure" in flags,
     )
     if isinstance(code, (GetObjectError, DisassemblyError)):
         post(f"[source_code]: {str(code)}", data)

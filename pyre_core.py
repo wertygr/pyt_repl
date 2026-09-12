@@ -13,7 +13,6 @@ from plugins.plugin_tools.plugin_types import (PluginApi)
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit.styles import BaseStyle
-from pygments.lexers.python import PythonLexer # type: ignore
 from pygments.lexers import PythonLexer
 
 from pyre_const import NO_OP
@@ -23,10 +22,8 @@ from pyre_const import NO_OP
 class Data:
     def __init__(self) -> None:
         self.last_error: str = ""
-        self.plugin_space: dict = {}
         self.repl_mode: dict = {}
         self.repl_cache_id: int = 0
-        self.pyt_lex = PythonLexer()
         self.settings: dict = {}
         self.pt_style: BaseStyle # type: ignore
         self.script_dir: str = ""
