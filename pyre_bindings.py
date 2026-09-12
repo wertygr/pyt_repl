@@ -12,14 +12,3 @@ def _(event):
 @bindings.add("c-w")
 def _(event):
     unix_word_rubout(event)
-
-@bindings.add("c-t")
-async def open_console(event):
-    data = event.app.data
-    if event.app.mode != "pyt++":
-        return
-    def secondary_prompt():
-        secondary_data = input()
-        data.command = secondary_data
-        data.api["pars_command"](data)
-    await run_in_terminal(secondary_prompt)

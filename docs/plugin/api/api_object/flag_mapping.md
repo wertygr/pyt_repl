@@ -49,7 +49,7 @@ test:  2
 
 </details>
 
-<details> <summary> </summary>
+<details> <summary> read also </summary>
 
 * [XNOR](https://en.wikipedia.org/wiki/XNOR_gate) 
 </details>

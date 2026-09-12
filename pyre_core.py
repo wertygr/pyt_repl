@@ -40,6 +40,13 @@ class Data:
 
 #_________________________________________________________________________________________________
 
+def reverse_search_flag(modes: tuple[str,...], flags: list[str], def_mode: str)-> str:
+    for i in reversed(flags):
+        if i in modes:
+            def_mode = i
+            break
+    return def_mode
+
 def flag_mapping(flag_map: dict[str, tuple[Callable, bool]], command_args: list[str], *args, **kwargs) -> None:
     args_set = set(command_args)
     deque(

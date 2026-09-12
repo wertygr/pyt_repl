@@ -21,7 +21,8 @@ from pyre_core import (
     Data,
     line_num,
     traceback_format,
-    flag_mapping
+    flag_mapping,
+    reverse_search_flag
 )
 from pyre_commands import (
     sh,
@@ -165,7 +166,8 @@ def initialisation() -> Data:
         "register_repl_source": register_repl_source,
         "hook_dispatch": hooks_dispatch,
         "traceback_format": traceback_format,
-        "flag_mapping": flag_mapping
+        "flag_mapping": flag_mapping,
+        "reverse_search_flag": reverse_search_flag,
     }
     hooks_dispatch(data, "init", {"data": data})
     return data

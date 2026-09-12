@@ -21,7 +21,8 @@ from pyre_core import (
     pft,
     require_args,
     traceback_format,
-    flag_mapping
+    flag_mapping,
+    reverse_search_flag
 )
 from pyre_const import (
     SETTINGS_FILE, PYT_SAVE, PYT_CACHE
@@ -88,14 +89,8 @@ def pyt_exec(data: Data) -> None:
 @require_args(2)
 def source_code(data: Data) -> None:
     obj = data.command_arg[1]
-    mode = "normal"
     flags = data.command_arg[2:]
-    if "dis" in flags:
-        mode = "dis"
-    elif "info" in flags:
-        mode = "info"
-    elif "signature" in flags:
-        mode = "signature"
+    mode = reverse_search_flag(("signature", "normal", "dis", "info"), flags, "normal")
     code = get_source_code(
         obj_name=obj,
         namespace=data.repl_mode,
