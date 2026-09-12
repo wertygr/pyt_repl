@@ -2,11 +2,20 @@ import inspect
 import dis
 import types
 from typing import Callable, Any, Type
+class PyreInspectError(Exception):
+    pass
+class DisassemblyError(PyreInspectError):
+    pass
+class GetObjectError(PyreInspectError):
+    pass
+class GetSignatureError(PyreInspectError):
+    pass
 
-class DisassemblyError(Exception):
-    pass
-class GetObjectError(Exception):
-    pass
+def mode_signature(obj, obj_name) -> str|GetSignatureError:
+    try:
+        return str(inspect.signature(obj))
+    except (ValueError, TypeError):
+        return GetSignatureError(f"The object: {obj_name} cannot be get signature")
 
 def mode_info(obj, *_) -> str:
     info: tuple[str|None, ...] = (
@@ -14,9 +23,9 @@ def mode_info(obj, *_) -> str:
         f"dir: {dir(obj)}",
         f"type: {type(obj)}",
         f"address: {hex(id(obj))}",
+        None if not hasattr(obj, "__file__") else f"file: {obj.__file__}",
         None if not hasattr(obj, "__annotations__") else f"annotations: {getattr(obj, '__annotations__')}",
         getattr(obj, "__doc__", None),
-        None if not hasattr(obj, "__file__") else f"file: {obj.__file__}",
     )
     return "\n".join(i for i in info if i)
 
@@ -44,7 +53,7 @@ def get_source_code(
         mode:        str,
         use_unwrap:  bool,
         use_closure: bool
-    ) -> str|DisassemblyError|GetObjectError:
+    ) -> str|DisassemblyError|GetObjectError|GetSignatureError:
     obj = obj_name
     if isinstance(obj, str):
         try:
@@ -68,7 +77,8 @@ def get_source_code(
             if not found_inner:
                 break
     return {
-        "normal": mode_normal,
-        "dis":    mode_dis,
-        "info":   mode_info,
+        "normal":    mode_normal,
+        "dis":       mode_dis,
+        "info":      mode_info,
+        "signature": mode_signature,
     }[mode](obj, obj_name)

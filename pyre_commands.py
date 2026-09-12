@@ -26,7 +26,7 @@ from pyre_core import (
 from pyre_const import (
     SETTINGS_FILE, PYT_SAVE, PYT_CACHE
 )
-from pyre_inspect import get_source_code, GetObjectError, DisassemblyError
+from pyre_inspect import get_source_code, PyreInspectError
 from pyre_const import YELLOW, RESET
 from pyre_bindings import bindings
 from prompt_toolkit import PromptSession
@@ -94,6 +94,8 @@ def source_code(data: Data) -> None:
         mode = "dis"
     elif "info" in flags:
         mode = "info"
+    elif "signature" in flags:
+        mode = "signature"
     code = get_source_code(
         obj_name=obj,
         namespace=data.repl_mode,
@@ -101,7 +103,7 @@ def source_code(data: Data) -> None:
         use_unwrap= "unwrap" in flags,
         use_closure= "closure" in flags,
     )
-    if isinstance(code, (GetObjectError, DisassemblyError)):
+    if isinstance(code, PyreInspectError):
         post(f"[source_code]: {str(code)}", data)
         return
     flag_map = {

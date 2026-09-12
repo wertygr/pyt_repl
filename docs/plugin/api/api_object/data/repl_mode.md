@@ -28,8 +28,7 @@ globals:
 ```pycon
 >>> _?_ main
 def main() -> None:
-    data = initialisation()
-    repl_cycle(data)
+    repl_cycle(initialisation())
 
 >>>
 ```
