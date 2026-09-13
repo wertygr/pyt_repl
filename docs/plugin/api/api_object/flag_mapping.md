@@ -45,7 +45,7 @@ test:  2
 | True                 |   True    |       True |
 | True                 |   False   |      False |
 | False                |   True    |      False |
-| False                |   False   |       True |
+| False                |   False   |       True | 
 
 </details>
 

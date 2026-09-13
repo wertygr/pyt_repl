@@ -12,6 +12,7 @@ DEFAULT_SETTINGS = {
     "alias_dict": {},
     "posix": False,
     "shlex": False,
+    "shell": False,
     "vi_mode": False,
     "multiline": False,
     "separator": False,

@@ -31,7 +31,7 @@ from pyre_commands import (
     pyt_eval,
     pyt_exec,
     source_code,
-    shell_command
+    shell_command, sh_2
 )
 from pyre_plug_load import (
     load_plugin,
@@ -67,7 +67,7 @@ def dispatcher(data: Data) -> None:
         "_pyt++_": pyt_pp,
         "_pyt_": pyt,
         "_._": shell_command,
-        "_sh_": sh,
+        "_sh_": sh_2,
         "_?_": source_code,
         "_#_": NO_OP,
     }
@@ -140,10 +140,7 @@ def settings_load(data: Data, file: str = SETTINGS_FILE) -> None:
             for key, value in settings["color"].items()
         }
     except (ValueError, AttributeError) as e:
-        pygments_token_dict = {
-            string_to_tokentype(key): value
-            for key, value in {}.items()
-        }
+        pygments_token_dict = {}
         post(e, data)
     data.pt_style = style_from_pygments_dict(pygments_token_dict)
 

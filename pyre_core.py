@@ -72,7 +72,7 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True) -> None:
         PygmentsTokens(
             tokens
         ),
-        style=data.pt_style,
+        style=getattr(data, 'pt_style', None),
         end=end
     )
     if use_hook:

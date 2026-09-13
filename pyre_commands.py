@@ -5,6 +5,7 @@ import sys
 import types
 import datetime
 import linecache
+import subprocess
 from string import Template
 
 #_________________________________________________________________________________________________
@@ -37,15 +38,23 @@ from prompt_toolkit.lexers import PygmentsLexer
 
 #_________________________________________________________________________________________________
 
-def pyt_eval(data: Data) ->  None:
-    try:
-        result_eval = eval(data.postfix, data.repl_mode)
-        pft(result_eval, data)
-    except Exception as e:
-        post(e, data)
 def sh (data: Data) -> None:
     contr = Template(data.postfix)
     os.system(contr.safe_substitute(data.repl_mode if data.settings["shell_container"] else {}))
+
+def sh_parser(argv: list[str], name_space: dict) -> list[str]:
+    result = []
+    for arg in argv:
+        if arg.startswith("$"):
+            if arg[1:] in name_space:
+               result.append(str(name_space[arg[1:]]))
+            continue
+        result.append(arg)
+    return result
+def sh_2(data: Data) -> None:
+    shell = data.settings["shell"]
+    command = sh_parser(data.argv[1:], data.repl_mode) if data.settings["shell_container"] else data.argv[1:] if not shell else data.postfix
+    subprocess.run(command, shell=shell)
 
 def pyt(data: Data) -> None:
     ev_except = ""
@@ -82,6 +91,13 @@ def pyt_exec(data: Data) -> None:
     f_name = register_repl_source(data.postfix, data)
     try:
         exec(compile(data.postfix, f_name, "exec"), data.repl_mode)
+    except Exception as e:
+        post(e, data)
+
+def pyt_eval(data: Data) ->  None:
+    try:
+        result_eval = eval(data.postfix, data.repl_mode)
+        pft(result_eval, data)
     except Exception as e:
         post(e, data)
 
