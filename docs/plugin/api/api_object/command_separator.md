@@ -9,11 +9,11 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
     command_separators = api["command_separators"]
 
-    if command_context["command_arg_int"] < 2:
+    if command_context["argc"] < 2:
         post("[_example_plugin_::main]: not enough arguments", data)
         return {}
-    commands = command_separators(command_context["command_arg"][1].split())
-    print(f"command_arg: {command_context['command_arg']}\ncommands: {commands}\n__")
+    commands = command_separators(command_context["argv"][1].split())
+    print(f"command_arg: {command_context['argv']}\ncommands: {commands}\n__")
     for i in commands:
         print(i)
 ```

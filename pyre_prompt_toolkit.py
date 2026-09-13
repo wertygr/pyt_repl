@@ -84,7 +84,7 @@ def completer(data: Data):
 
 def completer_5(data: Data) -> str:
     text = ""
-    for i in range(data.repl_cache_id + 1):
+    for i in range(data._repl_cache_id + 1):
         f_name = f"<py_repl_{i}>"
         if not(f_name in linecache.cache):
             continue

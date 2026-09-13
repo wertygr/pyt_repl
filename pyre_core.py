@@ -23,28 +23,27 @@ class Data:
     def __init__(self) -> None:
         self.last_error: str = ""
         self.repl_mode: dict = {}
-        self.repl_cache_id: int = 0
+        self._repl_cache_id: int = 0
         self.settings: dict = {}
         self.pt_style: BaseStyle # type: ignore
         self.script_dir: str = ""
         self.api: PluginApi = {} # type: ignore
         self.plugin_space: dict = {}
         self._local_repl_mode:dict = {}
-        self.pyt_plus_old_text: str = ""
+        self._pyt_plus_old_text: str = ""
         self.command: str = ""
-        self.command_prefix: str = ""
-        self.command_arg_int: int = 0
-        self.command_arg: list[str] = []
+        self.postfix: str = ""
+        self.argc: int = 0
+        self.argv: list[str] = []
         self.lexer = PythonLexer
         self.lexer_instance = self.lexer()
 
 #_________________________________________________________________________________________________
 
-def reverse_search_flag(modes: tuple[str,...], flags: list[str], def_mode: str)-> str:
+def reverse_search_flag(modes: set[str], flags: list[str], def_mode: str)-> str:
     for i in reversed(flags):
         if i in modes:
-            def_mode = i
-            break
+            return i
     return def_mode
 
 def flag_mapping(flag_map: dict[str, tuple[Callable, bool]], command_args: list[str], *args, **kwargs) -> None:
@@ -146,8 +145,6 @@ def alias_paste(value: list[str], result: list[str], command_arg: list[str], ali
             goto_index = int(value_copy[index][2:])
             if len(command_arg) > goto_index:
                 value_copy[index] = command_arg[goto_index]
-        elif value_copy[index] == "_#?_:":
-            value_copy[index] = input("_#?_: ")
     result.extend(value_copy)
     return result
 
@@ -182,7 +179,7 @@ def line_num(
     )
 
 def register_repl_source(source: str, data: Data) -> str:
-    data.repl_cache_id += 1
-    filename = f"<py_repl_{data.repl_cache_id}>"
+    data._repl_cache_id += 1
+    filename = f"<py_repl_{data._repl_cache_id}>"
     linecache.cache[filename] = (len(source), None, source.splitlines(keepends=True), filename)
     return filename

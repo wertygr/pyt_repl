@@ -31,7 +31,7 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 ```json
 {
     "plugin": {
-        "_test_plugin_": {
+        "_test_": {
             "file": "plug_test.py",
             "cache": true,
             "api": true
@@ -40,12 +40,12 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 }
 ```
 
-| name           | type |                      description |
-|:---------------|------|---------------------------------:|
-| \_test_plugin_ | str  |                      plugin name |
-| file           | str  | file name(in folder: "plugins" ) |
-| api            | bool |                     use pyre api |
-| cache          | bool |           use cache(sys.modules) |
+| name    | type |                      description |
+|:--------|------|---------------------------------:|
+| \_test_ | str  |                      plugin name |
+| file    | str  | file name(in folder: "plugins" ) |
+| api     | bool |                     use pyre api |
+| cache   | bool |           use cache(sys.modules) |
 </details>
 
 <details> <summary>example plugin code</summary>
@@ -65,14 +65,14 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 
 use:
 ```pycon
->>> _test_plugin_ test plugin
-command_arg: ['_test_plugin_', 'test', 'plugin']
-command_arg_int: 3
-command_prefix: test plugin
->>> _test_plugin_ test plugin 1 2 3 4 4
-command_arg: ['_test_plugin_', 'test', 'plugin', '1', '2', '3', '4', '4']
-command_arg_int: 8
-command_prefix: test plugin 1 2 3 4 4
+>>> _test_ test plugin
+argv: ['_test_', 'test', 'plugin']
+argc: 3
+postfix: test plugin
+>>> _test_ test plugin 1 2 3 4 5 6 7 8 9 0
+argv: ['_test_', 'test', 'plugin', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+argc: 13
+postfix: test plugin 1 2 3 4 5 6 7 8 9 0
 >>>
 ```
 

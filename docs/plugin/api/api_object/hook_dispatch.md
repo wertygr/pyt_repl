@@ -9,8 +9,8 @@ from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandCon
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     hooks_dispatch = api["hook_dispatch"]
     data = api["data"]
-    hook_parametr = {}
-    hooks_dispatch(data, "hook_name", hook_parametr)
+    hook_parameter = {}
+    hooks_dispatch(data, "hook_name", hook_parameter)
 ```
 
 </details>

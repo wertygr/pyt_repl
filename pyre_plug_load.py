@@ -33,7 +33,7 @@ def _plugin_cache_load(plugin: str, plugin_settings) -> ModuleType:
 def load_plugin(data: Data, plugin: str|None = None) -> None:
     api = data.api
     if not plugin:
-        plugin = data.command_arg[0]
+        plugin = data.argv[0]
     name_space = data.repl_mode
 
     plugin_settings = data.settings.get("plugin", {}).get(plugin, {})
@@ -43,9 +43,9 @@ def load_plugin(data: Data, plugin: str|None = None) -> None:
 
         name_space[plugin] = module
         module.main (api=api if plugin_settings.get("api", False) else {}, command_context={
-            "command_arg": data.command_arg,
-            "command_arg_int": data.command_arg_int,
-            "command_prefix": data.command_prefix
+            "argv": data.argv,
+            "argc": data.argc,
+            "postfix": data.postfix
         }, plugin_space=data.plugin_space)
     except Exception as e:
         post(e, data)

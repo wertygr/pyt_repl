@@ -22,8 +22,8 @@ example use:
 ```pycon
 >>> _#_ data.settings["repl_mode"] == "globals" = True
 >>> _?_ buffer -copy -silent
->>> _example-plugin_
-def buffer (mode: str = "copy", text: str = ""):
+>>> _example_plugin_
+def buffer (mode: str = "copy", text: str = "") -> None|str:
     global _buffer
     if mode == "copy":
         return _buffer

@@ -10,7 +10,7 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
     PFT = api["PFT"]
     parser = api["pars_command"]
-    cmd = command_context["command_prefix"]
+    cmd = command_context["postfix"]
     start_time = time.perf_counter()
     data.command = cmd
     parser(data)

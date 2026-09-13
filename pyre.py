@@ -58,8 +58,8 @@ from prompt_toolkit.styles import style_from_pygments_dict
 #_________________________________________________________________________________________________
 
 def dispatcher(data: Data) -> None:
-    data.command_prefix = " ".join(data.command_arg[1:])
-    data.command_arg_int = len(data.command_arg)
+    data.postfix = " ".join(data.argv[1:])
+    data.argc = len(data.argv)
 
     command_map = {
         "_pyt-eval_": pyt_eval,
@@ -71,46 +71,46 @@ def dispatcher(data: Data) -> None:
         "_?_": source_code,
         "_#_": NO_OP,
     }
-    func = command_map.get(data.command_arg[0])
+    func = command_map.get(data.argv[0])
     if func:
          func(data)
          return
-    if data.command_arg[0] in data.settings["plugin"]:
+    if data.argv[0] in data.settings["plugin"]:
         load_plugin(data)
         return
-    e = f"[dispatcher]: unknown command: {data.command_arg[0]}"
+    e = f"[dispatcher]: unknown command: {data.argv[0]}"
     post(e, data)
 
 #_________________________________________________________________________________________________
 
 def pars_command(data: Data) -> None:
-    if data.settings.get("shlex", False):
+    if data.settings["shlex"]:
         try:
-            data.command_arg = shlex.split(data.command, posix=bool(data.settings.get("posix", False)))
+            data.argv = shlex.split(data.command, posix=bool(data.settings["posix"]))
         except ValueError as e:
             post(e, data)
             return None
     else:
-        data.command_arg = data.command.split()
+        data.argv = data.command.split()
 
-    if len(data.command_arg) < 1:
+    if len(data.argv) < 1:
         e = "[pars_command]: not enough arguments"
         post(e, data)
         return None
     if data.settings["alias_globals"]:
-        data.command_arg = alias_parser(data.settings["alias_dict"], data.command_arg, "global")
+        data.argv = alias_parser(data.settings["alias_dict"], data.argv, "global")
     if data.settings["separator"]:
-        commands = command_separators(data.command_arg)
+        commands = command_separators(data.argv)
         for i in commands:
             if data.settings["alias_locals"]:
-                data.command_arg = alias_parser(data.settings["alias_dict"], i, "local")
+                data.argv = alias_parser(data.settings["alias_dict"], i, "local")
             dispatcher(data)
     else:
         if data.settings["alias_locals"]:
-            i = alias_parser(data.settings["alias_dict"], data.command_arg, "local")
+            i = alias_parser(data.settings["alias_dict"], data.argv, "local")
         else:
-            i = data.command_arg
-        data.command_arg = i
+            i = data.argv
+        data.argv = i
         dispatcher(data)
 
 #_________________________________________________________________________________________________
@@ -145,18 +145,17 @@ def settings_load(data: Data, file: str = SETTINGS_FILE) -> None:
             for key, value in {}.items()
         }
         post(e, data)
-
     data.pt_style = style_from_pygments_dict(pygments_token_dict)
-    data.script_dir = os.path.dirname(os.path.abspath(__file__))
 
 def initialisation() -> Data:
     data = Data()
+    data.script_dir = os.path.dirname(os.path.abspath(__file__))
     settings_load(data)
     # noinspection PyTypeChecker
     data.api = {
         "settings_load": settings_load,
         "post": post,
-        "PFT": pft,
+        "pft": pft,
         "command_separators": command_separators,
         "pars_command": pars_command,
         "dispatcher": dispatcher,

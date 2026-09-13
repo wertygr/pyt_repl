@@ -1,6 +1,3 @@
-RESET = "\033[0m"
-YELLOW = "\033[33m"
-
 NO_OP = lambda *_, **__: None
 
 SETTINGS_FILE = ".pyre_settings.json"

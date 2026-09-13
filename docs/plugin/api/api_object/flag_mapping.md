@@ -15,7 +15,7 @@ def flag_mapping(
 from plugins.plugin_tools.plugin_types import PluginApi, CommandContext
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
-    command_arg = command_context["command_arg"]
+    command_arg = command_context["argv"]
     flag_mapping = api["flag_mapping"]
     flag_map = {
         "test1": #flag 

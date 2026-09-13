@@ -6,10 +6,10 @@ from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandCon
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space):
     data = api["data"]
-    if len(command_context["command_arg"]) < 2:
+    if command_context["argc"] < 2:
         new_prompt = ">>>> "
     else:
-        new_prompt = command_context["command_arg"][1]
+        new_prompt = command_context["argv"][1]
     data.settings["prompt"] = new_prompt
 ```
 
