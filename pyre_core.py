@@ -58,7 +58,7 @@ def require_args(min_args) -> Callable[[Callable], Callable]:
     def decorator(func) -> Callable:
         @wraps(func)
         def wrapper(data) -> Any:
-            if data.command_arg_int < min_args:
+            if data.argc < min_args:
                 post(f"[{func.__name__}]: not enough arguments", data)
                 return None
             return func(data)
