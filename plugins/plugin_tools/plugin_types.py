@@ -26,6 +26,7 @@ class PluginApi(TypedDict):
         [dict[str, tuple[Callable[..., Any], bool]], list[str], Any, Any],
         None
     ]
+    reverse_search_flag: Callable[[set[str], list[str], str], str]
 
 class CommandContext(TypedDict):
     argv: list[str]

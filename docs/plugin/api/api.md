@@ -11,6 +11,7 @@
 * [traceback_format](api_object/traceback_format.md)
 * [flag_mapping](api_object/flag_mapping.md)
 * [settings_load](api_object/settings_load.md)
+* [reverse_search_flag](api_object/reverse_search_flag.md)
 _(doc in work)_
 
 ***

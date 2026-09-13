@@ -202,8 +202,8 @@ def shell_command(data: Data) -> None:
                 continue
             del linecache.cache[i]
     def list_vf(data):
-        for i in data.line_cache.cache:
-            print(f"{i} - {len(''.join(data.line_cache.getlines(i)))} char")
+        for i in linecache.cache:
+            print(f"{i} - {len(''.join(linecache.getlines(i)))} char")
     @require_args(4)
     def hook_run(data: Data):
         hooks_dispatch = data.api["hook_dispatch"]
