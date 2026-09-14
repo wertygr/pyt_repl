@@ -6,7 +6,6 @@ import types
 import datetime
 import linecache
 import subprocess
-from string import Template
 
 #_________________________________________________________________________________________________
 
@@ -38,10 +37,6 @@ from prompt_toolkit.lexers import PygmentsLexer
 
 #_________________________________________________________________________________________________
 
-def sh (data: Data) -> None:
-    contr = Template(data.postfix)
-    os.system(contr.safe_substitute(data.repl_mode if data.settings["shell_container"] else {}))
-
 def sh_parser(argv: list[str], name_space: dict) -> list[str]:
     result = []
     for arg in argv:
@@ -51,10 +46,14 @@ def sh_parser(argv: list[str], name_space: dict) -> list[str]:
             continue
         result.append(arg)
     return result
-def sh_2(data: Data) -> None:
+def sh(data: Data) -> None:
     shell = data.settings["shell"]
-    command = sh_parser(data.argv[1:], data.repl_mode) if data.settings["shell_container"] else data.argv[1:] if not shell else data.postfix
-    subprocess.run(command, shell=shell)
+    shell_container = data.settings["shell_container"]
+    args = sh_parser(data.argv[1:], data.repl_mode) if shell_container else data.argv[1:]
+    subprocess.run(
+        args if not shell else " ".join(args),
+        shell=shell
+    )
 
 def pyt(data: Data) -> None:
     ev_except = ""
@@ -105,7 +104,7 @@ def pyt_eval(data: Data) ->  None:
 def source_code(data: Data) -> None:
     obj = data.argv[1]
     flags = data.argv[2:]
-    mode = reverse_search_flag({"signature", "normal", "dis", "info"}, flags, "normal")
+    mode = reverse_search_flag({"signature", "normal", "dis", "info", "ast"}, flags, "normal")
     code = get_source_code(
         obj_name=obj,
         namespace=data.repl_mode,
@@ -120,7 +119,7 @@ def source_code(data: Data) -> None:
         "copy": (lambda: buffer("paste", code), True),
         "silent": (lambda: pft(code, data), False),
     }
-    flag_mapping(flag_map, data.argv[1:])
+    flag_mapping(flag_map, flags)
 
 def pyt_pp(data: Data) -> None:
     def read_cache():

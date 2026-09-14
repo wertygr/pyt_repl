@@ -31,7 +31,7 @@ from pyre_commands import (
     pyt_eval,
     pyt_exec,
     source_code,
-    shell_command, sh_2
+    shell_command
 )
 from pyre_plug_load import (
     load_plugin,
@@ -67,7 +67,7 @@ def dispatcher(data: Data) -> None:
         "_pyt++_": pyt_pp,
         "_pyt_": pyt,
         "_._": shell_command,
-        "_sh_": sh_2,
+        "_sh_": sh,
         "_?_": source_code,
         "_#_": NO_OP,
     }

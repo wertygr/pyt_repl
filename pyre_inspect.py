@@ -1,6 +1,6 @@
 import inspect
 import dis
-import types
+import ast
 from typing import Callable, Any, Type
 class PyreInspectError(Exception):
     pass
@@ -10,6 +10,18 @@ class GetObjectError(PyreInspectError):
     pass
 class GetSignatureError(PyreInspectError):
     pass
+class GetCodeError(PyreInspectError):
+    pass
+
+def mode_ast(obj, obj_name) -> str|GetObjectError:
+    try:
+        result = ast.dump(
+            ast.parse(inspect.getsource(obj)),
+            indent=4
+        )
+    except (OSError, TypeError):
+        result = GetObjectError(f"The object: {obj_name} cannot be get code")
+    return result
 
 def mode_signature(obj, obj_name) -> str|GetSignatureError:
     try:
@@ -23,23 +35,19 @@ def mode_info(obj, *_) -> str:
         f"dir: {dir(obj)}",
         f"type: {type(obj)}",
         f"address: {hex(id(obj))}",
+        f"repr: {obj!r}",
         None if not hasattr(obj, "__file__") else f"file: {obj.__file__}",
-        None if not hasattr(obj, "__annotations__") else f"annotations: {getattr(obj, '__annotations__')}",
+        None if not getattr(obj, "__annotations__", None) else f"annotations: {obj.__annotations__}",
         getattr(obj, "__doc__", None),
     )
     return "\n".join(i for i in info if i)
 
-def mode_normal(obj, *_) -> str:
-    if isinstance(obj, (types.ModuleType, Callable, type)):
-        try:
-            code = inspect.getsource(obj)
-        except (OSError, TypeError):
-            code = getattr(obj, "__doc__")
-            if not code:
-                code = repr(obj)
-    else:
-        code = repr(obj)
-    return code
+def mode_normal(obj, obj_name) -> str|GetCodeError:
+    try:
+        result = inspect.getsource(obj)
+    except (OSError, TypeError):
+        result = GetCodeError(f"The object: {obj_name} cannot be get code")
+    return result
 
 def mode_dis(obj, obj_name) -> str|DisassemblyError:
     try:
@@ -53,7 +61,7 @@ def get_source_code(
         mode:        str,
         use_unwrap:  bool,
         use_closure: bool
-    ) -> str|DisassemblyError|GetObjectError|GetSignatureError:
+    ) -> str|DisassemblyError|GetObjectError|GetSignatureError|GetCodeError:
     obj = obj_name
     if isinstance(obj, str):
         try:
@@ -81,4 +89,5 @@ def get_source_code(
         "dis":       mode_dis,
         "info":      mode_info,
         "signature": mode_signature,
+        "ast":       mode_ast,
     }[mode](obj, obj_name)
