@@ -42,7 +42,7 @@ def mode_info(obj, *_) -> str:
     )
     return "\n".join(i for i in info if i)
 
-def mode_normal(obj, obj_name) -> str|GetCodeError:
+def mode_code(obj, obj_name) -> str|GetCodeError:
     try:
         result = inspect.getsource(obj)
     except (OSError, TypeError):
@@ -54,6 +54,14 @@ def mode_dis(obj, obj_name) -> str|DisassemblyError:
         return dis.Bytecode(obj).dis()
     except TypeError:
         return DisassemblyError(f"The object: {obj_name} cannot be disassembled")
+
+mode_map = {
+    "code":      mode_code,
+    "dis":       mode_dis,
+    "info":      mode_info,
+    "signature": mode_signature,
+    "ast":       mode_ast,
+}
 
 def get_source_code(
         obj_name:    str|Callable[..., Any]|Type[Any]|Any,
@@ -84,10 +92,4 @@ def get_source_code(
                     break
             if not found_inner:
                 break
-    return {
-        "normal":    mode_normal,
-        "dis":       mode_dis,
-        "info":      mode_info,
-        "signature": mode_signature,
-        "ast":       mode_ast,
-    }[mode](obj, obj_name)
+    return mode_map[mode](obj, obj_name)

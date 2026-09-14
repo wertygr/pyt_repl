@@ -15,7 +15,7 @@ from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit.styles import BaseStyle
 from pygments.lexers import PythonLexer
 
-from pyre_const import NO_OP
+from pyre_const import NOP
 
 #_________________________________________________________________________________________________
 
@@ -59,7 +59,7 @@ def require_args(min_args) -> Callable[[Callable], Callable]:
         @wraps(func)
         def wrapper(data) -> Any:
             if data.argc < min_args:
-                post(f"[{func.__name__}]: not enough arguments", data)
+                post(f"[{func.__name__}]: not enough arguments(min argc: {min_args})", data)
                 return None
             return func(data)
         return wrapper
@@ -76,7 +76,7 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True) -> None:
         end=end
     )
     if use_hook:
-        hooks_dispatch = data.api.get("hook_dispatch", NO_OP)
+        hooks_dispatch = data.api.get("hook_dispatch", NOP)
         hooks_dispatch(data, "PFT", {"text": f"{text}"}) # type: ignore
 
 _buffer = ""
@@ -99,7 +99,7 @@ def traceback_format(e: TracebackType|BaseException|str) -> str:
 def post(e: Any, data: Data) -> None:
     e = traceback_format(e)
     data.last_error = e
-    hooks_dispatch = data.api.get("hook_dispatch", NO_OP)
+    hooks_dispatch = data.api.get("hook_dispatch", NOP)
     hooks_dispatch(data, "post", {"err": f"{e}"}) # type: ignore
     pft(e, data)
 

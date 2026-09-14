@@ -1,4 +1,4 @@
-NO_OP = lambda *_, **__: None
+NOP = lambda *_, **__: None
 
 SETTINGS_FILE = ".pyre_settings.json"
 FILE_HISTORY = ".py_history"

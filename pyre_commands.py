@@ -50,10 +50,13 @@ def sh(data: Data) -> None:
     shell = data.settings["shell"]
     shell_container = data.settings["shell_container"]
     args = sh_parser(data.argv[1:], data.repl_mode) if shell_container else data.argv[1:]
-    subprocess.run(
-        args if not shell else " ".join(args),
-        shell=shell
-    )
+    try:
+        subprocess.run(
+            args if not shell else " ".join(args),
+            shell=shell
+        )
+    except FileNotFoundError:
+        post(f"[sh]: not file program: {args[0]}", data)
 
 def pyt(data: Data) -> None:
     ev_except = ""
@@ -104,7 +107,7 @@ def pyt_eval(data: Data) ->  None:
 def source_code(data: Data) -> None:
     obj = data.argv[1]
     flags = data.argv[2:]
-    mode = reverse_search_flag({"signature", "normal", "dis", "info", "ast"}, flags, "normal")
+    mode = reverse_search_flag({"signature", "code", "dis", "info", "ast"}, flags, "code")
     code = get_source_code(
         obj_name=obj,
         namespace=data.repl_mode,
@@ -198,14 +201,14 @@ def shell_command(data: Data) -> None:
     @require_args(3)
     def read_vf(data: Data):
         if not(data.argv[2] in linecache.cache):
-            e = "[shell_command::read_vf]: not virtual file: " + data.argv[2]
+            e = f"[shell_command::read_vf]: not virtual file: {data.argv[2]}"
             post(e, data)
             return
         text = "".join(linecache.getlines(data.argv[2]))
 
         flag_map = {
-            "-copy": (lambda: buffer("paste", text), True),
-            "-silent": (lambda: pft(text, data), False),
+            "copy": (lambda: buffer("paste", text), True),
+            "silent": (lambda: pft(text, data), False),
         }
         flag_mapping(flag_map, data.argv[1:])
     @require_args(3)

@@ -41,7 +41,7 @@ from pyre_const import (
     DEFAULT_SETTINGS,
     FILE_HISTORY,
     SETTINGS_FILE,
-    NO_OP
+    NOP
 )
 from pyre_prompt_toolkit import completer
 from pyre_bindings import bindings
@@ -69,7 +69,7 @@ def dispatcher(data: Data) -> None:
         "_._": shell_command,
         "_sh_": sh,
         "_?_": source_code,
-        "_#_": NO_OP,
+        "_#_": NOP,
     }
     func = command_map.get(data.argv[0])
     if func:
@@ -164,6 +164,7 @@ def initialisation() -> Data:
         "traceback_format": traceback_format,
         "flag_mapping": flag_mapping,
         "reverse_search_flag": reverse_search_flag,
+        "NOP": NOP
     }
     hooks_dispatch(data, "init", {"data": data})
     return data
