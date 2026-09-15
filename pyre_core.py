@@ -73,7 +73,8 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True) -> None:
             tokens
         ),
         style=getattr(data, 'pt_style', None),
-        end=end
+        end=end,
+        include_default_pygments_style=False
     )
     if use_hook:
         hooks_dispatch = data.api.get("hook_dispatch", NOP)

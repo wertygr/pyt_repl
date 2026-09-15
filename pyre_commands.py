@@ -43,8 +43,10 @@ def sh_parser(argv: list[str], name_space: dict) -> list[str]:
         if arg.startswith("$"):
             if arg[1:] in name_space:
                result.append(str(name_space[arg[1:]]))
-            continue
-        result.append(arg)
+            else:
+                result.append(arg)
+        else:
+            result.append(arg)
     return result
 def sh(data: Data) -> None:
     shell = data.settings["shell"]
@@ -138,6 +140,8 @@ def pyt_pp(data: Data) -> None:
         except Exception as e:
             post(e, data)
     def save_cache():
+        if not os.path.isdir(PYT_SAVE):
+            os.mkdir(PYT_SAVE)
         with open(f"{PYT_SAVE}/{PYT_CACHE}", "w") as f:
             f.write(data._pyt_plus_old_text)
     def execute():
