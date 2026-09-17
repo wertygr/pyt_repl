@@ -2,6 +2,7 @@
 
 import traceback
 import linecache
+# import sys
 from collections import deque
 from typing import Any, Callable
 from types import TracebackType
@@ -74,7 +75,8 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True) -> None:
         ),
         style=getattr(data, 'pt_style', None),
         end=end,
-        include_default_pygments_style=False
+        include_default_pygments_style=False,
+        # file=sys.stdout
     )
     if use_hook:
         hooks_dispatch = data.api.get("hook_dispatch", NOP)

@@ -10,9 +10,9 @@ Plugin - this is file in folder "./plugins" with main function\
 The "main" function can return Any (the return value is ignored).
 The "main" function must take 3 parameters(kwargs):
 
-- 1 API: dict,
-- 2 command_context: dict 
-- 3 plugin_space: dict
+- 1 [API](api/api.md): dict,
+- 2 [command_context](plugin_command_context.md): dict 
+- 3 [plugin_space](plugin_space.md): dict
 
 plugins are loaded via [importlib](https://docs.python.org/3/library/importlib.html)
 
@@ -40,12 +40,12 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 }
 ```
 
-| name    | type |                      description |
-|:--------|------|---------------------------------:|
-| \_test_ | str  |                      plugin name |
-| file    | str  | file name(in folder: "plugins" ) |
-| api     | bool |                     use pyre api |
-| cache   | bool |           use cache(sys.modules) |
+| name       | type |                     description |
+|:-----------|------|--------------------------------:|  
+| \_test_    | str  |                     plugin name |
+| file       | str  | file name(in folder: "plugins") |
+| api        | bool |                    use pyre api |
+| cache      | bool |          use cache(sys.modules) |
 </details>
 
 <details> <summary>example plugin code</summary>
@@ -86,8 +86,6 @@ unload plugin:
 ***
 <details> <summary> read also</summary>
 
-* [plugin_space](plugin_space.md)
-* [plugin api](api/api.md)
 * [hooks](hook/hook.md)
 * [plugin specification](plugin_specification.md)
 * [plugin type](plugin_types.md)
