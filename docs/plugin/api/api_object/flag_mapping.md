@@ -1,3 +1,6 @@
+This function is designed for the convenient processing of arguments via side effect functions; 
+it fully replicates the logic of the [XNOR](https://en.wikipedia.org/wiki/XNOR_gate) operator.
+
 <details> <summary> signature: </summary>
 
 ```python
@@ -47,9 +50,4 @@ test:  2
 | False                |   True    |      False |
 | False                |   False   |       True | 
 
-</details>
-
-<details> <summary> read also </summary>
-
-* [XNOR](https://en.wikipedia.org/wiki/XNOR_gate) 
 </details>
