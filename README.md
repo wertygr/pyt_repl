@@ -7,4 +7,5 @@ python repl
 * [settings](docs/settings/settings.md)
 * [alias](docs/alias/alias.md)
 * [plugin](docs/plugin/plugin.md)
+ * [bindigs](docs/bindings/bindings.md)
 ***

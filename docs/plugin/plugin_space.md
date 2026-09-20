@@ -1,12 +1,9 @@
 example:
 
 ```python
-from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
+from plugins.plugin_tools.plugin_types import (PluginApi, CommandContext)
 
 PLUGIN_NAME = "_test_"
-
-def destructor(plugin_space) -> None:
-    plugin_space.pop(PLUGIN_NAME)
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     # init

@@ -19,7 +19,6 @@ plugins are loaded via [importlib](https://docs.python.org/3/library/importlib.h
 ```python
 from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
 
-
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     pass
 ```
@@ -89,4 +88,5 @@ unload plugin:
 * [hooks](hook/hook.md)
 * [plugin specification](plugin_specification.md)
 * [plugin type](plugin_types.md)
+* [plugin template](plugin_template.md)
 </details>

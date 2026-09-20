@@ -26,7 +26,6 @@ import plugins.test as test
 ```python
 from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
 
-
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict) -> None:
     bad_var = 0 / 0
 ```
@@ -34,20 +33,20 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict) ->
 ```pycon
 >>> _bad_plugin_
 Traceback (most recent call last):
-  File ".../pyre_plug_load.py", line 44, in _plugin
-    module.main (api=api, command_context={
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        "command_arg": data.command_arg,
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        "command_arg_int": data.command_arg_int,
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        "command_prefix": data.command_prefix
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wertygr/PycharmProjects/SS/flash/pyre_plug_load.py", line 45, in load_plugin
+    module.main (api=api if plugin_settings.get("api", False) else {}, command_context={
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "argv": data.argv,
+        ^^^^^^^^^^^^^^^^^^
+        "argc": data.argc,
+        ^^^^^^^^^^^^^^^^^^
+        "postfix": data.postfix
+        ^^^^^^^^^^^^^^^^^^^^^^^
     }, plugin_space=data.plugin_space)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File ".../plugins/bad_plugin.py", line 2, in main
-    bad_var = 0/0
-              ~^~
+  File "/home/wertygr/PycharmProjects/SS/flash/plugins/test.py", line 4, in main
+    bad_var = 0 / 0
+              ~~^~~
 ZeroDivisionError: division by zero
 
 >>>
@@ -58,8 +57,8 @@ ZeroDivisionError: division by zero
 <details> <summary> unload plugin </summary>
 unload from:
 
-- sys.modules
+- the [destructor](plugin_destructor.md) is called
 - [data.repl_mode](api/api_object/data/repl_mode.md)
+- sys.modules
 
-the [destructor](plugin_destructor.md) is called
 </details> 

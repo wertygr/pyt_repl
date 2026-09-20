@@ -5,10 +5,8 @@ from types import ModuleType
 from typing import Any
 
 from pyre_core import (
-    pft,
     Data,
     post,
-    traceback_format
 )
 
 def _plugin_load(plugin: str, f_locate: str) -> ModuleType:
@@ -20,7 +18,7 @@ def _plugin_load(plugin: str, f_locate: str) -> ModuleType:
     sys.modules[plugin] = module
     return module
 
-def _plugin_cache_load(plugin: str, plugin_settings) -> ModuleType:
+def _plugin_cache_load(plugin: str, plugin_settings: dict) -> ModuleType:
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if plugin_settings.get("cache", False) and plugin in sys.modules:
         module = sys.modules[plugin]
@@ -50,7 +48,7 @@ def load_plugin(data: Data, plugin: str|None = None) -> None:
     except Exception as e:
         post(e, data)
 
-def unload_plugin(plugin_name, data):
+def unload_plugin(plugin_name: str, data: Data) -> None:
     in_sys = plugin_name in sys.modules
     in_repl = plugin_name in data.repl_mode
 
@@ -89,11 +87,5 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any
             )
             result.append(result_plug_load)
         except Exception as e:
-            if hook_name not in ("post", "PFT"):
-                post(e, data)
-                continue
-            e = traceback_format(e)
-            data.last_error = e
-            pft(e, data, use_hook=False)
-            result.append(e)
+            post(e, data, use_hook=False if hook_name in ("pft", "post") else True)
     return result

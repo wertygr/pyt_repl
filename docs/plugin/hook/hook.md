@@ -12,9 +12,8 @@ the "hook_run" function must take 4 parameters(kwargs):
 ```python
 from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
 
-
 def hook_run(api: PluginApi, hook: str, hook_parameter: dict, plugin_space: dict):
-    return
+    ...
 ```
 
 </details>
@@ -40,7 +39,6 @@ def hook_run(api: PluginApi, hook: str, hook_parameter: dict, plugin_space: dict
 
 ```python
 from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
-
 
 def hook_run(api: PluginApi, hook: str, hook_parameter: dict, plugin_space: dict):
     data = api["data"]

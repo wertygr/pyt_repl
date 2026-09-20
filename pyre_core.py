@@ -99,12 +99,13 @@ def traceback_format(e: TracebackType|BaseException|str) -> str:
         e = "".join(traceback.format_exception(type(e), e, e.__traceback__))
     return e
 
-def post(e: Any, data: Data) -> None:
+def post(e: Any, data: Data, use_hook: bool = True) -> None:
     e = traceback_format(e)
     data.last_error = e
-    hooks_dispatch = data.api.get("hook_dispatch", NOP)
-    hooks_dispatch(data, "post", {"err": f"{e}"}) # type: ignore
-    pft(e, data)
+    if use_hook:
+        hooks_dispatch = data.api.get("hook_dispatch", NOP)
+        hooks_dispatch(data, "post", {"err": f"{e}"}) # type: ignore
+    pft(e, data, use_hook=use_hook)
 
 def command_separators(command_arg: list[str]) -> list[list[str]]:
     subarrays = []
