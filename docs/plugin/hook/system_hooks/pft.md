@@ -1,4 +1,4 @@
-<details> <summary> PFT </summary> 
+<details> <summary> pft </summary> 
 
 hook format:
 ```python
@@ -11,6 +11,6 @@ hook_parameter = {
 
 <details> <summary> read also </summary> 
 
-[plugins API - PFT](../../api/api_object/PFT.md)
+[plugins API - pft](../../api/api_object/pft.md)
 
 </details>

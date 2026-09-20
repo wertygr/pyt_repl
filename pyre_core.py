@@ -129,47 +129,6 @@ def str_is_int(string: str) -> bool:
         return string[1:].isdigit()
     return string.isdigit()
 
-def alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
-    position =  alias_settings.get("position", None)
-    if position is None:
-        return True
-    if isinstance(position, list) and alias_position in position:
-        return True
-    return False
-
-def alias_paste(value: list[str], result: list[str], command_arg: list[str], alias_position: int) -> list[str]:
-    # // macros beta
-    value_copy = value.copy()
-    for index, i in enumerate(value_copy):
-        if value_copy[index][:2] == ">#" and str_is_int(value_copy[index][2:]):
-            goto_index = int(value_copy[index][2:])
-            if len(command_arg) > (alias_position + goto_index):
-                value_copy[index] = command_arg[alias_position + goto_index]
-        elif value_copy[index][:2] == "!#" and str_is_int(value_copy[index][2:]):
-            goto_index = int(value_copy[index][2:])
-            if len(command_arg) > goto_index:
-                value_copy[index] = command_arg[goto_index]
-    result.extend(value_copy)
-    return result
-
-def alias_parser(alias_dict: dict, command_arg: list, mode: str) -> list[str]:
-    result = []
-    for index, item in enumerate(command_arg):
-        if not(item in alias_dict):
-            result.append(item)
-            continue
-
-        item_dict = alias_dict.get(item, {})
-        # __ __ __ __ __ __ __ __
-        value = item_dict.get("value", "NONE_ALIAS")
-        scope = item_dict.get("scope", "local")
-        # __ __ __ __ __ __ __ __
-        if (scope == mode) and (alias_position_validate(index, alias_dict[item])):
-            result = alias_paste(value, result, command_arg, index)
-        else:
-            result.append(item)
-    return result
-
 def line_num(
         width: int,
         line_number: int,

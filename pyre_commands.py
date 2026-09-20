@@ -181,7 +181,7 @@ def pyt_pp(data: Data) -> None:
     else:
         data._pyt_plus_old_text = ""
     if "paste" in data.argv:
-        data.pyt_plus_old_text += buffer("copy") # type: ignore
+        data._pyt_plus_old_text += buffer("copy") # type: ignore
     editor()
 
 

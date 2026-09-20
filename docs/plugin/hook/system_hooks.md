@@ -1,5 +1,5 @@
 ***
 * [post](system_hooks/post.md)
-* [PFT](system_hooks/PFT.md)
+* [pft](system_hooks/pft.md)
 * [init](system_hooks/init.md)
 ***

@@ -32,7 +32,7 @@ boot  etc  lib	 lost+found  opt  root	sbin  swapfile	tmp  var
 __ __ __ __ __ __ __ __ __ __ __ __ __ __ __
 eval:
 Traceback (most recent call last):
-  File "/home/wertygr/PycharmProjects/SS/flash/pyre_commands.py", line 57, in byte_code_compile
+  File ".../pyre_commands.py", line 57, in byte_code_compile
     return compile(code, f_name, mode)
   File "<py_repl_1>", line 1
     print(
@@ -42,7 +42,7 @@ SyntaxError: '(' was never closed
 __ __ __ __ __ __ __ __ __ __ __ __ __ __ __
 exec:
 Traceback (most recent call last):
-  File "/home/wertygr/PycharmProjects/SS/flash/pyre_commands.py", line 57, in byte_code_compile
+  File ".../pyre_commands.py", line 57, in byte_code_compile
     return compile(code, f_name, mode)
   File "<py_repl_1>", line 1
     print(

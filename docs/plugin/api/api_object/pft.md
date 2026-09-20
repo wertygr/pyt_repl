@@ -29,4 +29,4 @@ class test:
 >>>
 ```
 
-![example_PFT.png](../../../img/example_pft.png)
+![example_pft.png](../../../img/example_pft.png)

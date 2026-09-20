@@ -8,15 +8,15 @@ import os
 import json
 import shlex
 
-from pyre_bottom_toolbar import bottom_toolbar
 #_________________________________________________________________________________________________
 
+from pyre_bottom_toolbar import bottom_toolbar
+from pyre_alias import alias_parser
 from pyre_core import (
     pft,
     post,
     command_separators,
     register_repl_source,
-    alias_parser,
     buffer,
     Data,
     line_num,
@@ -58,6 +58,7 @@ from prompt_toolkit.styles import style_from_pygments_dict
 #_________________________________________________________________________________________________
 
 def dispatcher(data: Data) -> None:
+    print(data.argv)
     data.postfix = " ".join(data.argv[1:])
     data.argc = len(data.argv)
 

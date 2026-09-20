@@ -33,7 +33,7 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict) ->
 ```pycon
 >>> _bad_plugin_
 Traceback (most recent call last):
-  File "/home/wertygr/PycharmProjects/SS/flash/pyre_plug_load.py", line 45, in load_plugin
+  File ".../pyre_plug_load.py", line 45, in load_plugin
     module.main (api=api if plugin_settings.get("api", False) else {}, command_context={
     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         "argv": data.argv,
@@ -44,7 +44,7 @@ Traceback (most recent call last):
         ^^^^^^^^^^^^^^^^^^^^^^^
     }, plugin_space=data.plugin_space)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/wertygr/PycharmProjects/SS/flash/plugins/test.py", line 4, in main
+  File ".../plugins/test.py", line 4, in main
     bad_var = 0 / 0
               ~~^~~
 ZeroDivisionError: division by zero

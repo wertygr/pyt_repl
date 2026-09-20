@@ -1,6 +1,7 @@
 introspection
 
-```pycon
+syntax:
+```text
 _?_ <object> <flags>
 ```
 
