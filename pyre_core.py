@@ -1,15 +1,11 @@
-#_________________________________________________________________________________________________
-
+import sys
 import traceback
 import linecache
-# import sys
 from collections import deque
-from typing import Any, Callable
+from typing import Any, Callable, TextIO
 from types import TracebackType
 from functools import wraps
 from plugins.plugin_tools.plugin_types import (PluginApi)
-
-#_________________________________________________________________________________________________
 
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
@@ -17,8 +13,6 @@ from prompt_toolkit.styles import BaseStyle
 from pygments.lexers import PythonLexer
 
 from pyre_const import NOP
-
-#_________________________________________________________________________________________________
 
 class Data:
     def __init__(self) -> None:
@@ -38,8 +32,6 @@ class Data:
         self.argv: list[str] = []
         self.lexer = PythonLexer
         self.lexer_instance = self.lexer()
-
-#_________________________________________________________________________________________________
 
 def reverse_search_flag(modes: set[str], flags: list[str], def_mode: str)-> str:
     for i in reversed(flags):
@@ -66,7 +58,7 @@ def require_args(min_args) -> Callable[[Callable], Callable]:
         return wrapper
     return decorator
 
-def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True) -> None:
+def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True, file:TextIO = sys.stdout) -> None:
     lexer = data.lexer_instance
     tokens = list(lexer.get_tokens(str(text)))
     print_formatted_text(
@@ -76,20 +68,20 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True) -> None:
         style=getattr(data, 'pt_style', None),
         end=end,
         include_default_pygments_style=False,
-        # file=sys.stdout
+        file=file,
     )
     if use_hook:
         hooks_dispatch = data.api.get("hook_dispatch", NOP)
         hooks_dispatch(data, "PFT", {"text": f"{text}"}) # type: ignore
 
 _buffer = ""
-def buffer (mode: str = "copy", text: str = "") -> str|None:
+def buffer (mode: str = "read", text: str = "") -> str|None:
     global _buffer
-    if mode == "copy":
+    if mode == "read":
         return _buffer
-    elif mode == "paste":
+    elif mode == "write":
         _buffer = text
-    elif mode == "add":
+    elif mode == "write_add":
         _buffer += text
 
 def traceback_format(e: TracebackType|BaseException|str) -> str:
@@ -99,12 +91,12 @@ def traceback_format(e: TracebackType|BaseException|str) -> str:
         e = "".join(traceback.format_exception(type(e), e, e.__traceback__))
     return e
 
-def post(e: Any, data: Data, use_hook: bool = True) -> None:
+def post(e: TracebackType|BaseException|str, data: Data, use_hook: bool = True) -> None:
     e = traceback_format(e)
     data.last_error = e
     if use_hook:
         hooks_dispatch = data.api.get("hook_dispatch", NOP)
-        hooks_dispatch(data, "post", {"err": f"{e}"}) # type: ignore
+        hooks_dispatch(data, "post", {"err": str(e)}) # type: ignore
     pft(e, data, use_hook=use_hook)
 
 def command_separators(command_arg: list[str]) -> list[list[str]]:

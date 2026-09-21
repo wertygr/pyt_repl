@@ -1,13 +1,9 @@
-#_________________________________________________________________________________________________
-
 import os
 import sys
 import types
 import datetime
 import linecache
 import subprocess
-
-#_________________________________________________________________________________________________
 
 from pyre_plug_load import (unload_plugin, load_plugin)
 from pyre_prompt_toolkit import make_jedi_completer
@@ -31,11 +27,7 @@ from pyre_inspect import get_source_code, PyreInspectError
 from pyre_bindings import bindings
 from prompt_toolkit import PromptSession
 
-#_________________________________________________________________________________________________
-
 from prompt_toolkit.lexers import PygmentsLexer
-
-#_________________________________________________________________________________________________
 
 def sh_parser(argv: list[str], name_space: dict) -> list[str]:
     result = []
@@ -100,8 +92,7 @@ def pyt_exec(data: Data) -> None:
 
 def pyt_eval(data: Data) ->  None:
     try:
-        result_eval = eval(data.postfix, data.repl_mode)
-        pft(result_eval, data)
+        pft(eval(data.postfix, data.repl_mode), data)
     except Exception as e:
         post(e, data)
 
@@ -121,7 +112,7 @@ def source_code(data: Data) -> None:
         post(f"[source_code]: {str(code)}", data)
         return
     flag_map = {
-        "copy": (lambda: buffer("paste", code), True),
+        "copy": (lambda: buffer("write", code), True),
         "silent": (lambda: pft(code, data), False),
     }
     flag_mapping(flag_map, flags)
@@ -145,12 +136,15 @@ def pyt_pp(data: Data) -> None:
         with open(f"{PYT_SAVE}/{PYT_CACHE}", "w") as f:
             f.write(data._pyt_plus_old_text)
     def execute():
+        if not data._pyt_plus_old_text:
+            return
         f_name = register_repl_source(data._pyt_plus_old_text, data)
+        ex_code = (
+            lambda: pft(eval(compile(data._pyt_plus_old_text, f_name, "eval"), data.repl_mode), data) if "eval" in data.argv
+            else exec(compile(data._pyt_plus_old_text, f_name, "eval"), data.repl_mode)
+        )
         try:
-            if "eval" in data.argv:
-                pft(eval(compile(data._pyt_plus_old_text, f_name, "eval"), data.repl_mode), data)
-                return
-            exec(compile(data._pyt_plus_old_text, f_name, "exec"), data.repl_mode)
+            ex_code()
         except Exception as e:
             post(e, data)
     def editor():
@@ -175,19 +169,18 @@ def pyt_pp(data: Data) -> None:
             )
         except (KeyboardInterrupt, EOFError):
             data._pyt_plus_old_text = ""
-
     if "old" in data.argv:
         read_cache()
     else:
         data._pyt_plus_old_text = ""
     if "paste" in data.argv:
-        data._pyt_plus_old_text += buffer("copy") # type: ignore
+        data._pyt_plus_old_text += buffer("read") # type: ignore
     editor()
 
 
     flag_map = {
         "save": (save, True),
-        "copy": (lambda: buffer("paste", data._pyt_plus_old_text), True),
+        "copy": (lambda: buffer("write", data._pyt_plus_old_text), True),
         "not_exec":(execute, False),
         "not_cache": (save_cache, False)
     }
@@ -195,6 +188,17 @@ def pyt_pp(data: Data) -> None:
 
 @require_args(2)
 def shell_command(data: Data) -> None:
+    @require_args(3)
+    def buffer_command(data: Data):
+        write_modes = (lambda mode:
+            post(f"[shell_command::buffer_command[{mode}]]: not enough arguments", data) if data.argc < 4 else
+            buffer(mode, data.argv[3])
+        )
+        {
+            "read": lambda: pft(buffer("read"), data, end=""),
+            "write": lambda: write_modes("write"),
+            "write_add":  lambda: write_modes("write_add"),
+        }.get(data.argv[2], lambda: post(f"[shell_command::buffer_command]: unknown subcommand: {data.argv[2]}", data))()
     @require_args(3)
     def unload_plug(data: Data):
         for i in data.argv[2:]:
@@ -211,7 +215,7 @@ def shell_command(data: Data) -> None:
         text = "".join(linecache.getlines(data.argv[2]))
 
         flag_map = {
-            "copy": (lambda: buffer("paste", text), True),
+            "copy": (lambda: buffer("write", text), True),
             "silent": (lambda: pft(text, data), False),
         }
         flag_mapping(flag_map, data.argv[1:])
@@ -223,7 +227,7 @@ def shell_command(data: Data) -> None:
                 post(e, data)
                 continue
             del linecache.cache[i]
-    def list_vf(data):
+    def list_vf(*_):
         for i in linecache.cache:
             print(f"{i} - {len(''.join(linecache.getlines(i)))} char")
     @require_args(4)
@@ -251,7 +255,7 @@ def shell_command(data: Data) -> None:
                     data.api["pars_command"](data) # type: ignore
         except Exception as e:
             post(e, data)
-    command_map = {
+    {
         "clear": lambda *_: os.system("cls") if os.name == "nt" else print("\033c"),
         "exit": lambda *_: sys.exit(0),
         "settings_reload": lambda *_: data.api["settings_load"](data, SETTINGS_FILE if data.argc < 3 else data.argv[2]), # type: ignore
@@ -263,5 +267,5 @@ def shell_command(data: Data) -> None:
         "critical_error": critical_error,
         "hook_run": hook_run,
         "load_plug": load_plug,
-    }
-    command_map.get(data.argv[1], lambda *_: post(f"[shell_command]: unknown command: {data.argv[1]}", data))(data)
+        "buffer": buffer_command,
+    }.get(data.argv[1], lambda *_: post(f"[shell_command]: unknown command: {data.argv[1]}", data))(data)

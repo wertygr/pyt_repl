@@ -1,6 +1,15 @@
-```python
-from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
+<details> <summary> signature </summary>
 
+```python
+def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True, file:TextIO = sys.stdout) -> None:
+    ...
+```
+</details>
+
+<details> <summary> example </summary>
+
+```python
+from plugins.plugin_tools.plugin_types import (PluginApi, CommandContext)
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
@@ -30,3 +39,4 @@ class test:
 ```
 
 ![example_pft.png](../../../img/example_pft.png)
+</details>

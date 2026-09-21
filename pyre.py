@@ -1,14 +1,6 @@
-"""
-This is python repl
-"""
-
-#________________________________________________________________________________________________
-
 import os
 import json
 import shlex
-
-#_________________________________________________________________________________________________
 
 from pyre_bottom_toolbar import bottom_toolbar
 from pyre_alias import alias_parser
@@ -58,7 +50,6 @@ from prompt_toolkit.styles import style_from_pygments_dict
 #_________________________________________________________________________________________________
 
 def dispatcher(data: Data) -> None:
-    print(data.argv)
     data.postfix = " ".join(data.argv[1:])
     data.argc = len(data.argv)
 

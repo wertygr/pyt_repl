@@ -1,14 +1,8 @@
-#_________________________________________________________________________________________________
-
 import builtins
 import keyword
 import linecache
 
-#_________________________________________________________________________________________________
-
 from pyre_core import Data
-
-#_________________________________________________________________________________________________
 
 import jedi
 from prompt_toolkit.completion import(
@@ -20,14 +14,12 @@ from prompt_toolkit.completion import(
 )
 from prompt_toolkit.document import Document
 
-#_________________________________________________________________________________________________
-
 grammatical = {
         **dict.fromkeys({name for name in dir(builtins) if name[0].islower()}),
         **dict.fromkeys(keyword.kwlist),
         **dict.fromkeys({e for e in dir(builtins) if "Error" in e or "Exception" in e})
 }
-def create_base_command(settings: dict) -> dict[str, None|dict]:
+def create_base_command(settings: dict) -> dict[str, None | dict]:
     return {
             "_#_": None,
             "_pyt_": None,
@@ -40,9 +32,7 @@ def create_base_command(settings: dict) -> dict[str, None|dict]:
                 "clear": None,
                 "history_del": None,
                 "settings_reload": None,
-                "run": {
-                    "{script_dir}": None
-                },
+                "run": None,
                 "ls_vf": None,
                 "read_vf": None,
             },
@@ -62,23 +52,21 @@ def dynamics_completer(data: Data):
     }
 
 def completer(data: Data):
-    dynamics = dynamics_completer(data) or {}
-    if not isinstance(dynamics, dict):
-        dynamics = {}
+    dynamics = dynamics_completer(data)
 
     updated_base = create_base_command(data.settings)
     updated_base["_pyt-exec_"] = dynamics
     updated_base["_pyt-eval_"] = dynamics
     updated_base["_pyt_"]      = dynamics
     updated_base["_._"]["read_vf"] = dict.fromkeys(linecache.cache, None)
-    updated_base["_._"]["unload_plug"] = dict.fromkeys(data.settings.get("plugin", {}), None)
+    updated_base["_._"]["unload_plug"] = {i: None for i in data.settings["plugin"] if i in data.repl_mode}
 
     fallback_keys = data.repl_mode if isinstance(data.repl_mode, (list, tuple, set)) else []
     modes_and_dynamics = dict.fromkeys(fallback_keys, None)
     modes_and_dynamics.update(dynamics)
     updated_base["_?_"] = modes_and_dynamics
 
-    dynamic_dict = dict(updated_base)
+    dynamic_dict = updated_base
 
     return NestedCompleter.from_nested_dict(dynamic_dict)
 

@@ -1,38 +1,25 @@
-<details> <summary>buffer: example code and use</summary>
-
 ```python
-from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
-
+from plugins.plugin_tools.plugin_types import (PluginApi, CommandContext)
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     buffer = api["buffer"]
     """
-    arg_1 - mode(type str) "copy"/"paste"/"add"
-    arg_2 - text(type str)
+    arg_1 - mode(type str) "write"/"write"/"read"
+    arg_2 - Optional[text(type str)]
     
     buffer signature - buffer(mode: str, text: str)
     
-    mode="copy"  - read buffer
-    mode="add"   - add to buffer
-    mode="paste" - paste to buffer
+    mode="read"  - read buffer
+    mode="write_aad"   - add to buffer
+    mode="write" - write to buffer
     """
-    print(buffer("copy"))
+    print(buffer("read"))
 ```
 example use:
 ```pycon
->>> _#_ data.settings["repl_mode"] == "globals" = True
->>> _?_ buffer -copy -silent
->>> _example_plugin_
-def buffer (mode: str = "copy", text: str = "") -> None|str:
-    global _buffer
-    if mode == "copy":
-        return _buffer
-    if mode == "paste":
-        _buffer = text
-    elif mode == "add":
-        _buffer += text
-
+>>> _#_ settings["shlex"] == True = True
+>>> _._ buffer write "0 1 2 3 4 5 6 7 8 9"
+>>> _test_
+0 1 2 3 4 5 6 7 8 9
 >>>
 ```
-
-</details>

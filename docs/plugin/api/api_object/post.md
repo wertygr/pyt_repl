@@ -1,8 +1,22 @@
-<details> <summary>post</summary>
+This function is required to output errors to the console with syntax highlighting(Python);
+it is a simple wrapper around [pft](pft.md).
+
+<details> <summary> signature </summary> 
+
+```python
+def post(e: TracebackType|BaseException|str, data: Data, use_hook: bool = True) -> None:
+    ...
+```
+
+| parametr | description |
+|:---------|------------:|
+
+</details>
+
+<details> <summary> example </summary>
 
 ```python
 from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
-
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
@@ -20,19 +34,18 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 ```pycon
 >>> _test_
 Traceback (most recent call last):
-  File "/home/wertygr/PycharmProjects/SS/flash/plugins/test.py", line 5, in main
+  File ".../plugins/test.py", line 5, in main
     bad_var = 0/0
               ~^~
 ZeroDivisionError: division by zero
 
 
  Traceback (most recent call last):
-  File "/home/wertygr/PycharmProjects/SS/flash/plugins/test.py", line 5, in main
+  File ".../plugins/test.py", line 5, in main
     bad_var = 0/0
               ~^~
 ZeroDivisionError: division by zero
 
 >>>
 ```
-![example_post.png](../../../img/example_post.png)
 </details>
