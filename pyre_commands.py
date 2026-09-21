@@ -4,6 +4,7 @@ import types
 import datetime
 import linecache
 import subprocess
+from typing import Callable
 
 from pyre_plug_load import (unload_plugin, load_plugin)
 from pyre_prompt_toolkit import make_jedi_completer
@@ -28,6 +29,12 @@ from pyre_bindings import bindings
 from prompt_toolkit import PromptSession
 
 from prompt_toolkit.lexers import PygmentsLexer
+
+def create_text_flags(text: str, data: Data) -> dict[str, tuple[Callable, bool]]:
+    return {
+        "copy": (lambda: buffer("write", text), True),
+        "silent": (lambda: pft(text, data), False),
+    }
 
 def sh_parser(argv: list[str], name_space: dict) -> list[str]:
     result = []
@@ -111,11 +118,7 @@ def source_code(data: Data) -> None:
     if isinstance(code, PyreInspectError):
         post(f"[source_code]: {str(code)}", data)
         return
-    flag_map = {
-        "copy": (lambda: buffer("write", code), True),
-        "silent": (lambda: pft(code, data), False),
-    }
-    flag_mapping(flag_map, flags)
+    flag_mapping(create_text_flags(code, data), flags)
 
 def pyt_pp(data: Data) -> None:
     def read_cache():
@@ -141,7 +144,7 @@ def pyt_pp(data: Data) -> None:
         f_name = register_repl_source(data._pyt_plus_old_text, data)
         ex_code = (
             lambda: pft(eval(compile(data._pyt_plus_old_text, f_name, "eval"), data.repl_mode), data) if "eval" in data.argv
-            else exec(compile(data._pyt_plus_old_text, f_name, "eval"), data.repl_mode)
+            else exec(compile(data._pyt_plus_old_text, f_name, "exec"), data.repl_mode)
         )
         try:
             ex_code()
@@ -213,12 +216,7 @@ def shell_command(data: Data) -> None:
             post(e, data)
             return
         text = "".join(linecache.getlines(data.argv[2]))
-
-        flag_map = {
-            "copy": (lambda: buffer("write", text), True),
-            "silent": (lambda: pft(text, data), False),
-        }
-        flag_mapping(flag_map, data.argv[1:])
+        flag_mapping(create_text_flags(text, data), data.argv[2:])
     @require_args(3)
     def del_vf(data: Data):
         for i in data.argv[2:]:
@@ -268,4 +266,5 @@ def shell_command(data: Data) -> None:
         "hook_run": hook_run,
         "load_plug": load_plug,
         "buffer": buffer_command,
+        "ls_plug": lambda *_: flag_mapping(create_text_flags("\n".join(data.plugin_list), data), data.argv[2:])
     }.get(data.argv[1], lambda *_: post(f"[shell_command]: unknown command: {data.argv[1]}", data))(data)

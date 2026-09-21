@@ -30,11 +30,13 @@ def create_base_command(settings: dict) -> dict[str, None | dict]:
             "_._": {
                 "exit": None,
                 "clear": None,
-                "history_del": None,
                 "settings_reload": None,
                 "run": None,
                 "ls_vf": None,
                 "read_vf": None,
+                "ls_plug": None,
+                "hook_run": None,
+                "buffer": None,
             },
             "_pyt++_": {
                 "old": None

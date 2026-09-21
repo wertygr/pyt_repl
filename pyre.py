@@ -68,7 +68,7 @@ def dispatcher(data: Data) -> None:
          func(data)
          return
     if data.argv[0] in data.settings["plugin"]:
-        load_plugin(data)
+        load_plugin(data, data.argv[0])
         return
     e = f"[dispatcher]: unknown command: {data.argv[0]}"
     post(e, data)

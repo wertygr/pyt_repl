@@ -32,6 +32,7 @@ class Data:
         self.argv: list[str] = []
         self.lexer = PythonLexer
         self.lexer_instance = self.lexer()
+        self.plugin_list: set[str] = set()
 
 def reverse_search_flag(modes: set[str], flags: list[str], def_mode: str)-> str:
     for i in reversed(flags):

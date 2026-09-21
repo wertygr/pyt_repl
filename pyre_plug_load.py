@@ -28,23 +28,17 @@ def _plugin_cache_load(plugin: str, plugin_settings: dict) -> ModuleType:
         module = _plugin_load(plugin, f"{script_dir}/plugins/{file_name}")
     return module
 
-def load_plugin(data: Data, plugin: str|None = None) -> None:
-    api = data.api
-    if not plugin:
-        plugin = data.argv[0]
-    name_space = data.repl_mode
-
-    plugin_settings = data.settings.get("plugin", {}).get(plugin, {})
-
+def load_plugin(data: Data, plugin_name: str) -> None:
+    plugin_settings = data.settings.get("plugin", {}).get(plugin_name, {})
     try:
-        module = _plugin_cache_load(plugin, plugin_settings)
-
-        name_space[plugin] = module
-        module.main (api=api if plugin_settings.get("api", False) else {}, command_context={
+        module = _plugin_cache_load(plugin_name, plugin_settings)
+        data.repl_mode[plugin_name] = module
+        module.main (api=data.api if plugin_settings.get("api", False) else {}, command_context={
             "argv": data.argv,
             "argc": data.argc,
             "postfix": data.postfix
         }, plugin_space=data.plugin_space)
+        data.plugin_list.add(plugin_name)
     except Exception as e:
         post(e, data)
 
@@ -67,6 +61,7 @@ def unload_plugin(plugin_name: str, data: Data) -> None:
             except Exception as e:
                 post(e, data)
         del sys.modules[plugin_name]
+    data.plugin_list.discard(plugin_name)
 
 def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any]:
     api = data.api
@@ -85,6 +80,7 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any
                 hook_parameter=hook_parameter,
                 plugin_space=data.plugin_space
             )
+            data.plugin_list.add(i)
             result.append(result_plug_load)
         except Exception as e:
             post(e, data, use_hook=False if hook_name in ("pft", "post") else True)
