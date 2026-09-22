@@ -201,10 +201,8 @@ def buffer_command(data: Data):
         "read": lambda: pft(buffer("read"), data, end=""),
         "write": lambda: write_modes("write"),
         "write_add":  lambda: write_modes("write_add"),
+        "clean": buffer("write", "")
     }.get(data.argv[2], lambda: post(f"[shell_command::buffer_command]: unknown subcommand: {data.argv[2]}", data))()
-@require_args(3)
-def load_plug(data: Data):
-    load_plugin(data, data.argv[2])
 @require_args(3)
 def read_vf(data: Data):
     if not(data.argv[2] in linecache.cache):
@@ -249,7 +247,7 @@ def run_script(data: Data):
 
 text_mapping = lambda text, argv, data:  flag_mapping(create_text_flags(text, data), argv)
 shell_commands_map = {
-    "clear": lambda *_: os.system("cls") if os.name == "nt" else print("\033c"),
+    "clear": lambda *_: os.system("cls") if os.name == "nt" else print("\033c", end=""),
     "exit": lambda *_: sys.exit(0),
     "settings_reload": lambda data: data.api["settings_load"](data, SETTINGS_FILE if data.argc < 3 else data.argv[2]), # type: ignore
     "run": run_script,
@@ -258,7 +256,7 @@ shell_commands_map = {
     "unload_plug": lambda data: deque(map(partial(unload_plugin, data=data), data.argv[2:]),maxlen=0),
     "critical_error": critical_error,
     "hook_run": hook_run,
-    "load_plug": load_plug,
+    "load_plug": lambda data: deque(map(partial(load_plugin, data), data.argv[2:]), maxlen=0),
     "buffer": buffer_command,
     "ls_vf": lambda data: text_mapping("\n".join(f"{i} - {sum(len(line) for line in linecache.getlines(i))} char" for i in linecache.cache), data.argv[2:], data),
     "ls_plug": lambda data: text_mapping("\n".join(data.plugin_list), data.argv[2:], data),

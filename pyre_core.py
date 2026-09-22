@@ -73,8 +73,7 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True, file:TextI
     )
     if use_hook:
         hooks_dispatch = data.api.get("hook_dispatch", NOP)
-        hooks_dispatch(data, "PFT", {"text": f"{text}"}) # type: ignore
-
+        hooks_dispatch(data, "pft", {"text": f"{text}"}) # type: ignore
 
 def buffer (mode: str = "read", text: str = "") -> str|None:
     if not hasattr(buffer, "text"):
@@ -101,7 +100,7 @@ def post(e: TracebackType|BaseException|str, data: Data, use_hook: bool = True) 
         hooks_dispatch(data, "post", {"err": str(e)}) # type: ignore
     pft(e, data, use_hook=use_hook)
 
-def command_separators(command_arg: list[str]) -> list[list[str]]:
+def command_separators(command_arg: list[str], token: str = "_&_") -> list[list[str]]:
     subarrays = []
     current = []
     for item in command_arg:

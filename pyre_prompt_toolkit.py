@@ -36,7 +36,12 @@ def create_base_command(settings: dict) -> dict[str, None | dict]:
                 "read_vf": None,
                 "ls_plug": None,
                 "hook_run": None,
-                "buffer": None,
+                "buffer": {
+                    "write": None,
+                    "write_add": None,
+                    "read": None,
+                    "clean": None,
+                },
             },
             "_pyt++_": {
                 "old": None

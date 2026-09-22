@@ -52,3 +52,5 @@ class PluginData:
     command_prefix: str
     command_arg_int: int
     command_arg: list[str]
+
+    plugin_list: set[str]

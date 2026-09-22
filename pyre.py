@@ -49,11 +49,7 @@ from prompt_toolkit.styles import style_from_pygments_dict
 
 #_________________________________________________________________________________________________
 
-def dispatcher(data: Data) -> None:
-    data.postfix = " ".join(data.argv[1:])
-    data.argc = len(data.argv)
-
-    command_map = {
+dispatcher_commands = {
         "_pyt-eval_": pyt_eval,
         "_pyt-exec_": pyt_exec,
         "_pyt++_": pyt_pp,
@@ -63,7 +59,11 @@ def dispatcher(data: Data) -> None:
         "_?_": source_code,
         "_#_": NOP,
     }
-    func = command_map.get(data.argv[0])
+
+def dispatcher(data: Data) -> None:
+    data.postfix = " ".join(data.argv[1:])
+    data.argc = len(data.argv)
+    func = dispatcher_commands.get(data.argv[0])
     if func:
          func(data)
          return
