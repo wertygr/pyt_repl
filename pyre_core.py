@@ -75,15 +75,16 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True, file:TextI
         hooks_dispatch = data.api.get("hook_dispatch", NOP)
         hooks_dispatch(data, "PFT", {"text": f"{text}"}) # type: ignore
 
-_buffer = ""
+
 def buffer (mode: str = "read", text: str = "") -> str|None:
-    global _buffer
+    if not hasattr(buffer, "text"):
+        buffer.text = ""
     if mode == "read":
-        return _buffer
+        return buffer.text
     elif mode == "write":
-        _buffer = text
+        buffer.text = text
     elif mode == "write_add":
-        _buffer += text
+        buffer.text += text
 
 def traceback_format(e: TracebackType|BaseException|str) -> str:
     if isinstance(e, TracebackType):
