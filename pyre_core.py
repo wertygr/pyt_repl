@@ -11,6 +11,7 @@ from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit.styles import BaseStyle
 from pygments.lexers import PythonLexer
+from pygments.lexer import RegexLexer
 
 from pyre_const import NOP
 
@@ -30,8 +31,8 @@ class Data:
         self.postfix: str = ""
         self.argc: int = 0
         self.argv: list[str] = []
-        self.lexer = PythonLexer
-        self.lexer_instance = self.lexer()
+        self.lexer: type[RegexLexer] = PythonLexer
+        self.lexer_instance: RegexLexer = self.lexer()
         self.plugin_list: set[str] = set()
 
 def reverse_search_flag(modes: set[str], flags: list[str], def_mode: str)-> str:
@@ -75,15 +76,14 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True, file:TextI
         hooks_dispatch = data.api.get("hook_dispatch", NOP)
         hooks_dispatch(data, "pft", {"text": f"{text}"}) # type: ignore
 
-def buffer (mode: str = "read", text: str = "") -> str|None:
-    if not hasattr(buffer, "text"):
-        buffer.text = ""
+def buffer(mode: str, text: str = "") -> str | None:
     if mode == "read":
         return buffer.text
     elif mode == "write":
         buffer.text = text
     elif mode == "write_add":
         buffer.text += text
+buffer.text = ""
 
 def traceback_format(e: TracebackType|BaseException|str) -> str:
     if isinstance(e, TracebackType):
@@ -104,7 +104,7 @@ def command_separators(command_arg: list[str], token: str = "_&_") -> list[list[
     subarrays = []
     current = []
     for item in command_arg:
-        if item == "_&_":
+        if item == token:
             if current:
                 subarrays.append(current)
                 current = []

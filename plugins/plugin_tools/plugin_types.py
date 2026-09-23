@@ -1,18 +1,30 @@
 from __future__ import annotations
-
+import sys
 from types import TracebackType
-from typing import TypedDict, Callable, Any, Protocol
-
+from typing import TypedDict, Callable, Any, Protocol, TextIO
 from prompt_toolkit.styles import BaseStyle
+from pygments.lexer import RegexLexer
+
+class Stringable(Protocol):
+    def __str__(self) -> str:
+        ...
 
 class OptBuffer(Protocol):
-    def __call__(self, mode: str = ..., text: str = ...) -> str|None:
+    def __call__(self, mode: str, text: str = "") -> str|None:
+        ...
+
+class OptPost(Protocol):
+    def __call__(self, e: TracebackType|BaseException|str, data: PluginData, use_hook: bool = True) -> None:
+        ...
+
+class OptPft(Protocol):
+    def __call__(self, text: Stringable, data: PluginData, end: str= "\n", use_hook: bool = True, file:TextIO = sys.stdout) -> None:
         ...
 
 class PluginApi(TypedDict):
     settings_load: Callable[[PluginData, str], None]
-    post: Callable[[Any, PluginData], None]
-    pft: Callable[[Any, PluginData], None]
+    post: OptPost
+    pft: OptPft
     command_separators: Callable[[list[str]], list[list[str]]]
     pars_command: Callable[[PluginData], None]
     dispatcher: Callable[[PluginData], None]
@@ -54,3 +66,6 @@ class PluginData:
     command_arg: list[str]
 
     plugin_list: set[str]
+
+    lexer: type[RegexLexer]
+    lexer_instance: RegexLexer

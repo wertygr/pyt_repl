@@ -52,10 +52,9 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 code:
 
 ```python
-# code in ./plugins/plug_test
+# code in ./plugins/plug_test.py
 
 from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)
-
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     for i in command_context:

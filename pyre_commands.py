@@ -37,7 +37,7 @@ def create_text_flags(text: str, data: Data) -> dict[str, tuple[Callable, bool]]
         "copy": (lambda: buffer("write", text), True),
         "silent": (lambda: pft(text, data, end=""), False),
     }
-
+text_mapping = lambda text, argv, data:  flag_mapping(create_text_flags(text, data), argv)
 def sh_parser(argv: list[str], name_space: dict) -> list[str]:
     result = []
     for arg in argv:
@@ -120,7 +120,7 @@ def source_code(data: Data) -> None:
     if isinstance(code, PyreInspectError):
         post(f"[source_code]: {str(code)}", data)
         return
-    flag_mapping(create_text_flags(code, data), flags)
+    text_mapping(code, flags, data)
 
 def pyt_pp(data: Data) -> None:
     def read_cache():
@@ -200,8 +200,8 @@ def buffer_command(data: Data):
     {
         "read": lambda: pft(buffer("read"), data, end=""),
         "write": lambda: write_modes("write"),
-        "write_add":  lambda: write_modes("write_add"),
-        "clean": buffer("write", "")
+        "write_add": lambda: write_modes("write_add"),
+        "clean": lambda: buffer("write", "")
     }.get(data.argv[2], lambda: post(f"[shell_command::buffer_command]: unknown subcommand: {data.argv[2]}", data))()
 @require_args(3)
 def read_vf(data: Data):
@@ -245,7 +245,6 @@ def run_script(data: Data):
     except Exception as e:
         post(e, data)
 
-text_mapping = lambda text, argv, data:  flag_mapping(create_text_flags(text, data), argv)
 shell_commands_map = {
     "clear": lambda *_: os.system("cls") if os.name == "nt" else print("\033c", end=""),
     "exit": lambda *_: sys.exit(0),
