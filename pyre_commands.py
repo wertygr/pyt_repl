@@ -114,8 +114,9 @@ def source_code(data: Data) -> None:
         obj_name=obj,
         namespace=data.repl_mode,
         mode=mode,
-        use_unwrap= "unwrap" in flags,
-        use_closure= "closure" in flags,
+        use_unwrap="unwrap" in flags,
+        use_closure="closure" in flags,
+        use_eval=not "not_eval" in flags
     )
     if isinstance(code, PyreInspectError):
         post(f"[source_code]: {str(code)}", data)

@@ -7,17 +7,18 @@ _?_ <object> <flags>
 
 **flag:**
 
-| flag      |      description       |
-|:----------|:----------------------:|
-| copy      |  copy code in buffer   |
-| silent    | do not print on screen |
-| dis       |    disasembly code     |
-| unwrap    |  removing decorators   |
-| closure   | unwinding of closures  |
-| info      |    info for object     |
-| signature |     get signature      |
-| code      |       code mode        |
-| ast       |     vive ast tree      |
+| flag      |                               description                                |
+|:----------|:------------------------------------------------------------------------:|
+| copy      |                           copy code in buffer                            |
+| silent    |                          do not print on screen                          |
+| dis       |                             disasembly code                              |
+| unwrap    |                           removing decorators                            |
+| closure   |                          unwinding of closures                           |
+| info      |                             info for object                              |
+| signature |                              get signature                               |
+| code      |                                code mode                                 |
+| ast       |                              vive ast tree                               |
+| not_eval  | do not attempt to retrieve the object, but rather process it as a string |
 ```pycon
 >>> _pyt++_
 1 |def add(a: int|float, b: int|float) -> int|float:

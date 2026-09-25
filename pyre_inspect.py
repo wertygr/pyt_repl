@@ -16,11 +16,11 @@ class GetCodeError(PyreInspectError):
 def mode_ast(obj, obj_name) -> str|GetObjectError:
     try:
         result = ast.dump(
-            ast.parse(inspect.getsource(obj)),
+            ast.parse(inspect.getsource(obj) if not isinstance(obj, str) else obj),
             indent=4
         )
     except (OSError, TypeError):
-        result = GetObjectError(f"The object: {obj_name} cannot be get code")
+        result = GetObjectError(f"The object: {obj_name} cannot be get code/ast tree")
     return result
 
 def mode_signature(obj, obj_name) -> str|GetSignatureError:
@@ -68,10 +68,11 @@ def get_source_code(
         namespace:   dict,
         mode:        str,
         use_unwrap:  bool,
-        use_closure: bool
+        use_closure: bool,
+        use_eval:    bool,
     ) -> str|DisassemblyError|GetObjectError|GetSignatureError|GetCodeError:
     obj = obj_name
-    if isinstance(obj, str):
+    if isinstance(obj, str) and use_eval:
         try:
             obj = eval(obj, namespace)
         except Exception:

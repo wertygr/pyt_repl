@@ -12,7 +12,7 @@ from pyre_core import (
 def _plugin_load(plugin: str, f_locate: str) -> ModuleType:
     spec = importlib.util.spec_from_file_location(plugin, f_locate)
     if spec is None or spec.loader is None:
-        raise ImportError(f"[plugin] {plugin} not found(f_locat: {f_locate})")
+        raise ImportError(f"[_plugin_load]: {plugin} not found(f_locat: {f_locate})")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     sys.modules[plugin] = module
