@@ -33,12 +33,12 @@ def load_plugin(data: Data, plugin_name: str) -> None:
     try:
         module = _plugin_cache_load(plugin_name, plugin_settings)
         data.repl_mode[plugin_name] = module
+        data.plugin_list.add(plugin_name)
         module.main (api=data.api if plugin_settings.get("api", False) else {}, command_context={
             "argv": data.argv,
             "argc": data.argc,
             "postfix": data.postfix
         }, plugin_space=data.plugin_space)
-        data.plugin_list.add(plugin_name)
     except Exception as e:
         post(e, data)
 
@@ -68,9 +68,10 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any
     name_space = data.repl_mode
     result = []
     for i in data.settings["plugin"]:
-        if not hook_name in data.settings["plugin"][i].get("hooks", []):
-            continue
         plugin_settings = data.settings["plugin"][i]
+        hooks = plugin_settings.get("hooks", [])
+        if (not hook_name in hooks) and (not "__any__" in hooks):
+            continue
         try:
             module = _plugin_cache_load(i, plugin_settings)
             name_space[i] = module
