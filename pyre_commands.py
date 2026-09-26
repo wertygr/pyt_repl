@@ -195,7 +195,7 @@ def pyt_pp(data: Data) -> None:
 def buffer_command(data: Data):
     write_modes = (lambda mode:
         post(f"[shell_command::buffer_command[{mode}]]: not enough arguments", data) if data.argc < 4 else
-        buffer(mode, data.argv[3])
+        buffer(data, mode, data.argv[3])
     )
     {
         "read": lambda: pft(buffer(data, "read"), data, end=""),
