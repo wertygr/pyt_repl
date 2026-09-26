@@ -67,7 +67,7 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True, file:TextI
         PygmentsTokens(
             tokens
         ),
-        style=getattr(data, 'pt_style', None),
+        style=getattr(data, "pt_style", None),
         end=end,
         include_default_pygments_style=False,
         file=file,

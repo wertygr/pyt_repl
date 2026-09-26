@@ -84,5 +84,5 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any
             data.plugin_list.add(i)
             result.append(result_plug_load)
         except Exception as e:
-            post(e, data, use_hook=False if hook_name in ("pft", "post") else True)
+            post(e, data, use_hook=False if hook_name in ("pft", "post", "__any__") else True)
     return result

@@ -8,14 +8,14 @@ import time
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     data = api["data"]
-    PFT = api["PFT"]
+    pft = api["pft"]
     parser = api["pars_command"]
     cmd = command_context["postfix"]
     start_time = time.perf_counter()
     data.command = cmd
     parser(data)
     end_time = time.perf_counter()
-    PFT(end_time - start_time, data)
+    pft(end_time - start_time, data)
 ```
 
 ```pycon
