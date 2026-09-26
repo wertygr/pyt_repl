@@ -5,20 +5,22 @@ syntax:
 _?_ <object> <flags>
 ```
 
-**flag:**
+**flags:**
 
-| flag      |                               description                                |
-|:----------|:------------------------------------------------------------------------:|
-| copy      |                           copy code in buffer                            |
-| silent    |                          do not print on screen                          |
-| dis       |                             disasembly code                              |
-| unwrap    |                           removing decorators                            |
-| closure   |                          unwinding of closures                           |
-| info      |                             info for object                              |
-| signature |                              get signature                               |
-| code      |                                code mode                                 |
-| ast       |                              vive ast tree                               |
-| not_eval  | do not attempt to retrieve the object, but rather process it as a string |
+| flag      | type      | by default |                               description                                |
+|:----------|-----------|------------|:------------------------------------------------------------------------:|
+| copy      | bool flag | False      |                           copy code in buffer                            |
+| silent    | bool flag | False      |                          do not print on screen                          |
+| dis       | mode      | Flase      |                              get byte-code                               |
+| unwrap    | bool flag | False      |                           removing decorators                            |
+| closure   | bool flag | Flase      |                          unwinding of closures                           |
+| info      | mode      | False      |                             info for object                              |
+| signature | mode      | Flase      |                              get signature                               |
+| code      | mode      | True       |                             get source code                              |
+| ast       | moed      | False      |                              vive ast tree                               |
+| not_eval  | bool flag | Fslse      | do not attempt to retrieve the object, but rather process it as a string |
+<details> <summary> example </summary>
+
 ```pycon
 >>> _pyt++_
 1 |def add(a: int|float, b: int|float) -> int|float:
@@ -96,3 +98,4 @@ annotations: {'a': int | float, 'b': int | float, 'return': int | float}
 
 >>>
 ```
+</details>

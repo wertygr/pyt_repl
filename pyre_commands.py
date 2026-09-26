@@ -34,7 +34,7 @@ from prompt_toolkit.lexers import PygmentsLexer
 
 def create_text_flags(text: str, data: Data) -> dict[str, tuple[Callable, bool]]:
     return {
-        "copy": (lambda: buffer("write", text), True),
+        "copy": (lambda: buffer(data,"write", text), True),
         "silent": (lambda: pft(text, data, end=""), False),
     }
 text_mapping = lambda text, argv, data:  flag_mapping(create_text_flags(text, data), argv)
@@ -180,13 +180,12 @@ def pyt_pp(data: Data) -> None:
     else:
         data._pyt_plus_old_text = ""
     if "paste" in data.argv:
-        data._pyt_plus_old_text += buffer("read") # type: ignore
+        data._pyt_plus_old_text += buffer(data, "read") # type: ignore
     editor()
-
 
     flag_map = {
         "save": (save, True),
-        "copy": (lambda: buffer("write", data._pyt_plus_old_text), True),
+        "copy": (lambda: buffer(data, "write", data._pyt_plus_old_text), True),
         "not_exec":(execute, False),
         "not_cache": (save_cache, False)
     }
@@ -199,10 +198,10 @@ def buffer_command(data: Data):
         buffer(mode, data.argv[3])
     )
     {
-        "read": lambda: pft(buffer("read"), data, end=""),
+        "read": lambda: pft(buffer(data, "read"), data, end=""),
         "write": lambda: write_modes("write"),
         "write_add": lambda: write_modes("write_add"),
-        "clean": lambda: buffer("write", "")
+        "clean": lambda: buffer(data,"write", "")
     }.get(data.argv[2], lambda: post(f"[shell_command::buffer_command]: unknown subcommand: {data.argv[2]}", data))()
 @require_args(3)
 def read_vf(data: Data):

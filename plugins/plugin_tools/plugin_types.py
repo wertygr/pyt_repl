@@ -10,7 +10,7 @@ class Stringable(Protocol):
         ...
 
 class OptBuffer(Protocol):
-    def __call__(self, mode: str, text: str = "") -> str|None:
+    def __call__(self, data: PluginData, mode: str, text: str = "", use_hook: bool = True):
         ...
 
 class OptPost(Protocol):

@@ -3,8 +3,10 @@ from plugins.plugin_tools.plugin_types import (PluginApi, CommandContext)
 
 def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     buffer = api["buffer"]
+    data = api["data"]
     """
-    arg_1 - mode(type str) "write"/"write"/"read"
+    arg_0 - data
+    arg_1 - mode(type str) "write"/"write_add"/"read"
     arg_2 - Optional[text(type str)]
     
     buffer signature - buffer(mode: str, text: str)
@@ -13,7 +15,7 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
     mode="write_aad"   - add to buffer
     mode="write" - write to buffer
     """
-    print(buffer("read"))
+    print(buffer(data, "read"))
 ```
 example use:
 ```pycon

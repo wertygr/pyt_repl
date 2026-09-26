@@ -76,7 +76,9 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True, file:TextI
         hooks_dispatch = data.api.get("hook_dispatch", NOP)
         hooks_dispatch(data, "pft", {"text": f"{text}"}) # type: ignore
 
-def buffer(mode: str, text: str = "") -> str | None:
+def buffer(data: Data, mode: str, text: str = "", use_hook: bool = True) -> str|None:
+    hooks_dispatch = data.api.get("hook_dispatch", NOP)
+    hooks_dispatch(data, "buffer", {"text": text, "mode": mode}) if use_hook else None
     if mode == "read":
         return buffer.text
     elif mode == "write":
