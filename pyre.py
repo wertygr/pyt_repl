@@ -38,6 +38,7 @@ from pyre_const import (
 from pyre_prompt_toolkit import completer
 from pyre_bindings import bindings
 from prompt_toolkit import PromptSession
+from prompt_toolkit.styles.pygments import Style
 
 #_________________________________________________________________________________________________
 
@@ -127,14 +128,13 @@ def settings_load(data: Data, file: str = SETTINGS_FILE) -> None:
     data.settings = settings
 
     try:
-        pygments_token_dict = {
+        data.pt_style = style_from_pygments_dict({
             string_to_tokentype(key): value
             for key, value in settings["color"].items()
-        }
+        })
     except (ValueError, AttributeError) as e:
-        pygments_token_dict = {}
+        data.pt_style = Style([])
         post(e, data)
-    data.pt_style = style_from_pygments_dict(pygments_token_dict)
 
 def initialisation() -> Data:
     data = Data()

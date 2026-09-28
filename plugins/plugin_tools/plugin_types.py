@@ -45,7 +45,7 @@ class CommandContext(TypedDict):
     postfix: str
     argc: int
 
-class PluginData:
+class PluginData(Protocol):
     last_error: str
     base_command: dict
     repl_mode: dict
@@ -58,7 +58,7 @@ class PluginData:
     api: PluginApi
 
     plugin_space: dict
-    pyt_plus_old_text: str
+    _pyt_plus_old_text: str
 
     command: str
     command_prefix: str

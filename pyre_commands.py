@@ -248,7 +248,7 @@ def run_script(data: Data):
 shell_commands_map = {
     "clear": lambda *_: os.system("cls") if os.name == "nt" else print("\033c", end=""),
     "exit": lambda *_: sys.exit(0),
-    "settings_reload": lambda data: data.api["settings_load"](data, SETTINGS_FILE if data.argc < 3 else data.argv[2]), # type: ignore
+    "settings_reload": lambda data: data.api["settings_load"](data, SETTINGS_FILE if data.argc < 3 else data.argv[2]),
     "run": run_script,
     "read_vf": read_vf,
     "del_vf": del_vf,
