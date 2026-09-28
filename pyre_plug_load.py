@@ -4,8 +4,6 @@ import sys
 from types import ModuleType
 from typing import Any
 
-from pygments.lexers import data
-
 from pyre_core import (
     Data,
     post,
@@ -29,7 +27,7 @@ def _destructor_call(module: ModuleType|None, data: Data) -> None:
         except Exception as e:
             post(e, data)
 
-def _plugin_cache_load(plugin: str, plugin_settings: dict) -> ModuleType:
+def _plugin_cache_load(plugin: str, plugin_settings: dict, data: Data) -> ModuleType:
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if plugin_settings.get("cache", False) and plugin in sys.modules:
         module = sys.modules[plugin]
@@ -42,7 +40,7 @@ def _plugin_cache_load(plugin: str, plugin_settings: dict) -> ModuleType:
 def load_plugin(data: Data, plugin_name: str) -> None:
     plugin_settings = data.settings.get("plugin", {}).get(plugin_name, {})
     try:
-        module = _plugin_cache_load(plugin_name, plugin_settings)
+        module = _plugin_cache_load(plugin_name, plugin_settings, data)
         data.repl_mode[plugin_name] = module
         data.plugin_list.add(plugin_name)
         module.main (api=data.api if plugin_settings.get("api", False) else {}, command_context={
@@ -77,7 +75,7 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any
         if (not hook_name in hooks) and (not "__any__" in hooks):
             continue
         try:
-            module = _plugin_cache_load(i, plugin_settings)
+            module = _plugin_cache_load(i, plugin_settings, data)
             name_space[i] = module
             result_plug_load = module.hook_run(
                 api=api if plugin_settings.get("api", False) else {} ,
