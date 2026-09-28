@@ -30,17 +30,16 @@ def mode_signature(obj, obj_name) -> str|GetSignatureError:
         return GetSignatureError(f"The object: {obj_name} cannot be get signature")
 
 def mode_info(obj, *_) -> str:
-    info: tuple[str|None, ...] = (
-        None if not hasattr(obj, "__name__") else f"name: {obj.__name__}",
+    return "\n".join(i for i in (
+        f"name: {obj.__name__}" if hasattr(obj, "__name__") else None,
         f"dir: {dir(obj)}",
         f"type: {type(obj)}",
         f"address: {hex(id(obj))}",
         f"repr: {obj!r}",
-        None if not hasattr(obj, "__file__") else f"file: {obj.__file__}",
-        None if not getattr(obj, "__annotations__", None) else f"annotations: {obj.__annotations__}",
+        f"file: {obj.__file__}" if hasattr(obj, "__file__") else None,
+        f"annotations: {obj.__annotations__}" if getattr(obj, "__annotations__", None) else None,
         getattr(obj, "__doc__", None),
-    )
-    return "\n".join(i for i in info if i)
+    ) if i)
 
 def mode_code(obj, obj_name) -> str|GetCodeError:
     try:

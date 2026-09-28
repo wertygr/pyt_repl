@@ -4,6 +4,8 @@ import sys
 from types import ModuleType
 from typing import Any
 
+from pygments.lexers import data
+
 from pyre_core import (
     Data,
     post,
@@ -18,12 +20,21 @@ def _plugin_load(plugin: str, f_locate: str) -> ModuleType:
     sys.modules[plugin] = module
     return module
 
+def _destructor_call(module: ModuleType|None, data: Data) -> None:
+    if module is None:
+        return
+    if hasattr(module, "destructor"):
+        try:
+            module.destructor(plugin_space=data.plugin_space)
+        except Exception as e:
+            post(e, data)
+
 def _plugin_cache_load(plugin: str, plugin_settings: dict) -> ModuleType:
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if plugin_settings.get("cache", False) and plugin in sys.modules:
         module = sys.modules[plugin]
     else:
-        sys.modules.pop(plugin, None)
+        _destructor_call(sys.modules.pop(plugin, None), data)
         file_name = plugin_settings.get("file", None)
         module = _plugin_load(plugin, f"{script_dir}/plugins/{file_name}")
     return module
@@ -50,17 +61,10 @@ def unload_plugin(plugin_name: str, data: Data) -> None:
         e = f"[unload_plugin] plugin {plugin_name} not found anywhere"
         post(e, data)
         return
-
     if in_repl:
-        del data.repl_mode[plugin_name]
+        data.repl_mode.pop(plugin_name, None)
     if in_sys:
-        module = sys.modules[plugin_name]
-        if hasattr(module, "destructor"):
-            try:
-                module.destructor(plugin_space=data.plugin_space)
-            except Exception as e:
-                post(e, data)
-        del sys.modules[plugin_name]
+        _destructor_call(sys.modules.pop(plugin_name, None), data)
     data.plugin_list.discard(plugin_name)
 
 def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any]:
